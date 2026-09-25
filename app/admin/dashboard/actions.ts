@@ -4,10 +4,21 @@ import { redirect } from "next/navigation";
 import { requireRole } from "@/lib/auth";
 import { generateSet } from "@/lib/ai";
 
-export type GenerateSetState = { error?: string };
+export type GenerateSetState = {
+  error?: string;
+  attempt?: number;
+  values?: {
+    title: string;
+    indicator: string;
+    subject: string;
+    grade: string;
+    difficulty: string;
+    count: string;
+  };
+};
 
 export async function generateQuestionSet(
-  _prevState: GenerateSetState,
+  prevState: GenerateSetState,
   formData: FormData,
 ): Promise<GenerateSetState> {
   const { supabase, user } = await requireRole("admin");
@@ -17,16 +28,22 @@ export async function generateQuestionSet(
   const subject = String(formData.get("subject") ?? "").trim();
   const grade = String(formData.get("grade") ?? "").trim();
   const difficulty = String(formData.get("difficulty") ?? "sedang");
-  const count = Number(formData.get("count") ?? 5);
+  const countRaw = String(formData.get("count") ?? "5");
+  const count = Number(countRaw);
 
-  if (!title || !indicator) {
-    return { error: "Judul dan indikator wajib diisi." };
-  }
+  // Echoed back on every failure so the form can re-populate itself — React
+  // resets uncontrolled form fields after any action submission, including
+  // one that returns an error instead of redirecting.
+  const attempt = (prevState.attempt ?? 0) + 1;
+  const values = { title, indicator, subject, grade, difficulty, count: countRaw };
+  const fail = (error: string): GenerateSetState => ({ error, attempt, values });
+
+  if (!title || !indicator) return fail("Judul dan indikator wajib diisi.");
   if (!Number.isInteger(count) || count < 1 || count > 20) {
-    return { error: "Jumlah soal harus antara 1 dan 20." };
+    return fail("Jumlah soal harus antara 1 dan 20.");
   }
   if (!["mudah", "sedang", "sulit"].includes(difficulty)) {
-    return { error: "Tingkat kesulitan tidak valid." };
+    return fail("Tingkat kesulitan tidak valid.");
   }
 
   let questions;
@@ -39,7 +56,7 @@ export async function generateQuestionSet(
       difficulty: difficulty as "mudah" | "sedang" | "sulit",
     });
   } catch (err) {
-    return { error: err instanceof Error ? err.message : "Gagal menghasilkan soal." };
+    return fail(err instanceof Error ? err.message : "Gagal menghasilkan soal.");
   }
 
   const { data: set, error: setError } = await supabase
@@ -55,7 +72,7 @@ export async function generateQuestionSet(
     .single();
 
   if (setError || !set) {
-    return { error: `Gagal menyimpan set soal: ${setError?.message ?? "unknown error"}` };
+    return fail(`Gagal menyimpan set soal: ${setError?.message ?? "unknown error"}`);
   }
 
   const { error: questionsError } = await supabase.from("questions").insert(
@@ -71,7 +88,7 @@ export async function generateQuestionSet(
   );
 
   if (questionsError) {
-    return { error: `Gagal menyimpan soal: ${questionsError.message}` };
+    return fail(`Gagal menyimpan soal: ${questionsError.message}`);
   }
 
   redirect(`/admin/sets/${set.id}`);

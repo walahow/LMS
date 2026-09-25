@@ -7,9 +7,14 @@ const initialState: GenerateSetState = {};
 
 export function GenerateForm() {
   const [state, formAction, pending] = useActionState(generateQuestionSet, initialState);
+  const values = state.values;
 
   return (
     <form
+      // Remounts the form (and its uncontrolled fields) on every failed
+      // attempt so the defaultValues below re-apply — see the comment on
+      // GenerateSetState in actions.ts for why that's needed.
+      key={state.attempt ?? 0}
       action={formAction}
       style={{
         display: "grid",
@@ -20,23 +25,23 @@ export function GenerateForm() {
     >
       <div className="field" style={{ gridColumn: "1 / -1" }}>
         <label htmlFor="title">Judul Set Soal</label>
-        <input id="title" name="title" required />
+        <input id="title" name="title" defaultValue={values?.title} required />
       </div>
       <div className="field" style={{ gridColumn: "1 / -1" }}>
         <label htmlFor="indicator">Indikator</label>
-        <textarea id="indicator" name="indicator" rows={2} required />
+        <textarea id="indicator" name="indicator" rows={2} defaultValue={values?.indicator} required />
       </div>
       <div className="field">
         <label htmlFor="subject">Mata Pelajaran</label>
-        <input id="subject" name="subject" />
+        <input id="subject" name="subject" defaultValue={values?.subject} />
       </div>
       <div className="field">
         <label htmlFor="grade">Kelas/Jenjang</label>
-        <input id="grade" name="grade" />
+        <input id="grade" name="grade" defaultValue={values?.grade} />
       </div>
       <div className="field">
         <label htmlFor="difficulty">Tingkat Kesulitan</label>
-        <select id="difficulty" name="difficulty" defaultValue="sedang">
+        <select id="difficulty" name="difficulty" defaultValue={values?.difficulty ?? "sedang"}>
           <option value="mudah">Mudah</option>
           <option value="sedang">Sedang</option>
           <option value="sulit">Sulit</option>
@@ -44,7 +49,15 @@ export function GenerateForm() {
       </div>
       <div className="field">
         <label htmlFor="count">Jumlah Soal</label>
-        <input id="count" name="count" type="number" min={1} max={20} defaultValue={5} required />
+        <input
+          id="count"
+          name="count"
+          type="number"
+          min={1}
+          max={20}
+          defaultValue={values?.count ?? "5"}
+          required
+        />
       </div>
       <div>
         <button className="btn" type="submit" disabled={pending}>
