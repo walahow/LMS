@@ -118,6 +118,11 @@ export function validateQuestions(questions: unknown, count: number): GeneratedQ
   });
 }
 
+// Free-tier Gemini Flash returns 429/503 under load often enough that a
+// single failed attempt shouldn't surface as a hard error to the admin.
+const RETRYABLE_STATUSES = new Set([429, 503]);
+const RETRY_DELAYS_MS = [1000, 3000];
+
 export async function generateSet(params: GenerateSetParams): Promise<GeneratedQuestion[]> {
   const baseUrl = process.env.AI_BASE_URL;
   const apiKey = process.env.AI_API_KEY;
@@ -128,33 +133,41 @@ export async function generateSet(params: GenerateSetParams): Promise<GeneratedQ
   }
 
   const url = `${baseUrl.replace(/\/+$/, "")}/chat/completions`;
-
-  const response = await fetch(url, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify({
-      model,
-      messages: [
-        { role: "system", content: SYSTEM_PROMPT },
-        { role: "user", content: buildPrompt(params) },
-      ],
-      response_format: {
-        type: "json_schema",
-        json_schema: {
-          name: "question_set",
-          strict: true,
-          schema: buildSchema(params.count),
-        },
+  const requestBody = JSON.stringify({
+    model,
+    messages: [
+      { role: "system", content: SYSTEM_PROMPT },
+      { role: "user", content: buildPrompt(params) },
+    ],
+    response_format: {
+      type: "json_schema",
+      json_schema: {
+        name: "question_set",
+        strict: true,
+        schema: buildSchema(params.count),
       },
-    }),
+    },
   });
 
-  if (!response.ok) {
-    const body = await response.text().catch(() => "");
-    throw new Error(`Permintaan AI gagal (${response.status}): ${body.slice(0, 300)}`);
+  let response: Response;
+  for (let attempt = 0; ; attempt++) {
+    response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: requestBody,
+    });
+
+    if (response.ok) break;
+
+    const isLastAttempt = attempt === RETRY_DELAYS_MS.length;
+    if (!RETRYABLE_STATUSES.has(response.status) || isLastAttempt) {
+      const body = await response.text().catch(() => "");
+      throw new Error(`Permintaan AI gagal (${response.status}): ${body.slice(0, 300)}`);
+    }
+    await new Promise((resolve) => setTimeout(resolve, RETRY_DELAYS_MS[attempt]));
   }
 
   const data = await response.json();
