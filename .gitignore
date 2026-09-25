@@ -2,3 +2,13 @@ node_modules
 .next
 .env*
 !.env.example
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
+
+# Vercel
+.vercel
+
+# OS
+.DS_Store
