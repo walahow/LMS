@@ -19,7 +19,10 @@ export default function LoginPage() {
       }}
     >
       <form action={formAction} className="card" style={{ width: "100%", maxWidth: 360 }}>
-        <h1 style={{ marginTop: 0, fontSize: "1.5rem" }}>Masuk</h1>
+        <h1 className="brand" style={{ marginTop: 0, fontSize: "1.75rem" }}>
+          LMS Diagnostik
+        </h1>
+        <h2 style={{ marginTop: 0, fontSize: "1.1rem", color: "var(--color-text-muted)" }}>Masuk</h2>
         <p style={{ color: "var(--color-text-muted)", marginTop: "-0.5rem" }}>
           Gunakan akun yang diberikan oleh admin sekolah Anda.
         </p>

@@ -28,7 +28,7 @@ export function AppShell({
           }}
         >
           <div style={{ display: "flex", alignItems: "center", gap: "1.5rem", flexWrap: "wrap" }}>
-            <strong>{title}</strong>
+            <strong className="brand">{title}</strong>
             <nav style={{ display: "flex", gap: "1rem" }}>
               {links.map((link) => (
                 <Link key={link.href} href={link.href}>

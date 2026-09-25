@@ -130,3 +130,27 @@ textarea {
   background: var(--color-info-bg);
   color: var(--color-info);
 }
+
+.brand {
+  background: var(--gradient-primary);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  font-weight: 700;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 640px) {
+  .card {
+    padding: 1rem;
+  }
+
+  table {
+    font-size: 0.875rem;
+  }
+}
