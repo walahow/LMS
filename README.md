@@ -48,11 +48,18 @@ Apply `supabase/migrations/0001_schema.sql` against your project. Either:
 
 - **Supabase CLI**: `supabase db push` (with the CLI linked to your project), or
 - **SQL Editor**: paste the file's contents into the Supabase dashboard's SQL
-  Editor and run it. This is also how to run `supabase/seed.sql` — it writes
-  directly into `auth.users`/`auth.identities`, which requires the
-  dashboard's elevated `postgres` role rather than the anon/service-role API.
+  Editor and run it.
 
-The seed creates one admin, one teacher, and one student, all with the
+Then seed one admin, one teacher, and one student with `scripts/seed.mjs`:
+
+```bash
+NEXT_PUBLIC_SUPABASE_URL=... SUPABASE_SERVICE_ROLE_KEY=... node scripts/seed.mjs
+```
+
+This goes through the Supabase Admin API (the same path the dashboard's "Add
+user" button uses) rather than hand-inserting rows into `auth.users` —
+`auth`'s internal schema is version-specific enough that a raw-SQL insert
+there is not reliable across projects. All three accounts share the
 placeholder password `password123`:
 
 | Role | Email |
@@ -73,7 +80,7 @@ session — so it's on you:
 
 1. **Create a Supabase project** at supabase.com. Note its URL and anon key
    (Settings → API).
-2. **Run the migration and seed** against it, per the section above.
+2. **Run the migration and seed script** against it, per the section above.
 3. **Get a Gemini API key** from Google AI Studio (aistudio.google.com →
    Get API key). Confirm the current Flash model id there — ids rotate.
 4. **Deploy to Vercel**: import this repo, set the six env vars from
