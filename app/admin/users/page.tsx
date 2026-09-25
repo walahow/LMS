@@ -6,6 +6,7 @@ import { ResetPasswordForm } from "./ResetPasswordForm";
 
 const links = [
   { href: "/admin/dashboard", label: "Beranda" },
+  { href: "/admin/sets", label: "Set Soal" },
   { href: "/admin/users", label: "Pengguna" },
 ];
 
