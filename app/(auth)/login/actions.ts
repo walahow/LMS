@@ -24,14 +24,7 @@ export async function signIn(_prevState: LoginState, formData: FormData): Promis
   const { error } = await supabase.auth.signInWithPassword({ email, password });
 
   // One generic message for any failure — never reveal whether the email exists.
-  // TEMP diagnostic logging (server-side only, never shown to the user) while
-  // debugging the seeded accounts against a fresh Supabase project.
   if (error) {
-    console.error("[login] signInWithPassword failed", {
-      message: error.message,
-      status: error.status,
-      code: (error as { code?: string }).code,
-    });
     return { error: "Email atau kata sandi salah." };
   }
 
