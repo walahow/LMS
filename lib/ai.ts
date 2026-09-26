@@ -192,5 +192,24 @@ export async function generateSet(params: GenerateSetParams): Promise<GeneratedQ
     throw new Error("Respons AI bukan JSON yang valid.");
   }
 
-  return validateQuestions(parsed.questions, params.count);
+  // Models writing multiple-choice content habitually put the correct
+  // answer first, then the distractors — the prompt alone can't reliably
+  // stop this. Shuffle each question's options/reasons so the correct
+  // position is actually randomized instead of always landing on index 0.
+  return validateQuestions(parsed.questions, params.count).map(shuffleQuestion);
+}
+
+function shuffleQuestion(question: GeneratedQuestion): GeneratedQuestion {
+  const [options, correct_option] = shuffleWithIndex(question.options, question.correct_option);
+  const [reasons, correct_reason] = shuffleWithIndex(question.reasons, question.correct_reason);
+  return { ...question, options, correct_option, reasons, correct_reason };
+}
+
+function shuffleWithIndex(items: string[], correctIndex: number): [string[], number] {
+  const order = items.map((_, i) => i);
+  for (let i = order.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [order[i], order[j]] = [order[j], order[i]];
+  }
+  return [order.map((i) => items[i]), order.indexOf(correctIndex)];
 }

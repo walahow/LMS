@@ -42,7 +42,7 @@ export function QuestionEditor({
               defaultChecked={question.correct_option === i}
               required
             />
-            <input name={`option_${i}`} defaultValue={opt} required style={{ flex: 1 }} />
+            <input className="input" name={`option_${i}`} defaultValue={opt} required style={{ flex: 1 }} />
           </div>
         ))}
       </fieldset>
@@ -60,7 +60,7 @@ export function QuestionEditor({
               defaultChecked={question.correct_reason === i}
               required
             />
-            <input name={`reason_${i}`} defaultValue={reason} required style={{ flex: 1 }} />
+            <input className="input" name={`reason_${i}`} defaultValue={reason} required style={{ flex: 1 }} />
           </div>
         ))}
       </fieldset>
