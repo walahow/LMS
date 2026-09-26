@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>Detail Siswa — Diagnostik</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@10..48,600;10..48,800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+body { margin: 0; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; background: #FBF8F3; }
+a { color: #5B2BD9; } a:hover { color: #3E1BA8; }
+</style>
+</helmet>
+
+<div style="width: 1280px; height: 800px; box-sizing: border-box; background: #FBF8F3; display: flex;">
+
+  <div style="width: 220px; flex-shrink: 0; box-sizing: border-box; background: #171523; padding: 26px 18px; display: flex; flex-direction: column; gap: 28px;">
+    <div style="display: flex; align-items: center; gap: 11px;">
+      <div style="display: flex; flex-direction: column; gap: 3px; width: 22px;">
+        <div style="height: 5px; width: 22px; border-radius: 3px; background: #D12E63;"></div>
+        <div style="height: 5px; width: 16px; border-radius: 3px; background: #9B2BC9;"></div>
+        <div style="height: 5px; width: 10px; border-radius: 3px; background: #5B2BD9;"></div>
+      </div>
+      <span style="font-family: 'Bricolage Grotesque', sans-serif; font-size: 17px; font-weight: 700; color: #FFFFFF;">Diagnostik</span>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 4px;">
+      <a href="#siswa" style="text-decoration: none; box-sizing: border-box; min-height: 44px; padding: 0 13px; border-radius: 11px; background: rgba(255,255,255,0.10); display: flex; align-items: center; gap: 11px;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="4"/><path d="M2 21a7 7 0 0 1 14 0"/><path d="M17 11h5"/><path d="M19.5 8.5v5"/></svg>
+        <span style="font-size: 13.5px; font-weight: 600; color: #FFFFFF;">Siswa</span>
+      </a>
+      <a href="#set" style="text-decoration: none; box-sizing: border-box; min-height: 44px; padding: 0 13px; border-radius: 11px; display: flex; align-items: center; gap: 11px;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9A93A8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M8 8h8"/><path d="M8 12h8"/><path d="M8 16h5"/></svg>
+        <span style="font-size: 13.5px; font-weight: 500; color: #9A93A8;">Set soal</span>
+      </a>
+      <a href="#profil" style="text-decoration: none; box-sizing: border-box; min-height: 44px; padding: 0 13px; border-radius: 11px; display: flex; align-items: center; gap: 11px;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9A93A8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
+        <span style="font-size: 13.5px; font-weight: 500; color: #9A93A8;">Profil</span>
+      </a>
+    </div>
+
+    <div style="flex-grow: 1;"></div>
+
+    <div style="box-sizing: border-box; padding: 14px; border-radius: 13px; background: rgba(255,255,255,0.07);">
+      <p style="margin: 0 0 3px; font-size: 12.5px; font-weight: 600; color: #FFFFFF;">Bu Sari Wulandari</p>
+      <p style="margin: 0; font-size: 11.5px; color: #9A93A8;">Guru</p>
+    </div>
+  </div>
+
+  <div style="flex-grow: 1; box-sizing: border-box; padding: 26px 28px; display: flex; flex-direction: column; gap: 18px; overflow: hidden;">
+
+    <div style="display: flex; align-items: center; gap: 14px;">
+      <a href="#kembali" style="flex-shrink: 0; width: 38px; height: 38px; border-radius: 12px; background: #FFFFFF; border: 1px solid #E8E2D9; display: flex; align-items: center; justify-content: center; text-decoration: none;" aria-label="Kembali ke daftar siswa">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#4A4458" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg>
+      </a>
+      <div style="width: 46px; height: 46px; border-radius: 50%; background: linear-gradient(135deg, #5B2BD9, #D12E63); display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 700; color: #FFFFFF;">RP</div>
+      <div style="flex-grow: 1; display: flex; flex-direction: column; gap: 2px;">
+        <h1 style="margin: 0; font-family: 'Bricolage Grotesque', sans-serif; font-size: 24px; font-weight: 700; letter-spacing: -0.01em; color: #171523;">Rani Putri</h1>
+        <p style="margin: 0; font-size: 13px; color: #6B6478;">Hukum Newton pada benda bergerak · dikerjakan 18 Sep 2026 · 10 soal</p>
+      </div>
+      <label for="percobaan" style="font-size: 12.5px; font-weight: 600; color: #4A4458;">Percobaan</label>
+      <select id="percobaan" style="box-sizing: border-box; height: 38px; padding: 0 11px; font-family: inherit; font-size: 13px; color: #171523; background: #FFFFFF; border: 1px solid #E8E2D9; border-radius: 11px;">
+        <option>Ke-2 · 18 Sep</option>
+        <option>Ke-1 · 11 Sep</option>
+      </select>
+    </div>
+
+    <div style="display: flex; gap: 13px;">
+      <sc-for list="{{stats}}" as="c" hint-placeholder-count="4">
+        <div style="flex-grow: 1; box-sizing: border-box; background: #FFFFFF; border: 1px solid #EFE9E0; border-radius: 16px; overflow: hidden;">
+          <div style="height: 5px; background: {{c.grad}};"></div>
+          <div style="box-sizing: border-box; padding: 14px 16px 15px;">
+            <p style="margin: 0 0 2px; font-family: 'Bricolage Grotesque', sans-serif; font-size: 30px; font-weight: 700; line-height: 1; color: {{c.ink}};">{{c.n}}</p>
+            <p style="margin: 0; font-size: 12.5px; font-weight: 600; color: #4A4458;">{{c.label}}</p>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 7px;">
+      <div style="display: flex; height: 13px; border-radius: 7px; overflow: hidden; gap: 2px;">
+        <div style="width: 50%; background: linear-gradient(90deg, #0B7F5F, #34D9A4);"></div>
+        <div style="width: 30%; background: linear-gradient(90deg, #A81F4B, #FF6B9A);"></div>
+        <div style="width: 10%; background: linear-gradient(90deg, #C77E00, #FFD166);"></div>
+        <div style="width: 10%; background: linear-gradient(90deg, #52596B, #A9B2C3);"></div>
+      </div>
+      <p style="margin: 0; font-size: 12px; color: #6B6478;">3 dari 10 soal menunjukkan miskonsepsi — jawaban atau alasan salah, tapi siswa menjawab yakin.</p>
+    </div>
+
+    <div style="flex-grow: 1; box-sizing: border-box; background: #FFFFFF; border: 1px solid #EFE9E0; border-radius: 16px; overflow: hidden; display: flex; flex-direction: column;">
+      <div style="box-sizing: border-box; padding: 11px 18px; background: #FBF8F3; border-bottom: 1px solid #EFE9E0; display: flex; align-items: center; gap: 14px; font-size: 11px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: #8B8497;">
+        <span style="width: 26px; flex-shrink: 0;">No</span>
+        <span style="flex-grow: 1;">Pertanyaan</span>
+        <span style="width: 52px; flex-shrink: 0; text-align: center;">Jwb</span>
+        <span style="width: 52px; flex-shrink: 0; text-align: center;">Alasan</span>
+        <span style="width: 78px; flex-shrink: 0; text-align: center;">Yakin</span>
+        <span style="width: 132px; flex-shrink: 0;">Diagnosis</span>
+      </div>
+
+      <sc-for list="{{rows}}" as="q" hint-placeholder-count="6">
+        <div style="box-sizing: border-box; padding: 11px 18px; border-bottom: 1px solid #F4F1EB; display: flex; align-items: center; gap: 14px;">
+          <span style="width: 26px; flex-shrink: 0; font-size: 13px; font-weight: 700; color: #8B8497;">{{q.no}}</span>
+          <span style="flex-grow: 1; font-size: 13px; line-height: 1.4; color: #171523; overflow: hidden;">{{q.stem}}</span>
+          <span style="width: 52px; flex-shrink: 0; text-align: center; font-size: 15px; font-weight: 700; color: {{q.aInk}};">{{q.a}}</span>
+          <span style="width: 52px; flex-shrink: 0; text-align: center; font-size: 15px; font-weight: 700; color: {{q.rInk}};">{{q.r}}</span>
+          <span style="width: 78px; flex-shrink: 0; text-align: center; font-size: 12.5px; font-weight: 600; color: #4A4458;">{{q.c}}</span>
+          <span style="width: 132px; flex-shrink: 0;">
+            <span style="display: inline-block; font-size: 11.5px; font-weight: 700; padding: 5px 10px; border-radius: 999px; background: {{q.tint}}; color: {{q.ink}};">{{q.dx}}</span>
+          </span>
+        </div>
+      </sc-for>
+    </div>
+
+  </div>
+
+  <div style="width: 300px; flex-shrink: 0; box-sizing: border-box; background: #FFFFFF; border-left: 1px solid #EFE9E0; padding: 26px 22px; display: flex; flex-direction: column; gap: 22px; overflow: hidden;">
+
+    <div style="display: flex; flex-direction: column; gap: 8px;">
+      <p style="margin: 0; font-size: 11px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: #8B8497;">Indikator</p>
+      <div style="box-sizing: border-box; padding: 14px; border-radius: 13px; background: rgba(91,43,217,0.06); border-left: 3px solid #5B2BD9;">
+        <p style="margin: 0; font-size: 13px; line-height: 1.5; color: #171523;">Menganalisis hubungan antara gaya, massa, dan percepatan pada gerak lurus benda.</p>
+      </div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 10px;">
+      <p style="margin: 0; font-size: 11px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: #8B8497;">Miskonsepsi terdeteksi</p>
+
+      <sc-for list="{{misc}}" as="m" hint-placeholder-count="3">
+        <div style="box-sizing: border-box; padding: 13px 14px; border-radius: 13px; background: #FBF8F3; border: 1px solid #EFE9E0; display: flex; flex-direction: column; gap: 5px;">
+          <div style="display: flex; align-items: center; gap: 7px;">
+            <span style="width: 7px; height: 7px; border-radius: 50%; background: linear-gradient(135deg, #A81F4B, #FF6B9A);"></span>
+            <span style="font-size: 11.5px; font-weight: 700; color: #A81F4B;">Soal {{m.no}}</span>
+          </div>
+          <p style="margin: 0; font-size: 12.5px; line-height: 1.5; color: #4A4458;">{{m.text}}</p>
+        </div>
+      </sc-for>
+    </div>
+
+    <div style="flex-grow: 1;"></div>
+
+    <div style="box-sizing: border-box; padding: 13px 14px; border-radius: 13px; background: #FBF8F3; border: 1px dashed #DCD6CC;">
+      <p style="margin: 0; font-size: 11.5px; line-height: 1.55; color: #6B6478;">Diagnosis dihitung dari jawaban mentah setiap kali halaman dibuka — bukan disimpan. Rubrik baru langsung berlaku untuk riwayat lama.</p>
+    </div>
+
+  </div>
+
+</div>
+</x-dc>
+
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var PAHAM  = { tint: 'rgba(14,164,122,0.13)',  ink: '#0B6B50' };
+    var MISK   = { tint: 'rgba(209,46,99,0.12)',   ink: '#A81F4B' };
+    var LUCKY  = { tint: 'rgba(245,165,36,0.20)',  ink: '#8A5200' };
+    var TIDAK  = { tint: '#EFE9E0',                ink: '#52596B' };
+    var OK = '#0B6B50';
+    var NO = '#A81F4B';
+
+    function row(no, stem, a, r, c, d, label) {
+      return {
+        no: no, stem: stem,
+        a: a ? '✓' : '✗', aInk: a ? OK : NO,
+        r: r ? '✓' : '✗', rInk: r ? OK : NO,
+        c: c ? 'Yakin' : 'Tidak yakin',
+        dx: label, tint: d.tint, ink: d.ink
+      };
+    }
+
+    return {
+      stats: [
+        { n: 5, label: 'Paham konsep',   grad: 'linear-gradient(90deg, #0B7F5F, #34D9A4)', ink: '#0B6B50' },
+        { n: 3, label: 'Miskonsepsi',    grad: 'linear-gradient(90deg, #A81F4B, #FF6B9A)', ink: '#A81F4B' },
+        { n: 1, label: 'Lucky guess',    grad: 'linear-gradient(90deg, #C77E00, #FFD166)', ink: '#8A5200' },
+        { n: 1, label: 'Tidak paham',    grad: 'linear-gradient(90deg, #52596B, #A9B2C3)', ink: '#52596B' }
+      ],
+      rows: [
+        row(1, 'Balok didorong gaya tetap di lantai licin — arah percepatannya?', true,  true,  true,  PAHAM, 'Paham konsep'),
+        row(2, 'Dua benda massa berbeda dijatuhkan bersamaan dari ketinggian sama.', false, false, true,  MISK,  'Miskonsepsi'),
+        row(3, 'Gaya diperbesar dua kali — bagaimana percepatan balok?', true,  false, true,  MISK,  'Miskonsepsi'),
+        row(4, 'Benda bergerak lurus beraturan — berapa gaya totalnya?', true,  true,  false, LUCKY, 'Lucky guess'),
+        row(5, 'Mobil direm mendadak, penumpang terdorong ke depan. Mengapa?', false, true,  true,  MISK,  'Miskonsepsi'),
+        row(6, 'Buku diam di atas meja — pasangan gaya aksi reaksinya?', false, false, false, TIDAK, 'Tidak paham')
+      ],
+      misc: [
+        { no: 2, text: 'Menganggap benda lebih berat selalu jatuh lebih cepat.' },
+        { no: 3, text: 'Menyamakan percepatan dengan kecepatan — gaya besar dikira membuat benda makin cepat tanpa batas.' },
+        { no: 5, text: 'Mengira ada gaya ke depan yang mendorong penumpang, bukan kelembaman.' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>
