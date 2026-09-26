@@ -165,8 +165,17 @@ export async function generateSet(params: GenerateSetParams): Promise<GeneratedQ
     const isLastAttempt = attempt === RETRY_DELAYS_MS.length;
     if (!RETRYABLE_STATUSES.has(response.status) || isLastAttempt) {
       const body = await response.text().catch(() => "");
+      console.error("[ai] generateSet failed, giving up", {
+        attempt: attempt + 1,
+        status: response.status,
+      });
       throw new Error(`Permintaan AI gagal (${response.status}): ${body.slice(0, 300)}`);
     }
+    console.error("[ai] generateSet retrying", {
+      attempt: attempt + 1,
+      status: response.status,
+      retryInMs: RETRY_DELAYS_MS[attempt],
+    });
     await new Promise((resolve) => setTimeout(resolve, RETRY_DELAYS_MS[attempt]));
   }
 
