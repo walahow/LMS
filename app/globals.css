@@ -2,155 +2,273 @@
 
 * {
   box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
 }
 
 html,
 body {
-  height: 100%;
-}
-
-body {
-  margin: 0;
-  background: var(--color-bg);
+  min-height: 100%;
+  background-color: var(--color-bg);
   color: var(--color-text);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  overflow-x: clip;
 }
 
-a {
-  color: var(--color-primary);
+/* MagicUI Theme Toggle Boxy Reveal Transition */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
 }
 
-button,
-input,
-select,
-textarea {
-  font: inherit;
-  color: inherit;
+::view-transition-old(root) {
+  z-index: 1;
 }
 
-.card {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-card);
-  padding: 1.5rem;
+::view-transition-new(root) {
+  z-index: 9999;
 }
 
-.btn {
+/* Monospace font */
+.font-mono {
+  font-family: var(--font-mono), ui-monospace, SFMono-Regular, monospace;
+}
+
+/* Flat / Clean Boxy containers */
+.boxy-card-flat {
+  background-color: var(--color-surface);
+  border: 1.5px solid var(--color-border);
+  box-shadow: none;
+  position: relative;
+}
+
+/* Main active question card (subtle overshadow) */
+.boxy-card-active {
+  background-color: var(--color-surface);
+  border: 2px solid var(--color-border);
+  box-shadow: var(--shadow-boxy-sm);
+  position: relative;
+}
+
+/* Modal and special card with strong shadow */
+.boxy-card-lg {
+  background-color: var(--color-surface);
+  border: 2px solid var(--color-border);
+  box-shadow: var(--shadow-boxy-lg);
+  position: relative;
+}
+
+/* High-contrast, clearly visible dither patterns (HYDE style) */
+.dither-overlay {
+  background-image: var(--dither-svg);
+  background-repeat: repeat;
+  background-size: 4px 4px;
+}
+
+.dither-overlay-accent {
+  background-image: var(--dither-svg-accent);
+  background-repeat: repeat;
+  background-size: 4px 4px;
+}
+
+.dither-overlay-solid {
+  background-image: var(--dither-svg-solid);
+  background-repeat: repeat;
+  background-size: 4px 4px;
+}
+
+/* Direction-Aware Deck Slide Animations for Question Navigation */
+@keyframes slideInFromRight {
+  0% {
+    opacity: 0;
+    transform: translateX(36px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInFromLeft {
+  0% {
+    opacity: 0;
+    transform: translateX(-36px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.slide-forward {
+  animation: slideInFromRight 0.26s cubic-bezier(0.16, 1, 0.3, 1) both;
+  will-change: transform, opacity;
+}
+
+.slide-backward {
+  animation: slideInFromLeft 0.26s cubic-bezier(0.16, 1, 0.3, 1) both;
+  will-change: transform, opacity;
+}
+
+/* Tile Stagger Pop-in Animation for Progress Modal */
+@keyframes tilePopIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.72) translateY(8px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Two-Stage Tier Unlock Animation: Outer Box Expands First -> Inner Content Reveals */
+@keyframes tierBoxExpand {
+  0% {
+    opacity: 0;
+    transform: scaleY(0.06) scaleX(0.85);
+    transform-origin: top center;
+  }
+  25% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+    transform: scaleY(1) scaleX(1);
+    transform-origin: top center;
+  }
+}
+
+.tier-box-expand {
+  animation: tierBoxExpand 0.36s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  transform-origin: top center;
+  will-change: transform, opacity;
+  overflow: hidden;
+}
+
+@keyframes tierContentReveal {
+  0% {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.tier-content-reveal {
+  opacity: 0;
+  animation: tierContentReveal 0.28s cubic-bezier(0.16, 1, 0.3, 1) 0.34s forwards;
+  will-change: transform, opacity;
+}
+
+/* Tactile Pressed-In Click Animations (Tertekan ke dalam) */
+.boxy-pressable-sm {
+  transition: transform 0.08s ease, box-shadow 0.08s ease;
+  user-select: none;
+}
+
+.boxy-pressable-sm:active {
+  transform: translate(2px, 2px) !important;
+  box-shadow: 0px 0px 0px 0px var(--color-shadow) !important;
+}
+
+.boxy-pressable-md {
+  transition: transform 0.08s ease, box-shadow 0.08s ease;
+  user-select: none;
+}
+
+.boxy-pressable-md:active {
+  transform: translate(3.5px, 3.5px) !important;
+  box-shadow: 0px 0px 0px 0px var(--color-shadow) !important;
+}
+
+/* Interactive Boxy Buttons */
+.boxy-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
-  border: none;
-  border-radius: var(--radius-md);
-  padding: 0.65rem 1.25rem;
-  font-weight: 600;
-  cursor: pointer;
-  background: var(--color-primary);
-  color: var(--color-primary-contrast);
-}
-
-.btn:hover {
-  background: var(--color-primary-hover);
-}
-
-.btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.btn-secondary {
-  background: transparent;
-  color: var(--color-primary);
-  border: 1px solid var(--color-border);
-}
-
-.btn-secondary:hover {
-  background: var(--color-bg);
-}
-
-.btn-danger {
-  background: var(--color-danger);
-  color: #fff;
-}
-
-.field {
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-  margin-bottom: 1rem;
-}
-
-.field label {
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: var(--color-text-muted);
-}
-
-.field input,
-.field select,
-.field textarea {
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  padding: 0.6rem 0.75rem;
-  background: var(--color-surface);
+  gap: 6px;
+  background-color: var(--color-surface);
   color: var(--color-text);
+  border: 1.5px solid var(--color-border);
+  box-shadow: var(--shadow-boxy-xs);
+  padding: 8px 14px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  user-select: none;
+  transition: transform 0.08s ease, box-shadow 0.08s ease;
 }
 
-.error-text {
-  color: var(--color-danger);
-  font-size: 0.875rem;
+.boxy-btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: 0px 0px 0px 0px var(--color-shadow);
 }
 
-.badge {
+.boxy-btn-accent {
+  background-color: var(--color-accent);
+  color: var(--color-accent-contrast);
+  border-color: var(--color-border);
+  box-shadow: var(--shadow-boxy);
+}
+
+.boxy-btn-accent:active {
+  transform: translate(3.5px, 3.5px);
+  box-shadow: 0px 0px 0px 0px var(--color-shadow);
+}
+
+/* Option Row interactive styling (Mobile-First) */
+.option-row {
+  width: 100%;
+  text-align: left;
+  border: 1.5px solid var(--color-border);
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  box-shadow: none; /* No shadow on unselected options */
+  transition: transform 0.12s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.12s ease,
+              border-color 0.12s ease;
+}
+
+.option-row:active {
+  transform: translate(1.5px, 1.5px);
+}
+
+/* Selected Zoom & Overshadow Effect (ONLY ON SELECTED) */
+.option-row.selected {
+  transform: scale(1.02) !important;
+  border-color: var(--color-accent) !important;
+  border-width: 2px !important;
+  box-shadow: var(--shadow-boxy-accent) !important;
+  z-index: 10;
+}
+
+.option-row.locked {
+  cursor: default;
+}
+
+/* Tactile badges (Flat by default) */
+.badge-mono {
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  padding: 3px 8px;
+  border: 1.5px solid var(--color-border);
+  background-color: var(--color-surface);
   display: inline-flex;
   align-items: center;
-  border-radius: 999px;
-  padding: 0.15rem 0.65rem;
-  font-size: 0.75rem;
-  font-weight: 600;
-}
-
-.badge-success {
-  background: var(--color-success-bg);
-  color: var(--color-success);
-}
-
-.badge-warning {
-  background: var(--color-warning-bg);
-  color: var(--color-warning);
-}
-
-.badge-danger {
-  background: var(--color-danger-bg);
-  color: var(--color-danger);
-}
-
-.badge-info {
-  background: var(--color-info-bg);
-  color: var(--color-info);
-}
-
-.brand {
-  background: var(--gradient-primary);
-  background-clip: text;
-  -webkit-background-clip: text;
-  color: transparent;
-  font-weight: 700;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@media (max-width: 640px) {
-  .card {
-    padding: 1rem;
-  }
-
-  table {
-    font-size: 0.875rem;
-  }
+  gap: 5px;
 }

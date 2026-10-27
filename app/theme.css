@@ -1,58 +1,61 @@
-/*
- * Placeholder palette. Swap these values when the client delivers brand
- * colours — no component or stylesheet outside this file may hardcode a
- * colour.
- */
 :root {
-  --color-bg: #f7f8fa;
-  --color-surface: #ffffff;
-  --color-border: #e2e5ea;
-  --color-text: #1a1d24;
-  --color-text-muted: #5b6270;
+  --color-bg: #FAFAFA;
+  --color-surface: #FFFFFF;
+  --color-surface-dim: #F4F4F6;
+  --color-border: #0A0A0A;
+  --color-text: #0A0A0A;
+  --color-text-muted: #52525B;
+  --color-text-inverse: #FFFFFF;
 
-  --color-primary: #3457d5;
-  --color-primary-hover: #2a46b0;
-  --color-primary-contrast: #ffffff;
+  --color-accent: #FF2800; /* Ferrari Red (Rosso Corsa) */
+  --color-accent-hover: #D40000;
+  --color-accent-dim: rgba(255, 40, 0, 0.12);
+  --color-accent-contrast: #FFFFFF;
 
-  --color-success: #1f8a4c;
-  --color-success-bg: #e6f6ec;
-  --color-warning: #b7791f;
-  --color-warning-bg: #fdf3df;
-  --color-danger: #c0392b;
-  --color-danger-bg: #fbeae8;
-  --color-info: #2a7fba;
-  --color-info-bg: #e7f2fa;
+  --color-shadow: #0A0A0A;
+  --color-shadow-dim: #E4E4E7;
+  --color-shadow-accent: #FF2800;
 
-  --gradient-primary: linear-gradient(135deg, var(--color-primary), var(--color-info));
+  --shadow-boxy-xs: 2px 2px 0px 0px var(--color-shadow);
+  --shadow-boxy-sm: 3px 3px 0px 0px var(--color-shadow);
+  --shadow-boxy: 4px 4px 0px 0px var(--color-shadow);
+  --shadow-boxy-lg: 6px 6px 0px 0px var(--color-shadow);
+  --shadow-boxy-accent: 4px 4px 0px 0px var(--color-accent);
 
-  --radius-sm: 4px;
-  --radius-md: 8px;
-  --radius-lg: 14px;
+  /* High-contrast, clearly visible 2x2 pixel checkerboard dither patterns */
+  --dither-svg: url("data:image/svg+xml,%3Csvg width='4' height='4' viewBox='0 0 4 4' xmlns='http://www.w3.org/2000/svg'%3E%3Crect x='0' y='0' width='2' height='2' fill='%23000000' fill-opacity='0.55'/%3E%3Crect x='2' y='2' width='2' height='2' fill='%23000000' fill-opacity='0.55'/%3E%3C/svg%3E");
+  --dither-svg-accent: url("data:image/svg+xml,%3Csvg width='4' height='4' viewBox='0 0 4 4' xmlns='http://www.w3.org/2000/svg'%3E%3Crect x='0' y='0' width='2' height='2' fill='%23FF2800' fill-opacity='0.75'/%3E%3Crect x='2' y='2' width='2' height='2' fill='%23FF2800' fill-opacity='0.75'/%3E%3C/svg%3E");
+  --dither-svg-solid: url("data:image/svg+xml,%3Csvg width='4' height='4' viewBox='0 0 4 4' xmlns='http://www.w3.org/2000/svg'%3E%3Crect x='0' y='0' width='2' height='2' fill='%23000000' fill-opacity='0.85'/%3E%3Crect x='2' y='2' width='2' height='2' fill='%23000000' fill-opacity='0.85'/%3E%3C/svg%3E");
 
-  --shadow-card: 0 1px 3px rgba(20, 24, 33, 0.08), 0 1px 2px rgba(20, 24, 33, 0.06);
+  --radius-none: 0px;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --color-bg: #14161a;
-    --color-surface: #1c1f26;
-    --color-border: #2c303a;
-    --color-text: #eef0f4;
-    --color-text-muted: #a2a8b5;
+html.dark {
+  --color-bg: #09090B;
+  --color-surface: #121215;
+  --color-surface-dim: #1B1B20;
+  --color-border: #FAFAFA;
+  --color-text: #FAFAFA;
+  --color-text-muted: #A1A1AA;
+  --color-text-inverse: #0A0A0A;
 
-    --color-primary: #6b8afd;
-    --color-primary-hover: #8ba0ff;
-    --color-primary-contrast: #0e1116;
+  --color-accent: #FF2800; /* Ferrari Red (Rosso Corsa) */
+  --color-accent-hover: #FF4D2E;
+  --color-accent-dim: rgba(255, 40, 0, 0.20);
+  --color-accent-contrast: #FFFFFF;
 
-    --color-success: #4fbf80;
-    --color-success-bg: #10261a;
-    --color-warning: #e0a940;
-    --color-warning-bg: #2a2010;
-    --color-danger: #e0685a;
-    --color-danger-bg: #2a1513;
-    --color-info: #5fb0e8;
-    --color-info-bg: #10222c;
+  --color-shadow: #FAFAFA;
+  --color-shadow-dim: #27272A;
+  --color-shadow-accent: #FF2800;
 
-    --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.4), 0 1px 2px rgba(0, 0, 0, 0.3);
-  }
+  --shadow-boxy-xs: 2px 2px 0px 0px var(--color-shadow);
+  --shadow-boxy-sm: 3px 3px 0px 0px var(--color-shadow);
+  --shadow-boxy: 4px 4px 0px 0px var(--color-shadow);
+  --shadow-boxy-lg: 6px 6px 0px 0px var(--color-shadow);
+  --shadow-boxy-accent: 4px 4px 0px 0px var(--color-accent);
+
+  /* High-contrast visible dither patterns for dark mode */
+  --dither-svg: url("data:image/svg+xml,%3Csvg width='4' height='4' viewBox='0 0 4 4' xmlns='http://www.w3.org/2000/svg'%3E%3Crect x='0' y='0' width='2' height='2' fill='%23ffffff' fill-opacity='0.55'/%3E%3Crect x='2' y='2' width='2' height='2' fill='%23ffffff' fill-opacity='0.55'/%3E%3C/svg%3E");
+  --dither-svg-accent: url("data:image/svg+xml,%3Csvg width='4' height='4' viewBox='0 0 4 4' xmlns='http://www.w3.org/2000/svg'%3E%3Crect x='0' y='0' width='2' height='2' fill='%23FF2800' fill-opacity='0.80'/%3E%3Crect x='2' y='2' width='2' height='2' fill='%23FF2800' fill-opacity='0.80'/%3E%3C/svg%3E");
+  --dither-svg-solid: url("data:image/svg+xml,%3Csvg width='4' height='4' viewBox='0 0 4 4' xmlns='http://www.w3.org/2000/svg'%3E%3Crect x='0' y='0' width='2' height='2' fill='%23ffffff' fill-opacity='0.85'/%3E%3Crect x='2' y='2' width='2' height='2' fill='%23ffffff' fill-opacity='0.85'/%3E%3C/svg%3E");
 }

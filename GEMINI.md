@@ -7,52 +7,66 @@ options. For each question the student picks (1) an answer, (2) a reason, (3) **
 Roles and pages: student (dashboard, quiz, history, profile) · teacher (dashboard, student detail with
 diagnosis, profile) · admin (generate set, set history/edit, user management) · login.
 
-State as of 2026-09-26, carried over from Claude Code sessions.
+State as of 2026-10-27.
 
-## ⚠ Where the code is
-- **The app was built by a Claude cloud session** (Phases 1–5 plus a README) and pulled into this folder on
-  2026-09-27. Run `npm install` before first use.
-- Unmerged work on two branches (2026-09-25/26):
-  - `origin/claude/adoring-brown-4qkg0d`, **5 fixes**:
-    - fix `auth.users` NULL text columns causing login 500s
-    - retry AI generation on 429/503
-    - log the retry attempts
-    - keep form fields after a failed generation
-    - shuffle AI answer positions and fix low-contrast option inputs
-  - `origin/main-0oo446`, 1 commit: replace the raw-SQL seed with an Admin-API seed script.
-- First step: review and merge both branches (ask the user first).
-- `docs/ui-reference/*.dc.html` are the approved UI mockups exported from a Claude
-  design canvas: login, student dashboard, quiz, teacher detail, admin generate. They reference a
-  runtime (`support.js`) that isn't included, so they **don't render in a browser**. Read them as a
-  design spec: exact colours, fonts, spacing, copy, and the quiz interaction logic.
+## ⚠ Branch Structure & Code Location
+- **`fullstack` branch**:
+  - Contains complete fullstack implementation (Phases 1–5).
+  - Merged both historical remote branches (`origin/claude/adoring-brown-4qkg0d` and `origin/main-0oo446`).
+  - Includes all 5 fixes: `auth.users` NULL text columns fix, AI retry on 429/503 with exponential backoff and logging, preserved form fields on failure, shuffled AI answer positions, and the Admin-API seed script (`scripts/seed.mjs`).
+  - Safely preserved for backend / DB deployment.
+- **`main` branch (Active Frontend)**:
+  - Rebuilt student quiz interface from scratch with a **mobile-first neo-brutalist aesthetic** inspired by the HYDE project (`D:\proj\HYDE`).
+  - `proxy.ts` (Next.js 16) has a safe bypass guard returning `NextResponse.next()` when `NEXT_PUBLIC_SUPABASE_URL` is unset, enabling standalone frontend UI development and preview without throwing 500 errors.
+  - Root route `/` redirects automatically to `/quiz`.
 
-## Locked decisions (from `docs/PLAN.md`; don't change silently)
-- Next.js App Router + TypeScript · **Supabase** (Postgres + Auth + RLS) · Vercel. Vercel Blob was
-  dropped as unnecessary.
-- AI: **Gemini Flash (free tier) via its OpenAI-compatible endpoint**, called with the `openai` SDK.
-  `AI_BASE_URL` / `AI_MODEL` / `AI_API_KEY` come from env, so switching provider is config only. Fallbacks: Groq,
-  then OpenRouter `:free`. Don't bet on Grok's free tier. Use JSON-schema structured output.
-  Only admins trigger AI calls, so rate limits aren't a concern.
-- AI output is always a **draft**: admin previews, edits, then publishes. Nothing auto-publishes.
-- **Diagnosis is computed on read, never stored.** `lib/diagnose.ts` is a pure function over
-  (answer correct, reason correct, confident) with its test `lib/diagnose.test.ts`. When the client
-  sends their real rubric, edit that function and all past attempts re-diagnose. If the rubric turns
-  out to need AI-written narratives, that's a new phase, not an edit.
-- All access control lives in RLS in one migration file (`supabase/migrations/0001_schema.sql`).
-  Never `select *` questions in student-readable queries (answer keys would leak).
-- Accounts are admin-provisioned: no signup and no self-service reset. The admin sets and resets passwords.
-  Open question for the client: do students have real emails? If yes, switch to invite links.
-- All colours live only in `app/theme.css`; the client's palette is still pending. Student-facing UI is in Indonesian.
+## Design System & Aesthetic (Locked Decisions)
+- **Palette (Ferrari Red + Monochrome)**:
+  - Background: Warm light `#FAFAFA` / Pitch black `#09090B`.
+  - Surface: Clean white `#FFFFFF` / Deep slate `#121215`.
+  - Accent: **Ferrari Red (Rosso Corsa `#FF2800`)** across both light and dark modes with `#D40000` hover. Zero pink/magenta bias (unlike TikTok's rose red).
+  - Contrast Text on Accent: Crisp pure white `#FFFFFF` (`--color-accent-contrast`).
+  - Borders: Crisp `1.5px` - `2.5px` solid (`#0A0A0A` light / `#FAFAFA` dark).
+- **Tactile Neo-Brutalist Shadows & Dither**:
+  - Overshadow is selective: subtle 3px shadow only on currently active question card, and 4px Ferrari red shadow (`--shadow-boxy-accent`) on selected options. Other containers stay clean and flat (`box-shadow: none`).
+  - High-contrast 2x2 pixel checkerboard SVG dither patterns (`--dither-svg`, `--dither-svg-accent`, `--dither-svg-solid`) applied as textured overlays on active and selected elements.
+- **Mechanical Tactile Clicks**:
+  - `.boxy-pressable-sm` / `.boxy-pressable-md` / `.boxy-btn` use snappy `transition: transform 0.08s ease, box-shadow 0.08s ease`.
+  - On press (`:active`): amblas ke dalam (`translate(2px, 2px)` or `translate(3.5px, 3.5px)` with zero shadow).
+  - Action triggers immediately upon release without artificial delays.
+- **Root Overflow Rule**:
+  - `html, body` uses `overflow-x: clip;` instead of `overflow-x: hidden;`. This is critical: `overflow-x: clip` prevents horizontal scroll without creating a scroll container that breaks CSS `position: sticky; top: 0;`.
 
-## Design direction (UI reference)
-Bricolage Grotesque (headings) + Plus Jakarta Sans (body). Brand gradient violet `#5B2BD9` →
-magenta `#9B2BC9` → coral `#D12E63` on warm off-white `#FBF8F3`. Gradients are for brand moments only.
-The four diagnosis colours carry meaning and must stay consistent everywhere: **Paham** green,
-**Miskonsepsi** red (the loudest colour), **Lucky guess** amber, **Tidak paham** grey.
-Quiz interaction: answer locks → reason → Yakin / Tidak yakin.
+## Key Components Built & Verified
+1. **Sticky Header Navbar** (`app/quiz/page.tsx`):
+   - Full-width sticky bar (`position: sticky; top: 0; zIndex: 50; width: 100%; border-bottom: 1.5px solid var(--color-border)`).
+   - Holds `[ FISIKA ]` badge on left, and `[ 03 | 10 ▾ ]` progress button, theme toggler, and `[ SELESAI ➔ ]` button on right.
+   - Pinned securely to the top of the viewport when scrolling, with questions sliding behind it.
+2. **Direction-Aware Deck Slide Navigation** (`app/globals.css` + `app/quiz/page.tsx`):
+   - `handleNext`: sets `direction = "forward"` (`slideInFromRight` 0.26s cubic-bezier).
+   - `handlePrev`: sets `direction = "backward"` (`slideInFromLeft` 0.26s cubic-bezier).
+   - Grid modal jumps detect index delta to choose forward/backward automatically.
+   - Sticky navbar and bottom navigation stay stationary while only the question deck slides.
+3. **Two-Stage Tier Unlock Animation**:
+   - Stage 1: `.tier-box-expand` scales container from top (0.36s cubic-bezier).
+   - Stage 2: `.tier-content-reveal` fades and slides inner content in after 0.34s delay (0.28s).
+4. **`components/ThemeToggler.tsx`**:
+   - MagicUI View Transitions API with rectangular/box reveal (`clip-path: inset(...)`) expanding outward from button.
+   - 8-bit pixel sun and moon SVG icons.
+   - Snappy 250ms duration with zero click lag.
+5. **`components/BoxyProgressBar.tsx` & `components/QuestionProgressModal.tsx`**:
+   - Header trigger button `[ 03 | 10 ▾ ]` with instant click response.
+   - Grid modal popup with staggered pop-in animation (`idx * 24ms`), category count legend, and progress bar.
+6. **`components/ScoreSwipeOverlay.tsx`**:
+   - Fullscreen swipe-up overlay (`translateY(100%) → 0`) on quiz completion with `NumberTicker` animated score count-up.
+   - 4-category diagnostic summary: Paham Konsep, Miskonsepsi, Lucky Guess, Tidak Paham.
+   - Smooth swipe-down exit animation (`translateY(100%)` 0.40s) on clicking `SELESAI & KELUAR ➔` or `ULAS JAWABAN`.
 
-## What's left: Phase 6 (manual deploy)
-Create the Supabase project, apply the migration, seed, set env vars (`NEXT_PUBLIC_SUPABASE_URL`,
-`NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `AI_API_KEY`, `AI_BASE_URL`, `AI_MODEL`),
-deploy on Vercel. See the remote README. Scripts: `npm run dev|typecheck|lint|test|build`.
-Seed users use a placeholder password (see README). Change them after first login.
+## Remaining Next Steps
+- Apply this established design language to the remaining views:
+  - Login Screen (`docs/ui-reference/Main.dc.html`)
+  - Student Dashboard (`docs/ui-reference/StudentDashboard.dc.html`)
+  - Teacher Detail Dashboard (`docs/ui-reference/TeacherDetail.dc.html`)
+  - Admin Generate Screen (`docs/ui-reference/AdminGenerate.dc.html`)
+- Integrate UI with backend Server Actions from `fullstack` branch when ready for live Supabase testing.
+- Scripts: `npm run dev` (runs Turbopack on port 3000), `npm run typecheck`, `npm run test` (`vitest`).
