@@ -21,12 +21,12 @@ State as of 2026-10-27.
   - Root route `/` redirects automatically to `/quiz`.
 
 ## Design System & Aesthetic (Locked Decisions)
-- **Palette (Ferrari Red + Monochrome)**:
-  - Background: Warm light `#FAFAFA` / Pitch black `#09090B`.
-  - Surface: Clean white `#FFFFFF` / Deep slate `#121215`.
+- **Palette (Ferrari Red + Monochrome Ergonomics)**:
+  - Background: Soft warm paper `#F8F8FA` / Comfortable deep slate `#121215` (avoiding harsh OLED `#000000`).
+  - Surface: Pure white `#FFFFFF` / Soft dark slate `#1A1A1F`.
   - Accent: **Ferrari Red (Rosso Corsa `#FF2800`)** across both light and dark modes with `#D40000` hover. Zero pink/magenta bias (unlike TikTok's rose red).
-  - Contrast Text on Accent: Crisp pure white `#FFFFFF` (`--color-accent-contrast`).
-  - Borders: Crisp `1.5px` - `2.5px` solid (`#0A0A0A` light / `#FAFAFA` dark).
+  - Text & Contrast: Deep zinc-900 `#18181B` (light) / Warm platinum `#E8E8ED` (dark) to prevent halation and eye fatigue while maintaining WCAG AAA legibility.
+  - Borders: Crisp `1.5px` - `2px` solid (`#18181B` light / `#D4D4D8` dark).
 - **Tactile Neo-Brutalist Shadows & Dither**:
   - Overshadow is selective: subtle 3px shadow only on currently active question card, and 4px Ferrari red shadow (`--shadow-boxy-accent`) on selected options. Other containers stay clean and flat (`box-shadow: none`).
   - High-contrast 2x2 pixel checkerboard SVG dither patterns (`--dither-svg`, `--dither-svg-accent`, `--dither-svg-solid`) applied as textured overlays on active and selected elements.
@@ -61,11 +61,36 @@ State as of 2026-10-27.
    - Fullscreen swipe-up overlay (`translateY(100%) → 0`) on quiz completion with `NumberTicker` animated score count-up.
    - 4-category diagnostic summary: Paham Konsep, Miskonsepsi, Lucky Guess, Tidak Paham.
    - Smooth swipe-down exit animation (`translateY(100%)` 0.40s) on clicking `SELESAI & KELUAR ➔` or `ULAS JAWABAN`.
+7. **`components/StudentBottomNav.tsx` & `components/StudentDashboardView.tsx` (`app/(student)/dashboard/page.tsx`)**:
+   - Complete mobile-first neo-brutalist student dashboard UI matching Ferrari Red / HYDE aesthetic.
+   - Sticky top header with brand mark `[ LMS DIAGNOSTIK ]`, theme toggle, and profile avatar initials.
+   - Time-based greeting ("Selamat pagi/siang/sore/malam") with student name and grade badge.
+   - 3-box diagnostic stats row: Completed Sets, Average Score (highlighted with Ferrari Red shadow), and Available Sets.
+   - Active in-progress test card banner with progress tracking and direct resume CTA button.
+   - Category filter pills (`[ SEMUA ]`, `[ FISIKA ]`, `[ BIOLOGI ]`, etc.) with instant client-side filtering.
+   - Question set cards showing subject color dots, question count, learning indicator, score feedback (e.g. `80 / 100`), and dynamic CTA buttons (`MULAI ➔`, `LANJUTKAN ➔`, `ULAS ➔`, `COBA LAGI ↺`). Misconception diagnoses are kept exclusively for teachers and replaced with scores for students.
+   - Clean top-header navigation: brand mark `[ LMS DIAGNOSTIK ]` on left, and theme toggle + avatar dropdown button `[ RP ]` (`ProfileDropdown.tsx`) on right. Bottom navigation bar removed to maximize vertical screen real estate.
+   - Graceful dual-mode operation: connects to live Supabase backend when env vars exist, or serves rich realistic preview data in standalone dev mode.
+8. **`components/ProfileDropdown.tsx`**:
+   - Neo-brutalist popover dropdown triggered by the avatar button `[ RP ]`.
+   - Displays student name, grade badge, and email at top.
+   - Menu items: `PROFIL & KEAMANAN ➔` (navigates to `/profile`) and direct `KELUAR DARI AKUN ➔` (calls `signOut`).
+   - Automatically closes on outside clicks or Escape key.
+9. **`components/StudentProfileView.tsx` (`app/(student)/profile/page.tsx`)**:
+   - Lean, focused neo-brutalist student profile view with top sticky header containing `[ ❮ KEMBALI ]` button and theme toggle.
+   - Identity Card: 56px tactile boxy avatar badge, full name, grade badge, and email.
+   - Security: Change password form with `.boxy-input` focus effects, validation states, and `[ SIMPAN KATA SANDI ➔ ]`.
+   - Logout: Prominent red-accented `[ KELUAR DARI AKUN ➔ ]` button wired to server `signOut` action.
+10. **Tactile Page Route Transitions (`app/template.tsx` & `components/PageTransition.tsx`)**:
+   - Idiomatic Next.js App Router transition using root `app/template.tsx` that remounts fresh instances on each route navigation (`/dashboard` <-> `/profile` <-> `/quiz`).
+   - Snappy neo-brutalist entry animation `@keyframes pageEnter`: subtle 8px vertical lift + fade-in over 0.22s with Apple/Framer snappy deceleration curve `cubic-bezier(0.16, 1, 0.3, 1)`.
+   - Zero interference with `position: sticky; top: 0;`: `PageTransition` client wrapper listens to `onAnimationEnd` and removes the transition class once complete, restoring pure `transform: none` on the container so headers adhere natively to viewport scroll.
+   - Respects `prefers-reduced-motion: reduce` by disabling animations instantly.
 
 ## Remaining Next Steps
 - Apply this established design language to the remaining views:
   - Login Screen (`docs/ui-reference/Main.dc.html`)
-  - Student Dashboard (`docs/ui-reference/StudentDashboard.dc.html`)
+  - Student Review Screen (`/(student)/history/[attemptId]`)
   - Teacher Detail Dashboard (`docs/ui-reference/TeacherDetail.dc.html`)
   - Admin Generate Screen (`docs/ui-reference/AdminGenerate.dc.html`)
 - Integrate UI with backend Server Actions from `fullstack` branch when ready for live Supabase testing.

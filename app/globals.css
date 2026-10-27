@@ -231,7 +231,7 @@ body {
   color: var(--color-text);
   padding: 12px 14px;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 12px;
   cursor: pointer;
   position: relative;
@@ -272,3 +272,47 @@ body {
   align-items: center;
   gap: 5px;
 }
+
+/* Neo-Brutalist Form Inputs */
+.boxy-input {
+  width: 100%;
+  padding: 10px 12px;
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  border: 1.5px solid var(--color-border);
+  box-shadow: none;
+  font-family: inherit;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.12s ease, box-shadow 0.12s ease;
+}
+
+.boxy-input:focus {
+  border-color: var(--color-accent);
+  box-shadow: var(--shadow-boxy-accent);
+}
+
+/* Page Route Transition (Neo-Brutalist Snappy Deceleration) */
+@keyframes pageEnter {
+  0% {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.page-transition {
+  animation: pageEnter 0.22s cubic-bezier(0.16, 1, 0.3, 1) both;
+  will-change: transform, opacity;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page-transition {
+    animation: none !important;
+    transform: none !important;
+  }
+}
+

@@ -1,21 +1,46 @@
 import { requireRole } from "@/lib/auth";
-import { AppShell } from "@/components/AppShell";
-import { ChangePasswordForm } from "@/components/ChangePasswordForm";
+import { StudentProfileView, type StudentProfileData } from "@/components/StudentProfileView";
 
-const links = [
-  { href: "/dashboard", label: "Beranda" },
-  { href: "/history", label: "Riwayat" },
-  { href: "/profile", label: "Profil" },
-];
+export const dynamic = "force-dynamic";
+
+const MOCK_PROFILE: StudentProfileData = {
+  fullName: "Rani Putri",
+  initials: "RP",
+  email: "student@lms.local",
+  grade: "KELAS X-A",
+};
+
+async function getProfileData(): Promise<StudentProfileData> {
+  const isSupabaseConfigured = Boolean(
+    process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  );
+
+  if (!isSupabaseConfigured) {
+    return MOCK_PROFILE;
+  }
+
+  try {
+    const { user, profile } = await requireRole("student");
+    const initials = profile.full_name
+      .split(" ")
+      .map((w) => w[0])
+      .join("")
+      .slice(0, 2)
+      .toUpperCase();
+
+    return {
+      fullName: profile.full_name,
+      initials: initials || "ST",
+      email: user.email || "student@lms.local",
+      grade: "KELAS X-A",
+    };
+  } catch {
+    return MOCK_PROFILE;
+  }
+}
 
 export default async function StudentProfilePage() {
-  const { profile } = await requireRole("student");
+  const profile = await getProfileData();
 
-  return (
-    <AppShell title="LMS Diagnostik" fullName={profile.full_name} links={links}>
-      <h1>Profil</h1>
-      <p style={{ color: "var(--color-text-muted)" }}>{profile.full_name}</p>
-      <ChangePasswordForm />
-    </AppShell>
-  );
+  return <StudentProfileView profile={profile} />;
 }

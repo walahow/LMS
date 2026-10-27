@@ -31,7 +31,6 @@ export function NumberTicker({
 
   useEffect(() => {
     let startTime: number | null = null;
-    let timerId: NodeJS.Timeout;
 
     const startAnimation = () => {
       const step = (timestamp: number) => {
@@ -57,7 +56,7 @@ export function NumberTicker({
       frameRef.current = requestAnimationFrame(step);
     };
 
-    timerId = setTimeout(startAnimation, delay);
+    const timerId = setTimeout(startAnimation, delay);
 
     return () => {
       clearTimeout(timerId);

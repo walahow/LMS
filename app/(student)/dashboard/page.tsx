@@ -1,12 +1,261 @@
-import Link from "next/link";
 import { requireRole } from "@/lib/auth";
-import { AppShell } from "@/components/AppShell";
+import {
+  StudentDashboardView,
+  type DashboardSet,
+  type StudentProfileInfo,
+  type StudentStats,
+} from "@/components/StudentDashboardView";
 
-const links = [
-  { href: "/dashboard", label: "Beranda" },
-  { href: "/history", label: "Riwayat" },
-  { href: "/profile", label: "Profil" },
+export const dynamic = "force-dynamic";
+
+const MOCK_PROFILE: StudentProfileInfo = {
+  fullName: "Rani Putri",
+  initials: "RP",
+  email: "student@lms.local",
+  grade: "KELAS X-A",
+};
+
+const MOCK_STATS: StudentStats = {
+  completedSets: 7,
+  totalSets: 9,
+  averageScore: 78,
+  pendingSets: 2,
+};
+
+const MOCK_SETS: DashboardSet[] = [
+  {
+    id: "mock-set-1",
+    title: "Hukum II & III Newton pada Gerak Benda",
+    indicator: "Menganalisis pengaruh gaya terhadap percepatan dan hukum aksi-reaksi.",
+    subject: "Fisika",
+    grade: "Kelas 10",
+    totalQuestions: 10,
+    status: "in_progress",
+    progressCount: 3,
+  },
+  {
+    id: "mock-set-2",
+    title: "Hukum Newton pada Benda Bergerak",
+    indicator: "Menjelaskan konsep inersia dan kesetimbangan gaya pada sistem mekanik.",
+    subject: "Fisika",
+    grade: "Kelas 10",
+    totalQuestions: 10,
+    status: "completed",
+    score: 80,
+    lastAttemptId: "att-01",
+  },
+  {
+    id: "mock-set-3",
+    title: "Fotosintesis dan Pertukaran Gas pada Tumbuhan",
+    indicator: "Membedakan reaksi terang dan gelap serta faktor pembatas fotosintesis.",
+    subject: "Biologi",
+    grade: "Kelas 10",
+    totalQuestions: 8,
+    status: "not_started",
+  },
+  {
+    id: "mock-set-4",
+    title: "Reaksi Asam Basa dan Derajat Keasaman (pH)",
+    indicator: "Mengidentifikasi larutan asam basa dengan indikator alami dan perhitungan pH.",
+    subject: "Kimia",
+    grade: "Kelas 10",
+    totalQuestions: 12,
+    status: "completed",
+    score: 65,
+    lastAttemptId: "att-02",
+  },
+  {
+    id: "mock-set-5",
+    title: "Siklus Hidrologi dan Pembentukan Awan",
+    indicator: "Menganalisis proses evaporasi, kondensasi, dan presipitasi dalam daur air.",
+    subject: "Geografi",
+    grade: "Kelas 10",
+    totalQuestions: 10,
+    status: "completed",
+    score: 75,
+    lastAttemptId: "att-03",
+  },
 ];
+
+async function getDashboardData(): Promise<{
+  profile: StudentProfileInfo;
+  stats: StudentStats;
+  sets: DashboardSet[];
+}> {
+  const isSupabaseConfigured = Boolean(
+    process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  );
+
+  if (!isSupabaseConfigured) {
+    return {
+      profile: MOCK_PROFILE,
+      stats: MOCK_STATS,
+      sets: MOCK_SETS,
+    };
+  }
+
+  try {
+    const { supabase, user, profile } = await requireRole("student");
+
+    // Fetch published question sets
+    const { data: rawSets } = await supabase
+      .from("question_sets")
+      .select("id, title, indicator, subject, grade")
+      .eq("published", true)
+      .order("created_at", { ascending: false });
+
+    const setIds = (rawSets ?? []).map((s) => s.id);
+
+    // Fetch questions count for each set
+    const { data: questions } = await supabase
+      .from("questions")
+      .select("id, set_id, correct_option, correct_reason");
+
+    const countBySet = new Map<string, number>();
+    const questionsBySet = new Map<
+      string,
+      { id: string; correct_option: number; correct_reason: number }[]
+    >();
+    (questions ?? []).forEach((q) => {
+      countBySet.set(q.set_id, (countBySet.get(q.set_id) || 0) + 1);
+      const list = questionsBySet.get(q.set_id) || [];
+      list.push(q);
+      questionsBySet.set(q.set_id, list);
+    });
+
+    // Fetch student's attempts
+    const { data: attempts } = await supabase
+      .from("attempts")
+      .select("id, set_id, started_at, submitted_at")
+      .eq("student_id", user.id)
+      .in("set_id", setIds.length > 0 ? setIds : ["00000000-0000-0000-0000-000000000000"])
+      .order("started_at", { ascending: false });
+
+    // Separate in-progress and completed attempts
+    const inProgressBySet = new Map<string, { id: string }>();
+    const completedBySet = new Map<string, { id: string; submitted_at: string }>();
+
+    (attempts ?? []).forEach((att) => {
+      if (!att.submitted_at && !inProgressBySet.has(att.set_id)) {
+        inProgressBySet.set(att.set_id, { id: att.id });
+      } else if (att.submitted_at && !completedBySet.has(att.set_id)) {
+        completedBySet.set(att.set_id, { id: att.id, submitted_at: att.submitted_at });
+      }
+    });
+
+    // Fetch responses for completed attempts
+    const completedAttemptIds = Array.from(completedBySet.values()).map((a) => a.id);
+    let responses: {
+      attempt_id: string;
+      question_id: string;
+      answer: number;
+      reason: number;
+      confident: boolean;
+    }[] = [];
+
+    if (completedAttemptIds.length > 0) {
+      const { data: respData } = await supabase
+        .from("responses")
+        .select("attempt_id, question_id, answer, reason, confident")
+        .in("attempt_id", completedAttemptIds);
+      responses = respData ?? [];
+    }
+
+    // Group responses by attempt
+    const responsesByAttempt = new Map<string, typeof responses>();
+    responses.forEach((r) => {
+      const list = responsesByAttempt.get(r.attempt_id) || [];
+      list.push(r);
+      responsesByAttempt.set(r.attempt_id, list);
+    });
+
+    let totalAnsweredQuestions = 0;
+    let totalCorrectQuestions = 0;
+
+    const formattedSets: DashboardSet[] = (rawSets ?? []).map((s) => {
+      const totalQ = countBySet.get(s.id) || 10;
+      const inProgress = inProgressBySet.get(s.id);
+      const completed = completedBySet.get(s.id);
+
+      let status: "not_started" | "in_progress" | "completed" = "not_started";
+      let score: number | null = null;
+      let lastAttemptId: string | undefined = undefined;
+
+      if (inProgress) {
+        status = "in_progress";
+      } else if (completed) {
+        status = "completed";
+        lastAttemptId = completed.id;
+        const setQuestions = questionsBySet.get(s.id) || [];
+        const qMap = new Map(setQuestions.map((q) => [q.id, q]));
+        const attResponses = responsesByAttempt.get(completed.id) || [];
+
+        let correctCount = 0;
+        attResponses.forEach((r) => {
+          const q = qMap.get(r.question_id);
+          if (q) {
+            totalAnsweredQuestions++;
+            if (r.answer === q.correct_option && r.reason === q.correct_reason && r.confident) {
+              correctCount++;
+              totalCorrectQuestions++;
+            }
+          }
+        });
+
+        score = attResponses.length > 0 ? Math.round((correctCount / attResponses.length) * 100) : 0;
+      }
+
+      return {
+        id: s.id,
+        title: s.title,
+        indicator: s.indicator,
+        subject: s.subject || "Umum",
+        grade: s.grade,
+        totalQuestions: totalQ,
+        status,
+        progressCount: inProgress ? 1 : undefined,
+        score,
+        lastAttemptId,
+      };
+    });
+
+    const initials = profile.full_name
+      .split(" ")
+      .map((w) => w[0])
+      .join("")
+      .slice(0, 2)
+      .toUpperCase();
+
+    const completedCount = completedBySet.size;
+    const pendingCount = Math.max(0, (rawSets ?? []).length - completedCount);
+    const overallAverageScore =
+      totalAnsweredQuestions > 0
+        ? Math.round((totalCorrectQuestions / totalAnsweredQuestions) * 100)
+        : 0;
+
+    return {
+      profile: {
+        fullName: profile.full_name,
+        initials: initials || "ST",
+        email: user.email || "student@lms.local",
+        grade: "KELAS X-A",
+      },
+      stats: {
+        completedSets: completedCount,
+        totalSets: (rawSets ?? []).length,
+        averageScore: overallAverageScore,
+        pendingSets: pendingCount,
+      },
+      sets: formattedSets,
+    };
+  } catch {
+    return {
+      profile: MOCK_PROFILE,
+      stats: MOCK_STATS,
+      sets: MOCK_SETS,
+    };
+  }
+}
 
 export default async function StudentDashboardPage({
   searchParams,
@@ -14,61 +263,14 @@ export default async function StudentDashboardPage({
   searchParams: Promise<{ selesai?: string }>;
 }) {
   const { selesai } = await searchParams;
-  const { supabase, user, profile } = await requireRole("student");
-
-  const { data: sets } = await supabase
-    .from("question_sets")
-    .select("id, title, indicator, subject, grade")
-    .eq("published", true)
-    .order("created_at", { ascending: false });
-
-  const { data: inProgress } = await supabase
-    .from("attempts")
-    .select("set_id")
-    .eq("student_id", user.id)
-    .is("submitted_at", null);
-
-  const inProgressSetIds = new Set((inProgress ?? []).map((a) => a.set_id));
+  const data = await getDashboardData();
 
   return (
-    <AppShell title="LMS Diagnostik" fullName={profile.full_name} links={links}>
-      <h1>Selamat datang, {profile.full_name}</h1>
-
-      {selesai === "1" && (
-        <p className="badge badge-success" style={{ marginBottom: "1rem" }}>
-          Tes selesai. Terima kasih!
-        </p>
-      )}
-
-      <div className="card">
-        {sets && sets.length > 0 ? (
-          sets.map((set) => (
-            <div
-              key={set.id}
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                gap: "1rem",
-                padding: "0.75rem 0",
-                borderBottom: "1px solid var(--color-border)",
-              }}
-            >
-              <div>
-                <p style={{ margin: 0, fontWeight: 600 }}>{set.title}</p>
-                <p style={{ margin: 0, color: "var(--color-text-muted)", fontSize: "0.875rem" }}>
-                  {[set.subject, set.grade].filter(Boolean).join(" · ")}
-                </p>
-              </div>
-              <Link href={`/quiz/${set.id}`} className="btn">
-                {inProgressSetIds.has(set.id) ? "Lanjutkan" : "Mulai"}
-              </Link>
-            </div>
-          ))
-        ) : (
-          <p style={{ color: "var(--color-text-muted)" }}>Belum ada tes yang tersedia.</p>
-        )}
-      </div>
-    </AppShell>
+    <StudentDashboardView
+      profile={data.profile}
+      stats={data.stats}
+      sets={data.sets}
+      showCelebrationAlert={selesai === "1"}
+    />
   );
 }

@@ -23,19 +23,25 @@ export function QuestionProgressModal({
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
+    let timer: NodeJS.Timeout;
+    let raf: number;
     if (isOpen) {
-      setIsRendered(true);
-      const raf = requestAnimationFrame(() => {
+      raf = requestAnimationFrame(() => {
+        setIsRendered(true);
         setIsVisible(true);
       });
-      return () => cancelAnimationFrame(raf);
     } else {
-      setIsVisible(false);
-      const timer = setTimeout(() => {
+      raf = requestAnimationFrame(() => {
+        setIsVisible(false);
+      });
+      timer = setTimeout(() => {
         setIsRendered(false);
       }, 240);
-      return () => clearTimeout(timer);
     }
+    return () => {
+      cancelAnimationFrame(raf);
+      clearTimeout(timer);
+    };
   }, [isOpen]);
 
   const handleClose = () => {
@@ -226,7 +232,7 @@ export function QuestionProgressModal({
               let bg = "var(--color-surface)";
               let borderColor = "var(--color-border)";
               let shadow = "none";
-              let textColor = "var(--color-text)";
+              const textColor = "var(--color-text)";
 
               if (isCurrent) {
                 borderColor = "var(--color-accent)";

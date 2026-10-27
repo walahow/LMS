@@ -8,16 +8,19 @@ export function ThemeToggler() {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
-    const saved = localStorage.getItem("lms-theme") as "light" | "dark" | null;
-    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-    const initial = saved || (prefersDark ? "dark" : "light");
-    setTheme(initial);
-    if (initial === "dark") {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
+    const raf = requestAnimationFrame(() => {
+      setMounted(true);
+      const saved = localStorage.getItem("lms-theme") as "light" | "dark" | null;
+      const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      const initial = saved || (prefersDark ? "dark" : "light");
+      setTheme(initial);
+      if (initial === "dark") {
+        document.documentElement.classList.add("dark");
+      } else {
+        document.documentElement.classList.remove("dark");
+      }
+    });
+    return () => cancelAnimationFrame(raf);
   }, []);
 
   const applyTheme = (newTheme: "light" | "dark") => {

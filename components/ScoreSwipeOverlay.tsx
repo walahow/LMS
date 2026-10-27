@@ -32,30 +32,41 @@ export function ScoreSwipeOverlay({
   const [contentVisible, setContentVisible] = useState(false);
 
   useEffect(() => {
+    let swipeTimer: NodeJS.Timeout;
+    let contentTimer: NodeJS.Timeout;
+    let exitTimer: NodeJS.Timeout;
+    let raf: number;
+
     if (isOpen) {
-      setIsRendered(true);
+      raf = requestAnimationFrame(() => {
+        setIsRendered(true);
+      });
+
       // Trigger swipe-up animation on next tick
-      const swipeTimer = setTimeout(() => {
+      swipeTimer = setTimeout(() => {
         setSwipedIn(true);
       }, 20);
 
       // Trigger content fade-in & scale after swipe reaches top
-      const contentTimer = setTimeout(() => {
+      contentTimer = setTimeout(() => {
         setContentVisible(true);
       }, 360);
-
-      return () => {
-        clearTimeout(swipeTimer);
-        clearTimeout(contentTimer);
-      };
     } else {
-      setContentVisible(false);
-      setSwipedIn(false);
-      const exitTimer = setTimeout(() => {
+      raf = requestAnimationFrame(() => {
+        setContentVisible(false);
+        setSwipedIn(false);
+      });
+      exitTimer = setTimeout(() => {
         setIsRendered(false);
       }, 320);
-      return () => clearTimeout(exitTimer);
     }
+
+    return () => {
+      cancelAnimationFrame(raf);
+      clearTimeout(swipeTimer);
+      clearTimeout(contentTimer);
+      clearTimeout(exitTimer);
+    };
   }, [isOpen]);
 
   const handleClose = () => {

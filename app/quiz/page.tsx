@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 import { ThemeToggler } from "@/components/ThemeToggler";
 import { BoxyProgressBar } from "@/components/BoxyProgressBar";
 import { ScoreSwipeOverlay } from "@/components/ScoreSwipeOverlay";
@@ -226,6 +227,7 @@ type UserResponse = {
 };
 
 export default function QuizDemoPage() {
+  const router = useRouter();
   const [currentIdx, setCurrentIdx] = useState(2); // Start at Question 3 (1-based index 3)
   const [direction, setDirection] = useState<"forward" | "backward">("forward");
   const [showScore, setShowScore] = useState(false);
@@ -252,7 +254,7 @@ export default function QuizDemoPage() {
 
   // Completed questions are those where answer, reason, and confidence are all selected
   const completedQuestionNumbers = Object.entries(answers)
-    .filter(([_, resp]) => resp.answerKey && resp.reasonKey && resp.confident !== undefined)
+    .filter(([, resp]) => resp.answerKey && resp.reasonKey && resp.confident !== undefined)
     .map(([num]) => Number(num));
 
   // Compute 3-tier diagnostic results across questions
@@ -448,10 +450,10 @@ export default function QuizDemoPage() {
         style={{
           width: "100%",
           maxWidth: "440px",
-          padding: "16px 12px 64px",
+          padding: "20px 12px 64px",
           display: "flex",
           flexDirection: "column",
-          gap: "14px",
+          gap: "24px",
         }}
       >
         {/* Direction-Aware Question Deck Container */}
@@ -461,480 +463,614 @@ export default function QuizDemoPage() {
           style={{
             display: "flex",
             flexDirection: "column",
-            gap: "14px",
+            gap: "24px",
             width: "100%",
           }}
         >
           {/* Main Question Card in View (Subtle overshadow for focus) */}
-        <div
-          className="boxy-card-active"
-          style={{
-            padding: "16px 18px",
-            display: "flex",
-            flexDirection: "column",
-            gap: "10px",
-          }}
-        >
-          {/* Card Top Meta */}
           <div
+            className="boxy-card-active"
             style={{
+              padding: "18px 20px 20px",
               display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              borderBottom: "1.5px dashed var(--color-border)",
-              paddingBottom: "8px",
+              flexDirection: "column",
+              gap: "12px",
             }}
           >
-            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-              <span
-                className="font-mono"
-                style={{
-                  fontSize: "14px",
-                  fontWeight: 900,
-                  color: "var(--color-accent)",
-                }}
-              >
-                {String(qNum).padStart(2, "0")}
-              </span>
-              <span style={{ opacity: 0.3 }}>/</span>
-              <span
-                className="font-mono"
-                style={{ fontSize: "11px", fontWeight: 700, opacity: 0.7 }}
-              >
-                {question.topic}
-              </span>
-            </div>
-          </div>
-
-          {/* Stem Text */}
-          <h2
-            style={{
-              fontSize: "16.5px",
-              lineHeight: 1.45,
-              fontWeight: 700,
-              letterSpacing: "-0.01em",
-              margin: 0,
-            }}
-          >
-            {question.stem}
-          </h2>
-        </div>
-
-        {/* TIER 1: PILIHAN JAWABAN (Flat container, shadow ONLY on selected) */}
-        <section
-          className="boxy-card-flat"
-          style={{
-            padding: "16px",
-            display: "flex",
-            flexDirection: "column",
-            gap: "12px",
-          }}
-        >
-          {/* Tier 1 Header */}
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-            }}
-          >
-            <h3
-              className="font-mono"
+            {/* Card Top Meta */}
+            <div
               style={{
-                fontSize: "13px",
-                fontWeight: 800,
-                letterSpacing: "0.04em",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                borderBottom: "1.5px dashed var(--color-border)",
+                paddingBottom: "10px",
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <span
+                  className="font-mono"
+                  style={{
+                    fontSize: "12px",
+                    fontWeight: 900,
+                    padding: "2px 7px",
+                    backgroundColor: "var(--color-accent-dim)",
+                    color: "var(--color-accent)",
+                    border: "1px solid var(--color-accent)",
+                  }}
+                >
+                  SOAL {String(qNum).padStart(2, "0")} / {String(total).padStart(2, "0")}
+                </span>
+                <span
+                  className="font-mono"
+                  style={{ fontSize: "11px", fontWeight: 700, opacity: 0.7 }}
+                >
+                  {question.topic}
+                </span>
+              </div>
+            </div>
+
+            {/* Stem Text */}
+            <h2
+              style={{
+                fontSize: "17.5px",
+                lineHeight: 1.55,
+                fontWeight: 700,
+                letterSpacing: "-0.01em",
                 margin: 0,
               }}
             >
-              PILIH JAWABAN
-            </h3>
+              {question.stem}
+            </h2>
           </div>
 
-          {/* Options */}
-          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-            {question.options.map((opt) => {
-              const isSelected = selectedAnswer === opt.key;
-
-              return (
-                <button
-                  key={opt.key}
-                  type="button"
-                  onClick={() => handleSelectAnswer(opt.key)}
-                  className={`option-row ${isSelected ? "selected" : ""}`}
+          {/* TIER 1: PILIHAN JAWABAN */}
+          <section
+            className="boxy-card-flat"
+            style={{
+              padding: "20px 18px",
+              display: "flex",
+              flexDirection: "column",
+              gap: "16px",
+            }}
+          >
+            {/* Tier 1 Header */}
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <span
+                  className="font-mono"
+                  style={{
+                    fontSize: "10px",
+                    fontWeight: 900,
+                    letterSpacing: "0.04em",
+                    padding: "2px 6px",
+                    backgroundColor: "var(--color-text)",
+                    color: "var(--color-bg)",
+                  }}
                 >
-                  {/* High-visibility Dither Effect Overlay on Selected */}
-                  {isSelected && (
+                  TIER 1
+                </span>
+                <h3
+                  className="font-mono"
+                  style={{
+                    fontSize: "12.5px",
+                    fontWeight: 800,
+                    letterSpacing: "0.04em",
+                    margin: 0,
+                  }}
+                >
+                  PILIHAN JAWABAN
+                </h3>
+              </div>
+
+              {selectedAnswer && (
+                <span
+                  className="font-mono"
+                  style={{
+                    fontSize: "11px",
+                    fontWeight: 900,
+                    color: "var(--color-accent)",
+                  }}
+                >
+                  TERPILIH: [{selectedAnswer}]
+                </span>
+              )}
+            </div>
+
+            {/* Options */}
+            <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+              {question.options.map((opt) => {
+                const isSelected = selectedAnswer === opt.key;
+
+                return (
+                  <button
+                    key={opt.key}
+                    type="button"
+                    onClick={() => handleSelectAnswer(opt.key)}
+                    className={`option-row ${isSelected ? "selected" : ""}`}
+                  >
+                    {/* High-visibility Dither Effect Overlay on Selected */}
+                    {isSelected && (
+                      <div
+                        className="dither-overlay-accent"
+                        style={{
+                          position: "absolute",
+                          inset: 0,
+                          opacity: 0.35,
+                          pointerEvents: "none",
+                        }}
+                      />
+                    )}
+
+                    {/* Option Letter Badge */}
                     <div
-                      className="dither-overlay-accent"
+                      className="font-mono"
                       style={{
-                        position: "absolute",
-                        inset: 0,
-                        opacity: 0.35, // High contrast visible dither
-                        pointerEvents: "none",
+                        width: "28px",
+                        height: "28px",
+                        border: "1.5px solid var(--color-border)",
+                        backgroundColor: isSelected
+                          ? "var(--color-accent)"
+                          : "var(--color-surface-dim)",
+                        color: isSelected
+                          ? "var(--color-accent-contrast)"
+                          : "var(--color-text)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontWeight: 900,
+                        fontSize: "13px",
+                        flexShrink: 0,
+                        position: "relative",
+                        zIndex: 2,
+                        marginTop: "1px",
                       }}
-                    />
-                  )}
+                    >
+                      {opt.key}
+                    </div>
 
-                  {/* Option Letter Badge */}
-                  <div
-                    className="font-mono"
-                    style={{
-                      width: "28px",
-                      height: "28px",
-                      border: "1.5px solid var(--color-border)",
-                      backgroundColor: isSelected
-                        ? "var(--color-accent)"
-                        : "var(--color-surface-dim)",
-                      color: isSelected
-                        ? "var(--color-accent-contrast)"
-                        : "var(--color-text)",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      fontWeight: 900,
-                      fontSize: "13px",
-                      flexShrink: 0,
-                      position: "relative",
-                      zIndex: 2,
-                    }}
-                  >
-                    {opt.key}
-                  </div>
+                    {/* Option Text */}
+                    <span
+                      style={{
+                        fontSize: "13.5px",
+                        lineHeight: 1.45,
+                        fontWeight: isSelected ? 700 : 500,
+                        flexGrow: 1,
+                        position: "relative",
+                        zIndex: 2,
+                        paddingTop: "3px",
+                      }}
+                    >
+                      {opt.text}
+                    </span>
 
-                  {/* Option Text */}
-                  <span
-                    style={{
-                      fontSize: "13.5px",
-                      lineHeight: 1.4,
-                      fontWeight: isSelected ? 700 : 500,
-                      flexGrow: 1,
-                      position: "relative",
-                      zIndex: 2,
-                    }}
-                  >
-                    {opt.text}
-                  </span>
+                    {/* Selected check */}
+                    {isSelected && (
+                      <span
+                        className="font-mono"
+                        style={{
+                          fontSize: "15px",
+                          fontWeight: 900,
+                          color: "var(--color-accent)",
+                          paddingRight: "2px",
+                          paddingTop: "3px",
+                          position: "relative",
+                          zIndex: 2,
+                        }}
+                      >
+                        ✓
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </section>
 
-                  {/* Selected check */}
-                  {isSelected && (
+          {/* TIER 2: PILIHAN ALASAN (Unlocks after Jawaban) */}
+          {selectedAnswer ? (
+            <section
+              className="boxy-card-flat tier-box-expand"
+              style={{
+                padding: "20px 18px",
+                display: "flex",
+                flexDirection: "column",
+                gap: "16px",
+              }}
+            >
+              <div
+                className="tier-content-reveal"
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "16px",
+                  width: "100%",
+                }}
+              >
+                {/* Header */}
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                  }}
+                >
+                  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                     <span
                       className="font-mono"
                       style={{
-                        fontSize: "15px",
+                        fontSize: "10px",
+                        fontWeight: 900,
+                        letterSpacing: "0.04em",
+                        padding: "2px 6px",
+                        backgroundColor: "var(--color-accent)",
+                        color: "var(--color-accent-contrast)",
+                      }}
+                    >
+                      TIER 2
+                    </span>
+                    <h3
+                      className="font-mono"
+                      style={{
+                        fontSize: "12.5px",
+                        fontWeight: 800,
+                        letterSpacing: "0.04em",
+                        margin: 0,
+                      }}
+                    >
+                      PILIHAN ALASAN
+                    </h3>
+                  </div>
+
+                  {selectedReason && (
+                    <span
+                      className="font-mono"
+                      style={{
+                        fontSize: "11px",
                         fontWeight: 900,
                         color: "var(--color-accent)",
-                        paddingRight: "2px",
-                        position: "relative",
-                        zIndex: 2,
                       }}
                     >
-                      ✓
+                      TERPILIH: [{selectedReason}]
                     </span>
                   )}
-                </button>
-              );
-            })}
-          </div>
-        </section>
+                </div>
 
-        {/* PILIHAN ALASAN (Unlocks after Jawaban) */}
-        {selectedAnswer ? (
-          <section
-            className="boxy-card-flat tier-box-expand"
-            style={{
-              padding: "16px",
-              display: "flex",
-              flexDirection: "column",
-              gap: "12px",
-            }}
-          >
-            <div
-              className="tier-content-reveal"
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                gap: "12px",
-                width: "100%",
-              }}
-            >
-              {/* Header */}
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                }}
-              >
-                <h3
-                  className="font-mono"
-                  style={{
-                    fontSize: "13px",
-                    fontWeight: 800,
-                    letterSpacing: "0.04em",
-                    margin: 0,
-                  }}
-                >
-                  PILIH ALASAN
-                </h3>
-              </div>
+                {/* Reasons List */}
+                <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                  {question.reasons.map((rsn) => {
+                    const isSelected = selectedReason === rsn.key;
 
-              {/* Reasons List */}
-              <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                {question.reasons.map((rsn) => {
-                  const isSelected = selectedReason === rsn.key;
+                    return (
+                      <button
+                        key={rsn.key}
+                        type="button"
+                        onClick={() => handleSelectReason(rsn.key)}
+                        className={`option-row ${isSelected ? "selected" : ""}`}
+                      >
+                        {/* High-visibility Dither Effect Overlay on Selected */}
+                        {isSelected && (
+                          <div
+                            className="dither-overlay-accent"
+                            style={{
+                              position: "absolute",
+                              inset: 0,
+                              opacity: 0.35,
+                              pointerEvents: "none",
+                            }}
+                          />
+                        )}
 
-                  return (
-                    <button
-                      key={rsn.key}
-                      type="button"
-                      onClick={() => handleSelectReason(rsn.key)}
-                      className={`option-row ${isSelected ? "selected" : ""}`}
-                    >
-                      {/* High-visibility Dither Effect Overlay on Selected */}
-                      {isSelected && (
+                        {/* Reason Letter Badge */}
                         <div
-                          className="dither-overlay-accent"
-                          style={{
-                            position: "absolute",
-                            inset: 0,
-                            opacity: 0.35,
-                            pointerEvents: "none",
-                          }}
-                        />
-                      )}
-
-                      {/* Reason Letter Badge */}
-                      <div
-                        className="font-mono"
-                        style={{
-                          width: "28px",
-                          height: "28px",
-                          border: "1.5px solid var(--color-border)",
-                          backgroundColor: isSelected
-                            ? "var(--color-accent)"
-                            : "var(--color-surface-dim)",
-                          color: isSelected
-                            ? "var(--color-accent-contrast)"
-                            : "var(--color-text)",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          fontWeight: 900,
-                          fontSize: "13px",
-                          flexShrink: 0,
-                          position: "relative",
-                          zIndex: 2,
-                        }}
-                      >
-                        {rsn.key}
-                      </div>
-
-                      {/* Reason Text */}
-                      <span
-                        style={{
-                          fontSize: "13px",
-                          lineHeight: 1.4,
-                          fontWeight: isSelected ? 700 : 500,
-                          flexGrow: 1,
-                          position: "relative",
-                          zIndex: 2,
-                        }}
-                      >
-                        {rsn.text}
-                      </span>
-
-                      {/* Selected check */}
-                      {isSelected && (
-                        <span
                           className="font-mono"
                           style={{
-                            fontSize: "15px",
+                            width: "28px",
+                            height: "28px",
+                            border: "1.5px solid var(--color-border)",
+                            backgroundColor: isSelected
+                              ? "var(--color-accent)"
+                              : "var(--color-surface-dim)",
+                            color: isSelected
+                              ? "var(--color-accent-contrast)"
+                              : "var(--color-text)",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
                             fontWeight: 900,
-                            color: "var(--color-accent)",
-                            paddingRight: "2px",
+                            fontSize: "13px",
+                            flexShrink: 0,
                             position: "relative",
                             zIndex: 2,
+                            marginTop: "1px",
                           }}
                         >
-                          ✓
-                        </span>
-                      )}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          </section>
-        ) : (
-          /* Locked placeholder for Tier 2 */
-          <div
-            className="boxy-card-flat"
-            style={{
-              padding: "14px 16px",
-              opacity: 0.45,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              borderStyle: "dashed",
-            }}
-          >
-            <span className="font-mono" style={{ fontSize: "12px", fontWeight: 700 }}>
-              PILIH ALASAN
-            </span>
-          </div>
-        )}
+                          {rsn.key}
+                        </div>
 
-        {/* TINGKAT KEYAKINAN (Unlocks after Alasan) */}
-        {selectedReason ? (
-          <section
-            className="boxy-card-flat tier-box-expand"
-            style={{
-              padding: "16px",
-              display: "flex",
-              flexDirection: "column",
-              gap: "12px",
-            }}
-          >
+                        {/* Reason Text */}
+                        <span
+                          style={{
+                            fontSize: "13px",
+                            lineHeight: 1.45,
+                            fontWeight: isSelected ? 700 : 500,
+                            flexGrow: 1,
+                            position: "relative",
+                            zIndex: 2,
+                            paddingTop: "3px",
+                          }}
+                        >
+                          {rsn.text}
+                        </span>
+
+                        {/* Selected check */}
+                        {isSelected && (
+                          <span
+                            className="font-mono"
+                            style={{
+                              fontSize: "15px",
+                              fontWeight: 900,
+                              color: "var(--color-accent)",
+                              paddingRight: "2px",
+                              paddingTop: "3px",
+                              position: "relative",
+                              zIndex: 2,
+                            }}
+                          >
+                            ✓
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </section>
+          ) : (
+            /* Locked placeholder for Tier 2 */
             <div
-              className="tier-content-reveal"
+              className="boxy-card-flat"
               style={{
+                padding: "16px 18px",
+                opacity: 0.6,
                 display: "flex",
                 flexDirection: "column",
-                gap: "12px",
-                width: "100%",
+                gap: "6px",
+                borderStyle: "dashed",
               }}
             >
-              {/* Header */}
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                  <span
+                    className="font-mono"
+                    style={{
+                      fontSize: "10px",
+                      fontWeight: 800,
+                      padding: "2px 6px",
+                      border: "1px dashed var(--color-border)",
+                    }}
+                  >
+                    TIER 2
+                  </span>
+                  <span className="font-mono" style={{ fontSize: "12px", fontWeight: 700 }}>
+                    PILIHAN ALASAN
+                  </span>
+                </div>
+                <span className="font-mono" style={{ fontSize: "11px", color: "var(--color-text-muted)" }}>
+                  [ TERKUNCI 🔒 ]
+                </span>
+              </div>
+              <p style={{ margin: 0, fontSize: "12px", color: "var(--color-text-muted)", lineHeight: 1.4 }}>
+                Pilih jawaban pada Tier 1 di atas terlebih dahulu untuk membuka pilihan alasan.
+              </p>
+            </div>
+          )}
+
+          {/* TIER 3: TINGKAT KEYAKINAN (Unlocks after Alasan) */}
+          {selectedReason ? (
+            <section
+              className="boxy-card-flat tier-box-expand"
+              style={{
+                padding: "20px 18px",
+                display: "flex",
+                flexDirection: "column",
+                gap: "16px",
+              }}
+            >
               <div
+                className="tier-content-reveal"
                 style={{
                   display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
+                  flexDirection: "column",
+                  gap: "16px",
+                  width: "100%",
                 }}
               >
-                <h3
-                  className="font-mono"
+                {/* Header */}
+                <div
                   style={{
-                    fontSize: "13px",
-                    fontWeight: 800,
-                    letterSpacing: "0.04em",
-                    margin: 0,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
                   }}
                 >
-                  TINGKAT KEYAKINAN
-                </h3>
-              </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                    <span
+                      className="font-mono"
+                      style={{
+                        fontSize: "10px",
+                        fontWeight: 900,
+                        letterSpacing: "0.04em",
+                        padding: "2px 6px",
+                        backgroundColor: "var(--color-text)",
+                        color: "var(--color-bg)",
+                      }}
+                    >
+                      TIER 3
+                    </span>
+                    <h3
+                      className="font-mono"
+                      style={{
+                        fontSize: "12.5px",
+                        fontWeight: 800,
+                        letterSpacing: "0.04em",
+                        margin: 0,
+                      }}
+                    >
+                      TINGKAT KEYAKINAN
+                    </h3>
+                  </div>
 
-              <p style={{ margin: 0, fontSize: "12.5px", color: "var(--color-text-muted)" }}>
-                Apakah kamu yakin dengan pasangan jawaban dan alasan di atas?
+                  {selectedConfidence !== undefined && (
+                    <span
+                      className="font-mono"
+                      style={{
+                        fontSize: "11px",
+                        fontWeight: 900,
+                        color: "var(--color-accent)",
+                      }}
+                    >
+                      [{selectedConfidence ? "YAKIN" : "TIDAK YAKIN"}]
+                    </span>
+                  )}
+                </div>
+
+                <p style={{ margin: 0, fontSize: "12.5px", color: "var(--color-text-muted)", lineHeight: 1.45 }}>
+                  Apakah kamu yakin dengan pasangan jawaban dan alasan di atas?
+                </p>
+
+                {/* Confidence Choice Buttons (Mobile Friendly) */}
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "1fr 1fr",
+                    gap: "12px",
+                  }}
+                >
+                  {/* YAKIN */}
+                  <button
+                    type="button"
+                    onClick={() => handleSelectConfidence(true)}
+                    className={`boxy-btn ${selectedConfidence === true ? "selected" : ""}`}
+                    style={{
+                      height: "50px",
+                      fontSize: "14px",
+                      fontWeight: 800,
+                      border: selectedConfidence === true ? "2px solid var(--color-accent)" : "1.5px solid var(--color-border)",
+                      backgroundColor:
+                        selectedConfidence === true
+                          ? "var(--color-accent)"
+                          : "var(--color-surface)",
+                      color:
+                        selectedConfidence === true
+                          ? "var(--color-accent-contrast)"
+                          : "var(--color-text)",
+                      transform: selectedConfidence === true ? "scale(1.02)" : "none",
+                      boxShadow:
+                        selectedConfidence === true
+                          ? "var(--shadow-boxy-accent)"
+                          : "none",
+                      position: "relative",
+                      overflow: "hidden",
+                    }}
+                  >
+                    {selectedConfidence === true && (
+                      <div
+                        className="dither-overlay-solid"
+                        style={{
+                          position: "absolute",
+                          inset: 0,
+                          opacity: 0.35,
+                        }}
+                      />
+                    )}
+                    <span style={{ position: "relative", zIndex: 2 }}>[ YAKIN ]</span>
+                  </button>
+
+                  {/* TIDAK YAKIN */}
+                  <button
+                    type="button"
+                    onClick={() => handleSelectConfidence(false)}
+                    className={`boxy-btn ${selectedConfidence === false ? "selected" : ""}`}
+                    style={{
+                      height: "50px",
+                      fontSize: "14px",
+                      fontWeight: 800,
+                      border: selectedConfidence === false ? "2px solid var(--color-border)" : "1.5px solid var(--color-border)",
+                      backgroundColor:
+                        selectedConfidence === false
+                          ? "var(--color-surface-dim)"
+                          : "var(--color-surface)",
+                      color: "var(--color-text)",
+                      transform: selectedConfidence === false ? "scale(1.02)" : "none",
+                      boxShadow:
+                        selectedConfidence === false
+                          ? "var(--shadow-boxy-xs)"
+                          : "none",
+                      position: "relative",
+                      overflow: "hidden",
+                    }}
+                  >
+                    {selectedConfidence === false && (
+                      <div
+                        className="dither-overlay"
+                        style={{
+                          position: "absolute",
+                          inset: 0,
+                          opacity: 0.45,
+                        }}
+                      />
+                    )}
+                    <span style={{ position: "relative", zIndex: 2 }}>[ TIDAK YAKIN ]</span>
+                  </button>
+                </div>
+              </div>
+            </section>
+          ) : (
+            /* Locked placeholder for Tier 3 */
+            <div
+              className="boxy-card-flat"
+              style={{
+                padding: "16px 18px",
+                opacity: 0.6,
+                display: "flex",
+                flexDirection: "column",
+                gap: "6px",
+                borderStyle: "dashed",
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                  <span
+                    className="font-mono"
+                    style={{
+                      fontSize: "10px",
+                      fontWeight: 800,
+                      padding: "2px 6px",
+                      border: "1px dashed var(--color-border)",
+                    }}
+                  >
+                    TIER 3
+                  </span>
+                  <span className="font-mono" style={{ fontSize: "12px", fontWeight: 700 }}>
+                    TINGKAT KEYAKINAN
+                  </span>
+                </div>
+                <span className="font-mono" style={{ fontSize: "11px", color: "var(--color-text-muted)" }}>
+                  [ TERKUNCI 🔒 ]
+                </span>
+              </div>
+              <p style={{ margin: 0, fontSize: "12px", color: "var(--color-text-muted)", lineHeight: 1.4 }}>
+                Pilih alasan pada Tier 2 di atas terlebih dahulu untuk konfirmasi keyakinan.
               </p>
-
-              {/* Confidence Choice Buttons (Mobile Friendly) */}
-              <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "1fr 1fr",
-                  gap: "10px",
-                }}
-              >
-                {/* YAKIN */}
-                <button
-                  type="button"
-                  onClick={() => handleSelectConfidence(true)}
-                  className={`boxy-btn ${selectedConfidence === true ? "selected" : ""}`}
-                  style={{
-                    height: "48px",
-                    fontSize: "14px",
-                    fontWeight: 800,
-                    border: selectedConfidence === true ? "2px solid var(--color-accent)" : "1.5px solid var(--color-border)",
-                    backgroundColor:
-                      selectedConfidence === true
-                        ? "var(--color-accent)"
-                        : "var(--color-surface)",
-                    color:
-                      selectedConfidence === true
-                        ? "var(--color-accent-contrast)"
-                        : "var(--color-text)",
-                    transform: selectedConfidence === true ? "scale(1.02)" : "none",
-                    boxShadow:
-                      selectedConfidence === true
-                        ? "var(--shadow-boxy-accent)"
-                        : "none", // No shadow on unselected
-                    position: "relative",
-                    overflow: "hidden",
-                  }}
-                >
-                  {selectedConfidence === true && (
-                    <div
-                      className="dither-overlay-solid"
-                      style={{
-                        position: "absolute",
-                        inset: 0,
-                        opacity: 0.35,
-                      }}
-                    />
-                  )}
-                  <span style={{ position: "relative", zIndex: 2 }}>[ YAKIN ]</span>
-                </button>
-
-                {/* TIDAK YAKIN */}
-                <button
-                  type="button"
-                  onClick={() => handleSelectConfidence(false)}
-                  className={`boxy-btn ${selectedConfidence === false ? "selected" : ""}`}
-                  style={{
-                    height: "48px",
-                    fontSize: "14px",
-                    fontWeight: 800,
-                    border: selectedConfidence === false ? "2px solid var(--color-border)" : "1.5px solid var(--color-border)",
-                    backgroundColor:
-                      selectedConfidence === false
-                        ? "var(--color-surface-dim)"
-                        : "var(--color-surface)",
-                    color: "var(--color-text)",
-                    transform: selectedConfidence === false ? "scale(1.02)" : "none",
-                    boxShadow:
-                      selectedConfidence === false
-                        ? "var(--shadow-boxy-xs)"
-                        : "none", // No shadow on unselected
-                    position: "relative",
-                    overflow: "hidden",
-                  }}
-                >
-                  {selectedConfidence === false && (
-                    <div
-                      className="dither-overlay"
-                      style={{
-                        position: "absolute",
-                        inset: 0,
-                        opacity: 0.45,
-                      }}
-                    />
-                  )}
-                  <span style={{ position: "relative", zIndex: 2 }}>[ TIDAK YAKIN ]</span>
-                </button>
-              </div>
             </div>
-          </section>
-        ) : (
-          /* Locked placeholder for Tier 3 */
-          <div
-            className="boxy-card-flat"
-            style={{
-              padding: "14px 16px",
-              opacity: 0.45,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              borderStyle: "dashed",
-            }}
-          >
-            <span className="font-mono" style={{ fontSize: "12px", fontWeight: 700 }}>
-              TINGKAT KEYAKINAN
-            </span>
-          </div>
-        )}
+          )}
         </div>
 
         {/* Bottom Navigation & Controls (Thumb-friendly for mobile) */}
@@ -942,8 +1078,8 @@ export default function QuizDemoPage() {
           style={{
             display: "flex",
             alignItems: "center",
-            marginTop: "6px",
-            gap: "10px",
+            marginTop: "16px",
+            gap: "12px",
           }}
         >
           <button
@@ -953,7 +1089,7 @@ export default function QuizDemoPage() {
             className="boxy-btn font-mono"
             style={{
               flex: 1,
-              height: "44px",
+              height: "46px",
               padding: "0 14px",
               fontSize: "13px",
               opacity: currentIdx === 0 ? 0.35 : 1,
@@ -970,7 +1106,7 @@ export default function QuizDemoPage() {
             className="boxy-btn boxy-btn-accent font-mono"
             style={{
               flex: 1,
-              height: "44px",
+              height: "46px",
               padding: "0 14px",
               fontSize: "13px",
             }}
@@ -986,7 +1122,10 @@ export default function QuizDemoPage() {
         score={calculatedScore}
         diagnosisCounts={diagnosisCounts}
         totalQuestions={total}
-        onClose={() => setShowScore(false)}
+        onClose={() => {
+          setShowScore(false);
+          router.push("/dashboard");
+        }}
         onReview={() => {
           setShowScore(false);
           setDirection("backward");
