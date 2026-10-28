@@ -27,8 +27,10 @@ Full design rationale, schema, and RLS policy table: [`docs/PLAN.md`](docs/PLAN.
 - **Mobile-First Role Dashboards**:
   - **Student** (`/dashboard`, `/profile`): time-based greeting, diagnostic metrics, active test resume banner, subject filter pills, card score feedback.
   - **Teacher** (`/teacher/dashboard`, `/teacher/sets/[id]`, `/teacher/profile`): test pack directory, class diagnostic distribution bar, per-student matrix strip chips (`01`..`06`) color-coded by diagnosis, 3-tier expandable answer details.
-  - **Admin** (`/admin/dashboard`, `/admin/sets/[id]`, `/admin/profile`): unified command center with 3 segmented tabs (`✦ BUAT SOAL (AI)`, `🗂 PAKET SOAL`, `👥 PENGGUNA`), metric cards matching student/teacher layouts, AI question generator with Gemini Flash branding, question editor with answer/reason key toggles, user management with password resets.
-  - **Authentication** (`/login`): mobile-first neo-brutalist login screen with 3-tier visual mark, `.boxy-input`, 1-click Quick Demo Account pills (`🎓 SISWA`, `👩‍🏫 GURU`, `⚙ ADMIN`), dual-mode Supabase/offline mock support.
+  - **Admin** (`/admin/dashboard`, `/admin/sets/[id]`, `/admin/profile`): unified command center with 3 segmented tabs (`✦ BUAT SOAL (AI)`, `🗂 PAKET SOAL`, `👥 PENGGUNA`) with direction-aware swipe transitions, metric cards matching student/teacher layouts, 100% pure mock AI question generator with dynamic 3-tier question preview and `[ MEMPROSES... ]` pulse state, question editor with answer/reason key toggles, user management with password resets.
+  - **Authentication** (`/login`): mobile-first neo-brutalist login screen with 3-tier visual mark, `.boxy-input`, 1-click Quick Demo Account pills (`🎓 SISWA`, `👩‍🏫 GURU`, `⚙ ADMIN`), direct dashboard links, dual-mode Supabase/offline mock support.
+- **Universal Role Switcher** (`ProfileDropdown.tsx`): 1-click role switcher inside the header avatar dropdown to instantly jump between Student, Teacher, and Admin dashboards from any screen during UI/UX reviews.
+- **Viewport Pinned Toast Notification**: Portal-pinned bottom screen toast notifications (`.toast-bottom-screen`) guaranteed to remain visible at the physical viewport center-bottom, decoupled from ancestor CSS transforms.
 - **Tactile Route Transitions**: 0.22s Apple/Framer deceleration vertical lift + fade-in with automatic cleanup preserving CSS sticky headers.
 
 ## Local setup
