@@ -1,3 +1,4 @@
+import { cookies } from "next/headers";
 import { requireRole } from "@/lib/auth";
 import { diagnose, type Diagnosis } from "@/lib/diagnose";
 
@@ -739,7 +740,15 @@ export async function fetchTeacherData(): Promise<{
     process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
   );
 
-  if (!isSupabaseConfigured) {
+  let isDemo = false;
+  try {
+    const cookieStore = await cookies();
+    isDemo = Boolean(cookieStore.get("lms-demo-role")?.value);
+  } catch {
+    // Prerender or test fallback
+  }
+
+  if (!isSupabaseConfigured || isDemo) {
     return {
       profile: MOCK_TEACHER,
       stats: MOCK_TEACHER_STATS,

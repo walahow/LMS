@@ -36,40 +36,7 @@ export async function signIn(_prevState: LoginState, formData: FormData): Promis
       (password === "password123" || email.toLowerCase().endsWith("@lms.local"))
   );
 
-  let targetRedirect: string | null = null;
-
-  // 1. If Supabase is configured, try authenticating with Supabase Auth first
-  if (process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
-    try {
-      const supabase = await createClient();
-      const { error, data } = await supabase.auth.signInWithPassword({ email, password });
-
-      if (!error && data?.user) {
-        const { data: profile } = await supabase
-          .from("profiles")
-          .select("role")
-          .eq("id", data.user.id)
-          .single();
-
-        // Clear mock demo session cookie if live login succeeded
-        const cookieStore = await cookies();
-        cookieStore.delete("lms-demo-role");
-
-        targetRedirect = roleHome((profile?.role ?? "student") as UserRole);
-      } else {
-        console.warn("[login] Supabase auth rejected:", error?.message);
-      }
-    } catch (err) {
-      console.warn("[login] Supabase connection error:", err);
-    }
-  }
-
-  // 2. If live login succeeded, perform redirect
-  if (targetRedirect) {
-    redirect(targetRedirect);
-  }
-
-  // 3. Fallback: If live login was unsuccessful BUT user entered a demo account, log them in via mock demo session!
+  // 1. Instant Demo Bypass (0ms latency, zero external network delay)
   if (isDemoCredential && detectedRole) {
     const cookieStore = await cookies();
     cookieStore.set("lms-demo-role", detectedRole, {
@@ -81,6 +48,40 @@ export async function signIn(_prevState: LoginState, formData: FormData): Promis
     redirect(roleHome(detectedRole));
   }
 
-  // 4. Otherwise, return generic error for invalid credentials
+  // 2. If Supabase is unconfigured, reject non-demo credentials
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+    return { error: "Email atau kata sandi salah." };
+  }
+
+  // 3. Live Supabase Auth for real accounts
+  try {
+    const supabase = await createClient();
+    const { error, data } = await supabase.auth.signInWithPassword({ email, password });
+
+    if (!error && data?.user) {
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", data.user.id)
+        .single();
+
+      // Clear any leftover demo cookie
+      const cookieStore = await cookies();
+      cookieStore.delete("lms-demo-role");
+
+      redirect(roleHome((profile?.role ?? "student") as UserRole));
+    }
+  } catch (err) {
+    if (
+      err &&
+      typeof err === "object" &&
+      "digest" in err &&
+      String((err as any).digest).startsWith("NEXT_REDIRECT")
+    ) {
+      throw err;
+    }
+    console.warn("[login] Supabase auth error:", err);
+  }
+
   return { error: "Email atau kata sandi salah." };
 }

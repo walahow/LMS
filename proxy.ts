@@ -23,7 +23,7 @@ export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const area = areaFor(pathname);
 
-  // Check for mock demo session cookie
+  // 1. Instant Mock Demo Session Bypass (0ms latency)
   const demoRole = request.cookies.get("lms-demo-role")?.value as UserRole | undefined;
   if (demoRole === "student" || demoRole === "teacher" || demoRole === "admin") {
     if (area === "public" || pathname === "/") {
@@ -39,10 +39,21 @@ export async function proxy(request: NextRequest) {
     return response;
   }
 
+  // 2. If Supabase is unconfigured, bypass middleware checks
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
     return response;
   }
 
+  // 3. Performance guard: Don't ping Supabase on public routes if no auth cookie is present
+  const hasAuthCookie = request.cookies
+    .getAll()
+    .some((c) => c.name.startsWith("sb-") || c.name.includes("auth-token"));
+
+  if (area === "public" && !hasAuthCookie) {
+    return response;
+  }
+
+  // 4. Live Supabase Auth Session Verification
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,

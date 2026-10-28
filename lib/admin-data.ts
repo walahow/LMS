@@ -1,3 +1,4 @@
+import { cookies } from "next/headers";
 // lib/admin-data.ts - Mock and server data helpers for Admin Unified Hub
 
 export type AdminProfile = {
@@ -534,9 +535,18 @@ export async function fetchAdminData(): Promise<{
   questionSets: AdminQuestionSet[];
   users: AdminUser[];
 }> {
+  let isDemo = false;
+  try {
+    const cookieStore = await cookies();
+    isDemo = Boolean(cookieStore.get("lms-demo-role")?.value);
+  } catch {
+    // Prerender fallback
+  }
+
   if (
     !process.env.NEXT_PUBLIC_SUPABASE_URL ||
-    !process.env.SUPABASE_SERVICE_ROLE_KEY
+    !process.env.SUPABASE_SERVICE_ROLE_KEY ||
+    isDemo
   ) {
     const stats = calculateAdminStats(MOCK_ADMIN_SETS, MOCK_ADMIN_USERS);
     return {
@@ -622,9 +632,18 @@ export async function fetchAdminSetDetail(id: string): Promise<AdminQuestionSet 
   const mock = MOCK_ADMIN_SETS.find((s) => s.id === id);
   if (mock) return mock;
 
+  let isDemo = false;
+  try {
+    const cookieStore = await cookies();
+    isDemo = Boolean(cookieStore.get("lms-demo-role")?.value);
+  } catch {
+    // Prerender fallback
+  }
+
   if (
     !process.env.NEXT_PUBLIC_SUPABASE_URL ||
-    !process.env.SUPABASE_SERVICE_ROLE_KEY
+    !process.env.SUPABASE_SERVICE_ROLE_KEY ||
+    isDemo
   ) {
     return null;
   }

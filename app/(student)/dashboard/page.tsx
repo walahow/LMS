@@ -1,3 +1,4 @@
+import { cookies } from "next/headers";
 import { requireRole } from "@/lib/auth";
 import {
   StudentDashboardView,
@@ -79,7 +80,15 @@ async function getDashboardData(): Promise<{
     process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
   );
 
-  if (!isSupabaseConfigured) {
+  let isDemo = false;
+  try {
+    const cookieStore = await cookies();
+    isDemo = Boolean(cookieStore.get("lms-demo-role")?.value);
+  } catch {
+    // Prerender fallback
+  }
+
+  if (!isSupabaseConfigured || isDemo) {
     return {
       profile: MOCK_PROFILE,
       stats: MOCK_STATS,
