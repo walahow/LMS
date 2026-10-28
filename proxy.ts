@@ -20,10 +20,20 @@ function areaFor(pathname: string): UserRole | "public" {
 export async function proxy(request: NextRequest) {
   let response = NextResponse.next({ request });
 
-  const { pathname } = request.nextUrl;
+  const { pathname, searchParams } = request.nextUrl;
   const area = areaFor(pathname);
 
-  // 1. Instant Mock Demo Session Bypass (0ms latency)
+  // 1. Explicit Logout Guard: If user explicitly navigated to /login?logout=..., clear demo session immediately
+  if (pathname === "/login" && (searchParams.has("logout") || searchParams.has("logged_out"))) {
+    response.cookies.set("lms-demo-role", "", {
+      path: "/",
+      maxAge: 0,
+      expires: new Date(0),
+    });
+    return response;
+  }
+
+  // 2. Instant Mock Demo Session Bypass (0ms latency)
   const demoRole = request.cookies.get("lms-demo-role")?.value as UserRole | undefined;
   if (demoRole === "student" || demoRole === "teacher" || demoRole === "admin") {
     if (area === "public" || pathname === "/") {
@@ -39,12 +49,12 @@ export async function proxy(request: NextRequest) {
     return response;
   }
 
-  // 2. If Supabase is unconfigured, bypass middleware checks
+  // 3. If Supabase is unconfigured, bypass middleware checks
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
     return response;
   }
 
-  // 3. Performance guard: Don't ping Supabase on public routes if no auth cookie is present
+  // 4. Performance guard: Don't ping Supabase on public routes if no auth cookie is present
   const hasAuthCookie = request.cookies
     .getAll()
     .some((c) => c.name.startsWith("sb-") || c.name.includes("auth-token"));
@@ -53,7 +63,7 @@ export async function proxy(request: NextRequest) {
     return response;
   }
 
-  // 4. Live Supabase Auth Session Verification
+  // 5. Live Supabase Auth Session Verification
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,

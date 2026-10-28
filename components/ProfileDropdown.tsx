@@ -214,6 +214,11 @@ export function ProfileDropdown({
             <form action={signOut} style={{ width: "100%" }}>
               <button
                 type="submit"
+                onClick={() => {
+                  try {
+                    document.cookie = "lms-demo-role=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+                  } catch {}
+                }}
                 className="font-mono boxy-pressable-sm"
                 style={{
                   width: "100%",

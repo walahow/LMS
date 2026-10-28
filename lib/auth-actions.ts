@@ -6,6 +6,19 @@ import { createClient } from "@/lib/supabase/server";
 
 export async function signOut() {
   const cookieStore = await cookies();
+
+  // Explicitly clear demo cookie with path: "/" and expiration
+  cookieStore.set("lms-demo-role", "", {
+    path: "/",
+    httpOnly: true,
+    sameSite: "lax",
+    maxAge: 0,
+    expires: new Date(0),
+  });
+  cookieStore.delete({
+    name: "lms-demo-role",
+    path: "/",
+  });
   cookieStore.delete("lms-demo-role");
 
   try {
@@ -17,7 +30,7 @@ export async function signOut() {
     // Offline / standalone
   }
 
-  redirect("/login");
+  redirect("/login?logout=1");
 }
 
 export type ChangePasswordState = { error?: string; success?: boolean };

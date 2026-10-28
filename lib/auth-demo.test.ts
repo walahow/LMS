@@ -19,7 +19,8 @@ vi.mock("next/headers", () => ({
     set: (key: string, val: string, opts?: any) => {
       mockCookiesStore.set(key, { name: key, value: val, ...opts });
     },
-    delete: (key: string) => {
+    delete: (keyOrObj: any) => {
+      const key = typeof keyOrObj === "string" ? keyOrObj : keyOrObj?.name;
       mockCookiesStore.delete(key);
     },
   }),
@@ -94,6 +95,18 @@ describe("Demo Account Fallback Login", () => {
     const result = await signIn({}, formData);
     expect(result).toEqual({ error: "Email atau kata sandi salah." });
     expect(mockRedirect).not.toHaveBeenCalled();
+    expect(mockCookiesStore.get("lms-demo-role")).toBeUndefined();
+  });
+
+  it("clears demo session cookie and redirects to /login?logout=1 upon signOut", async () => {
+    const { signOut } = await import("@/lib/auth-actions");
+
+    mockCookiesStore.set("lms-demo-role", { name: "lms-demo-role", value: "teacher" });
+    expect(mockCookiesStore.get("lms-demo-role")?.value).toBe("teacher");
+
+    await expect(signOut()).rejects.toThrow("NEXT_REDIRECT");
+    expect(mockRedirect).toHaveBeenCalledWith("/login?logout=1");
+    // Should be deleted
     expect(mockCookiesStore.get("lms-demo-role")).toBeUndefined();
   });
 });

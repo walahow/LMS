@@ -337,6 +337,11 @@ export function AdminProfileView({ profile }: { profile: AdminProfileData }) {
           <form action={signOut}>
             <button
               type="submit"
+              onClick={() => {
+                try {
+                  document.cookie = "lms-demo-role=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+                } catch {}
+              }}
               className="boxy-pressable-sm font-mono"
               style={{
                 padding: "8px 14px",
