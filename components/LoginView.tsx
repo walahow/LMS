@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useActionState } from "react";
+import Link from "next/link";
 import { signIn, type LoginState } from "@/app/(auth)/login/actions";
 
 const initialState: LoginState = {};
@@ -314,100 +315,70 @@ export function LoginView() {
             }}
           >
             {/* Student Shortcut */}
-            <button
-              type="button"
-              onClick={() => fillDemoAccount("student")}
+            <Link
+              href="/dashboard"
               className="boxy-pressable-sm font-mono"
               style={{
-                padding: "8px 4px",
-                fontSize: "10.5px",
-                fontWeight: 700,
-                border:
-                  selectedDemoRole === "student"
-                    ? "2px solid var(--color-accent)"
-                    : "1.5px solid var(--color-border)",
-                backgroundColor:
-                  selectedDemoRole === "student"
-                    ? "rgba(255, 40, 0, 0.08)"
-                    : "var(--color-surface)",
-                color:
-                  selectedDemoRole === "student"
-                    ? "var(--color-accent)"
-                    : "var(--color-text)",
-                cursor: "pointer",
+                padding: "10px 4px",
+                fontSize: "11px",
+                fontWeight: 800,
+                border: "1.5px solid var(--color-border)",
+                backgroundColor: "var(--color-surface)",
+                color: "var(--color-text)",
+                textDecoration: "none",
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "center",
-                gap: "2px",
+                gap: "3px",
               }}
             >
-              <span style={{ fontSize: "14px" }}>🎓</span>
-              <span>SISWA</span>
-            </button>
+              <span style={{ fontSize: "16px" }}>🎓</span>
+              <span>SISWA ➔</span>
+            </Link>
 
             {/* Teacher Shortcut */}
-            <button
-              type="button"
-              onClick={() => fillDemoAccount("teacher")}
+            <Link
+              href="/teacher/dashboard"
               className="boxy-pressable-sm font-mono"
               style={{
-                padding: "8px 4px",
-                fontSize: "10.5px",
-                fontWeight: 700,
-                border:
-                  selectedDemoRole === "teacher"
-                    ? "2px solid var(--color-accent)"
-                    : "1.5px solid var(--color-border)",
-                backgroundColor:
-                  selectedDemoRole === "teacher"
-                    ? "rgba(255, 40, 0, 0.08)"
-                    : "var(--color-surface)",
-                color:
-                  selectedDemoRole === "teacher"
-                    ? "var(--color-accent)"
-                    : "var(--color-text)",
-                cursor: "pointer",
+                padding: "10px 4px",
+                fontSize: "11px",
+                fontWeight: 800,
+                border: "1.5px solid var(--color-border)",
+                backgroundColor: "var(--color-surface)",
+                color: "var(--color-text)",
+                textDecoration: "none",
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "center",
-                gap: "2px",
+                gap: "3px",
               }}
             >
-              <span style={{ fontSize: "14px" }}>👩‍🏫</span>
-              <span>GURU</span>
-            </button>
+              <span style={{ fontSize: "16px" }}>👩‍🏫</span>
+              <span>GURU ➔</span>
+            </Link>
 
             {/* Admin Shortcut */}
-            <button
-              type="button"
-              onClick={() => fillDemoAccount("admin")}
+            <Link
+              href="/admin/dashboard"
               className="boxy-pressable-sm font-mono"
               style={{
-                padding: "8px 4px",
-                fontSize: "10.5px",
-                fontWeight: 700,
-                border:
-                  selectedDemoRole === "admin"
-                    ? "2px solid var(--color-accent)"
-                    : "1.5px solid var(--color-border)",
-                backgroundColor:
-                  selectedDemoRole === "admin"
-                    ? "rgba(255, 40, 0, 0.08)"
-                    : "var(--color-surface)",
-                color:
-                  selectedDemoRole === "admin"
-                    ? "var(--color-accent)"
-                    : "var(--color-text)",
-                cursor: "pointer",
+                padding: "10px 4px",
+                fontSize: "11px",
+                fontWeight: 800,
+                border: "1.5px solid var(--color-border)",
+                backgroundColor: "var(--color-surface)",
+                color: "var(--color-text)",
+                textDecoration: "none",
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "center",
-                gap: "2px",
+                gap: "3px",
               }}
             >
-              <span style={{ fontSize: "14px" }}>⚙</span>
-              <span>ADMIN</span>
-            </button>
+              <span style={{ fontSize: "16px" }}>⚙</span>
+              <span>ADMIN ➔</span>
+            </Link>
           </div>
         </section>
 

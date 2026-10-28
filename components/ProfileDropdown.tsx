@@ -210,53 +210,150 @@ export function ProfileDropdown({
               }}
             />
 
+            {/* Quick Switch Role Section for Review */}
+            <div
+              style={{
+                fontSize: "9.5px",
+                fontWeight: 800,
+                color: "var(--color-text-muted)",
+                padding: "4px 10px 2px",
+                letterSpacing: "0.05em",
+              }}
+            >
+              NAVIGASI REVIEW (UI/UX)
+            </div>
+
+            <Link
+              href="/dashboard"
+              onClick={() => setIsOpen(false)}
+              className="font-mono boxy-pressable-sm"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                padding: "6px 10px",
+                fontSize: "11px",
+                fontWeight: 700,
+                color: "var(--color-text)",
+                textDecoration: "none",
+              }}
+            >
+              <span>🎓 DASHBOARD SISWA</span>
+              <span style={{ color: "var(--color-text-muted)" }}>➔</span>
+            </Link>
+
+            <Link
+              href="/teacher/dashboard"
+              onClick={() => setIsOpen(false)}
+              className="font-mono boxy-pressable-sm"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                padding: "6px 10px",
+                fontSize: "11px",
+                fontWeight: 700,
+                color: "var(--color-text)",
+                textDecoration: "none",
+              }}
+            >
+              <span>👩‍🏫 DASHBOARD GURU</span>
+              <span style={{ color: "var(--color-text-muted)" }}>➔</span>
+            </Link>
+
+            <Link
+              href="/admin/dashboard"
+              onClick={() => setIsOpen(false)}
+              className="font-mono boxy-pressable-sm"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                padding: "6px 10px",
+                fontSize: "11px",
+                fontWeight: 700,
+                color: "var(--color-text)",
+                textDecoration: "none",
+              }}
+            >
+              <span>⚙ DASHBOARD ADMIN</span>
+              <span style={{ color: "var(--color-text-muted)" }}>➔</span>
+            </Link>
+
+            <Link
+              href="/quiz"
+              onClick={() => setIsOpen(false)}
+              className="font-mono boxy-pressable-sm"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                padding: "6px 10px",
+                fontSize: "11px",
+                fontWeight: 700,
+                color: "var(--color-text)",
+                textDecoration: "none",
+              }}
+            >
+              <span>📝 KUIS DIAGNOSTIK 3-TIER</span>
+              <span style={{ color: "var(--color-text-muted)" }}>➔</span>
+            </Link>
+
+            {/* Divider */}
+            <div
+              style={{
+                height: "1px",
+                backgroundColor: "var(--color-border)",
+                opacity: 0.25,
+                margin: "2px 0",
+              }}
+            />
+
             {/* 2. Direct Logout */}
-            <form action={signOut} style={{ width: "100%" }}>
-              <button
-                type="submit"
-                onClick={() => {
-                  try {
-                    document.cookie = "lms-demo-role=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-                  } catch {}
-                }}
-                className="font-mono boxy-pressable-sm"
-                style={{
-                  width: "100%",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  padding: "8px 10px",
-                  fontSize: "11.5px",
-                  fontWeight: 800,
-                  color: "var(--color-accent)",
-                  backgroundColor: "transparent",
-                  border: "1px solid transparent",
-                  cursor: "pointer",
-                  textAlign: "left",
-                }}
-                role="menuitem"
-              >
-                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                  <svg
-                    width="15"
-                    height="15"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2.2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    aria-hidden="true"
-                  >
-                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-                    <polyline points="16 17 21 12 16 7" />
-                    <line x1="21" y1="12" x2="9" y2="12" />
-                  </svg>
-                  <span>KELUAR DARI AKUN</span>
-                </div>
-                <span>➔</span>
-              </button>
-            </form>
+            <Link
+              href="/login"
+              onClick={() => {
+                setIsOpen(false);
+                try {
+                  document.cookie = "lms-demo-role=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+                } catch {}
+              }}
+              className="font-mono boxy-pressable-sm"
+              style={{
+                width: "100%",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                padding: "8px 10px",
+                fontSize: "11.5px",
+                fontWeight: 800,
+                color: "var(--color-accent)",
+                textDecoration: "none",
+                cursor: "pointer",
+                textAlign: "left",
+              }}
+              role="menuitem"
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <svg
+                  width="15"
+                  height="15"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                  <polyline points="16 17 21 12 16 7" />
+                  <line x1="21" y1="12" x2="9" y2="12" />
+                </svg>
+                <span>KELUAR KE HALAMAN LOGIN</span>
+              </div>
+              <span>➔</span>
+            </Link>
           </div>
         </div>
       )}
