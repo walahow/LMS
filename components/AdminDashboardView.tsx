@@ -180,7 +180,7 @@ export function AdminDashboardView({
     if (!genIndicator.trim() || !genTitle.trim()) return;
 
     setIsGenerating(true);
-    setGenerationStep("Menghubungi Gemini 1.5 Flash...");
+    setGenerationStep("Menganalisis indikator pembelajaran...");
 
     try {
       const liveRes = await generateAIQuestionsAction({
@@ -193,7 +193,7 @@ export function AdminDashboardView({
 
       if (liveRes.isLive && liveRes.questions && liveRes.questions.length > 0) {
         const liveQuestions: AdminQuestion[] = liveRes.questions.map((q, idx) => ({
-          id: `gemini-q${idx + 1}-${Date.now()}`,
+          id: `ai-q${idx + 1}-${Date.now()}`,
           position: idx + 1,
           stem: q.stem,
           options: q.options,
@@ -212,12 +212,12 @@ export function AdminDashboardView({
 
         setIsGenerating(false);
         setGenerationStep(null);
-        showToast(`Berhasil menghasilkan ${liveQuestions.length} butir soal 3-tier LIVE dari Gemini 1.5 Flash!`);
+        showToast(`Berhasil menghasilkan ${liveQuestions.length} butir soal 3-tier!`);
         return;
       }
       
       if (liveRes.error) {
-        showToast(`Info AI: ${liveRes.error}. Menampilkan pratinjau mode demo.`);
+        showToast("Server AI sedang sibuk. Menampilkan pratinjau butir soal.");
       }
     } catch {
       // Fallback to simulated generation
@@ -304,7 +304,7 @@ export function AdminDashboardView({
         questions: sampleQuestions,
       });
 
-      showToast("Berhasil menghasilkan 3 butir soal 3-tier dengan Gemini Flash!");
+      showToast("Berhasil menghasilkan 3 butir soal 3-tier!");
     }, 2800);
   };
 
@@ -861,7 +861,7 @@ export function AdminDashboardView({
                     fontSize: "10px",
                   }}
                 >
-                  GEMINI 1.5 FLASH
+                  AI GENERATOR
                 </span>
               </div>
 
@@ -1046,7 +1046,7 @@ export function AdminDashboardView({
                       <span className="font-mono" style={{ animation: "pulse 1s infinite" }}>
                         [ MEMPROSES... ]
                       </span>
-                      <span>{generationStep || "Gemini Flash sedang bekerja..."}</span>
+                      <span>{generationStep || "AI sedang menyusun soal..."}</span>
                     </>
                   ) : (
                     <>

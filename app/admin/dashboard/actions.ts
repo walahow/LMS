@@ -114,9 +114,13 @@ export async function generateAIQuestionsAction(params: {
     });
     return { isLive: true, questions };
   } catch (err) {
+    const rawMsg = err instanceof Error ? err.message : "Gagal memanggil API AI";
+    const userMsg = rawMsg.includes("503") || rawMsg.includes("high demand")
+      ? "Server AI sedang mengalami lonjakan trafik tinggi (503). Silakan coba sesaat lagi."
+      : rawMsg;
     return {
       isLive: false,
-      error: err instanceof Error ? err.message : "Gagal memanggil API AI",
+      error: userMsg,
     };
   }
 }
