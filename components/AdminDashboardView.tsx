@@ -31,8 +31,22 @@ export function AdminDashboardView({
   questionSets: initialSets,
   users: initialUsers,
 }: AdminDashboardViewProps) {
-  // Navigation tabs state
+  // Navigation tabs state with direction-aware swipe animation
+  const TAB_ORDER: Record<ActiveTab, number> = {
+    generator: 0,
+    sets: 1,
+    users: 2,
+  };
   const [activeTab, setActiveTab] = useState<ActiveTab>("generator");
+  const [tabDirection, setTabDirection] = useState<"forward" | "backward">("forward");
+
+  const switchTab = (targetTab: ActiveTab) => {
+    if (targetTab === activeTab) return;
+    const currentIdx = TAB_ORDER[activeTab];
+    const targetIdx = TAB_ORDER[targetTab];
+    setTabDirection(targetIdx > currentIdx ? "forward" : "backward");
+    setActiveTab(targetTab);
+  };
 
   // Sets state
   const [sets, setSets] = useState<AdminQuestionSet[]>(initialSets);
@@ -64,7 +78,6 @@ export function AdminDashboardView({
   const [genDifficulty, setGenDifficulty] = useState<"mudah" | "sedang" | "sulit">("sedang");
   const [genCount, setGenCount] = useState(5);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [generationStep, setGenerationStep] = useState<string | null>(null);
   const [generatedPreview, setGeneratedPreview] = useState<{
     packTitle: string;
     indicator: string;
@@ -179,15 +192,9 @@ export function AdminDashboardView({
     if (!genIndicator.trim() || !genTitle.trim()) return;
 
     setIsGenerating(true);
-    setGenerationStep("Menganalisis indikator pembelajaran...");
-
-    setTimeout(() => {
-      setGenerationStep("Menyusun 3-tier: stem, jawaban, dan pola miskonsepsi...");
-    }, 600);
 
     setTimeout(() => {
       setIsGenerating(false);
-      setGenerationStep(null);
 
       const title = genTitle.trim();
       const subject = genSubject.trim() || "Fisika";
@@ -327,6 +334,7 @@ export function AdminDashboardView({
 
     setSets([newSet, ...sets]);
     setGeneratedPreview(null);
+    setTabDirection("forward");
     setActiveTab("sets");
     showToast(
       publishDirectly
@@ -650,7 +658,7 @@ export function AdminDashboardView({
           {/* Button 1: Generator AI */}
           <button
             type="button"
-            onClick={() => setActiveTab("generator")}
+            onClick={() => switchTab("generator")}
             className="boxy-pressable-md font-mono"
             style={{
               minHeight: "68px",
@@ -707,7 +715,7 @@ export function AdminDashboardView({
           {/* Button 2: Paket Soal (Test Cases) */}
           <button
             type="button"
-            onClick={() => setActiveTab("sets")}
+            onClick={() => switchTab("sets")}
             className="boxy-pressable-md font-mono"
             style={{
               minHeight: "68px",
@@ -764,7 +772,7 @@ export function AdminDashboardView({
           {/* Button 3: Pengguna (User Management) */}
           <button
             type="button"
-            onClick={() => setActiveTab("users")}
+            onClick={() => switchTab("users")}
             className="boxy-pressable-md font-mono"
             style={{
               minHeight: "68px",
@@ -819,6 +827,12 @@ export function AdminDashboardView({
           </button>
         </section>
 
+        {/* Direction-Aware Segment Deck Container */}
+        <div
+          key={activeTab}
+          className={tabDirection === "forward" ? "slide-forward" : "slide-backward"}
+          style={{ width: "100%", display: "flex", flexDirection: "column" }}
+        >
         {/* =========================================================================
             TAB 1: BUAT SOAL (AI GENERATOR)
            ========================================================================= */}
@@ -1042,12 +1056,9 @@ export function AdminDashboardView({
                   }}
                 >
                   {isGenerating ? (
-                    <>
-                      <span className="font-mono" style={{ animation: "pulse 1s infinite" }}>
-                        [ MEMPROSES... ]
-                      </span>
-                      <span>{generationStep || "AI sedang menyusun soal..."}</span>
-                    </>
+                    <span className="font-mono" style={{ animation: "pulse 1s infinite" }}>
+                      [ MEMPROSES... ]
+                    </span>
                   ) : (
                     <>
                       <span>✦ BUAT SOAL DENGAN AI</span>
@@ -1984,6 +1995,7 @@ export function AdminDashboardView({
             )}
           </div>
         )}
+        </div>
       </main>
     </div>
   );

@@ -139,6 +139,11 @@ State as of 2026-10-29.
    - Removed external Google Gemini API calls, eliminating 503 high-demand spike errors and API quota dependencies during review.
    - Dynamic 3-tier question generation based on input topic, indicator, subject, and question count over a snappy 1.2s tactile progress sequence (`[ MEMPROSES... ]`).
 
+21. **Direction-Aware Segment Deck Slide in Admin Dashboard (`components/AdminDashboardView.tsx`)**:
+   - Replicated quiz question slide transition physics for the 3 main admin command center segments (`BUAT SOAL`, `PAKET SOAL`, `PENGGUNA`).
+   - Tracks tab indices (0, 1, 2) to dynamically switch between `.slide-forward` (`slideInFromRight` 0.26s cubic-bezier) and `.slide-backward` (`slideInFromLeft` 0.26s cubic-bezier).
+   - Cleaned AI question button state to only show snappy animated `[ MEMPROSES... ]` during mock generation.
+
 ## Remaining Next Steps
 - Integrate UI with backend Server Actions from `fullstack` branch when ready for live Supabase testing.
 - Scripts: `npm run dev` (runs Turbopack on port 3000), `npm run typecheck`, `npm run test` (`vitest`).
