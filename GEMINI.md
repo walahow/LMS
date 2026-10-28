@@ -7,7 +7,7 @@ options. For each question the student picks (1) an answer, (2) a reason, (3) **
 Roles and pages: student (dashboard, quiz, history, profile) · teacher (dashboard, student detail with
 diagnosis, profile) · admin (generate set, set history/edit, user management) · login.
 
-State as of 2026-10-28.
+State as of 2026-10-29.
 
 ## ⚠ Branch Structure & Code Location
 - **`fullstack` branch**:
@@ -73,8 +73,8 @@ State as of 2026-10-28.
    - Graceful dual-mode operation: connects to live Supabase backend when env vars exist, or serves rich realistic preview data in standalone dev mode.
 8. **`components/ProfileDropdown.tsx`**:
    - Neo-brutalist popover dropdown triggered by the avatar button `[ RP ]`.
-   - Displays student name, grade badge, and email at top.
-   - Menu items: `PROFIL & KEAMANAN ➔` (navigates to `/profile`) and direct `KELUAR DARI AKUN ➔` (calls `signOut`).
+   - Displays student or teacher name, grade/role badge, and email at top. Supports customizable `profileHref` (e.g. `/profile` or `/teacher/profile`).
+   - Menu items: `PROFIL & KEAMANAN ➔` and direct `KELUAR DARI AKUN ➔` (calls `signOut`).
    - Automatically closes on outside clicks or Escape key.
 9. **`components/StudentProfileView.tsx` (`app/(student)/profile/page.tsx`)**:
    - Lean, focused neo-brutalist student profile view with top sticky header containing `[ ❮ KEMBALI ]` button and theme toggle.
@@ -91,12 +91,50 @@ State as of 2026-10-28.
    - Streamlined question counter badge to show only the current question number (`SOAL 01`), eliminating duplication with the sticky header's progress button `[ 03 | 10 ▾ ]`.
    - Removed `TERPILIH: [*]` badges from section headers since selection is already prominently signaled by the Ferrari Red border, active translation, and dither pattern.
    - Updated placeholder guidance text (`Pilih jawaban di atas...`, `Pilih alasan di atas...`).
+12. **Teacher Dashboard — Inspired by Student Dashboard (`components/TeacherDashboardView.tsx` & `app/teacher/dashboard/page.tsx`)**:
+   - Mobile-first single-column ergonomics (`maxWidth: 440px`), mirroring the student dashboard layout and aesthetics.
+   - Pinned sticky navbar with brand mark `[ LMS DIAGNOSTIK ] [GURU]`, theme toggle, and profile avatar initials.
+   - Hero greeting card ("Selamat pagi/siang/sore/malam, Bu Sari Wulandari, M.Pd.") + role badge.
+   - 3-box diagnostic stats row: Total Paket Soal, Rata-Rata Skor Kelas (highlighted with Ferrari Red shadow), and Tingkat Partisipasi Siswa.
+   - Search input (`.boxy-input`) for test packs & indicators + subject filter pills (`[ SEMUA ]`, `[ FISIKA ]`, `[ BIOLOGI ]`, etc.).
+   - Test pack cards with subject dot badges, question counts, learning indicator snippets, student participation counter (`4 / 28 Mengerjakan`), misconception warning tags (`⚠ 3 Siswa Miskonsepsi`), and direct CTA link `LIHAT HASIL & SISWA ➔` to `/teacher/sets/[id]`.
+13. **Teacher Test Pack Detail & Diagnostic Matrix (`components/TeacherPackDetailView.tsx` & `app/teacher/sets/[id]/page.tsx`)**:
+   - Dedicated mobile-first detail view accessed by clicking a test pack card.
+   - Sticky header with `[ ❮ BERANDA GURU ]` back button, active subject badge, and theme toggler.
+   - Test pack overview banner with full indicator box and multi-segment class diagnostic distribution bar (Paham, Miskonsepsi, Lucky Guess, Tidak Paham).
+   - Real-time student search input + quick filter pills: `[ SEMUA ]`, `[ ⚠ MISKONSEPSI ]`, `[ ✓ PAHAM ]`, `[ ✗ TIDAK PAHAM ]`, `[ ✦ LUCKY ]`.
+   - Student cards with avatar initials, student name, grade, score badge (`SKOR: 67 / 100`), misconception alert badge, and a horizontal question matrix strip of numbered square chips (`01`..`06`) color-coded by diagnosis.
+   - Interactive accordion trigger (`[ LIHAT JAWABAN 3-TIER ▾ ]`): reveals the complete question-by-question breakdown with Tier 1 answer, Tier 2 reason, Tier 3 confidence, diagnosis badge, and pedagogical misconception warnings.
+   - Shared data module [`lib/teacher-data.ts`](file:///d:/proj/LMS/lib/teacher-data.ts) supporting live Supabase queries and standalone mock fallback.
+14. **Teacher Profile View (`components/TeacherProfileView.tsx` & `app/teacher/profile/page.tsx`)**:
+   - Neo-brutalist profile view tailored for teachers with sticky header, back button (`[ ❮ KEMBALI KE BERANDA ]`), theme toggler, identity card (`[ SW ] Bu Sari Wulandari, M.Pd.`), change password form, and sign-out button.
+15. **Unified Admin Command Center Hub (`components/AdminDashboardView.tsx` & `app/admin/dashboard/page.tsx`)**:
+   - Single-screen responsive neo-brutalist command center (`maxWidth: 760px`) matching Ferrari Red / Rosso Corsa aesthetic.
+   - Pinned sticky navbar with brand mark `[ LMS DIAGNOSTIK ] [ADMIN]`, theme toggle, and profile avatar initials `[ AK ]` (`Pak Andi Kurniawan`).
+   - Hero greeting card + 3-box tactical stats row: `04 PAKET SOAL` (18 Butir Soal), `02 DITERBITKAN` (highlighted with Ferrari Red shadow), and `32 PENGGUNA` (28 Siswa · 3 Guru · 1 Admin).
+   - Interactive segmented tab bar:
+     - `✦ BUAT SOAL (AI)`: AI Question Generator with indicator textarea, subject, grade, difficulty, question count inputs, animated loading state with Gemini 1.5 Flash branding, instant 3-tier question preview with green key badges for answers and reasons, and CTAs to save as draft or publish directly.
+     - `🗂 PAKET SOAL (4)`: Question sets / test cases directory with real-time search, status filter pills (`[ SEMUA ]`, `[ DITERBITKAN ]`, `[ DRAF ]`), quick question preview toggle (`INTIP SOAL ▾`), publish status toggle button, and direct link to question editor (`/admin/sets/[id]`).
+     - `👥 PENGGUNA (32)`: User directory with search, role filter pills (`[ SEMUA ]`, `[ SISWA ]`, `[ GURU ]`, `[ ADMIN ]`), expandable add user form with grade/role fields, user list with boxy initials avatars, and interactive reset password action with visual confirmation.
+16. **Admin Test Pack Question Editor (`components/QuestionEditor.tsx` & `app/admin/sets/[id]/page.tsx`)**:
+   - Neo-brutalist detail and editing view for test cases/questions with sticky header, back button `[ ❮ KEMBALI KE ADMIN HUB ]`, theme toggle, set overview card, and publish toggle button.
+   - Per-question editor card with question stem textarea, radio selectors and letter badges (A, B, C, D) for Tier 1 answer keys, radio selectors for Tier 2 reason keys, and instant save button.
+   - Supports standalone mock preview fallback (`fetchAdminSetDetail` in `lib/admin-data.ts`) and live Supabase persistence.
+17. **Admin Profile View (`components/AdminProfileView.tsx` & `app/admin/profile/page.tsx`)**:
+   - Administrator profile screen with tactile boxy avatar (`[ AK ]` with Ferrari Red background), identity card, change password form, and session sign-out button.
+18. **Mobile-First Neo-Brutalist Login Screen (`components/LoginView.tsx` & `app/(auth)/login/page.tsx`)**:
+   - Mobile-first neo-brutalist authentication screen (`maxWidth: 420px`) with Ferrari Red / Rosso Corsa aesthetic.
+   - Pinned top-right `ThemeToggler` allowing users to switch themes before signing in.
+   - 3-tier visual mark (3 horizontal bars in Ferrari Red, soft slate, and border) representing the three diagnostic tiers (Jawaban, Alasan, Keyakinan).
+   - Tactile login card with `.boxy-input` for email and password, show/hide password toggle, and Ferrari Red submit CTA button (`[ MASUK KE SISTEM ➔ ]`).
+   - 1-click Quick Demo Account pills: `[ 🎓 SISWA ]` (Rani Putri), `[ 👩‍🏫 GURU ]` (Bu Sari), and `[ ⚙ ADMIN ]` (Pak Andi) for instant evaluator/demo role testing.
+   - Dual-mode operation: connects to live Supabase Auth when credentials exist, or performs automatic mock redirection to the appropriate dashboard (`/dashboard`, `/teacher/dashboard`, `/admin/dashboard`) in standalone preview mode.
+
+19. **Right-to-Left Fading Dither Texture on Cards (.dither-fade-right)**:
+   - High-contrast 2x2 halftone checkerboard pattern (--dither-svg) positioned on the right edge (width: 65%) of test pack cards.
+   - Smooth CSS gradient mask (mask-image: linear-gradient(to left, rgba(0,0,0,1) 0%, rgba(0,0,0,0.5) 40%, rgba(0,0,0,0) 100%)) providing an authentic HYDE-style fade from right to left without obstructing card typography or interactive buttons (pointer-events: none).
+   - Integrated across: Student Dashboard (in-progress card and available test set cards), Teacher Dashboard (test pack cards), Teacher Pack Detail (overview hero card), Admin Dashboard (test pack cards), and Admin Set Detail (header card).
 
 ## Remaining Next Steps
-- Apply this established design language to the remaining views:
-  - Login Screen (`docs/ui-reference/Main.dc.html`)
-  - Student Review Screen (`/(student)/history/[attemptId]`)
-  - Teacher Detail Dashboard (`docs/ui-reference/TeacherDetail.dc.html`)
-  - Admin Generate Screen (`docs/ui-reference/AdminGenerate.dc.html`)
 - Integrate UI with backend Server Actions from `fullstack` branch when ready for live Supabase testing.
 - Scripts: `npm run dev` (runs Turbopack on port 3000), `npm run typecheck`, `npm run test` (`vitest`).

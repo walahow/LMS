@@ -16,64 +16,57 @@ const MOCK_PROFILE: StudentProfileInfo = {
 };
 
 const MOCK_STATS: StudentStats = {
-  completedSets: 7,
-  totalSets: 9,
-  averageScore: 78,
+  completedSets: 2,
+  totalSets: 4,
+  averageScore: 74,
   pendingSets: 2,
 };
 
 const MOCK_SETS: DashboardSet[] = [
   {
-    id: "mock-set-1",
+    id: "mock-pack-1",
     title: "Hukum II & III Newton pada Gerak Benda",
-    indicator: "Menganalisis pengaruh gaya terhadap percepatan dan hukum aksi-reaksi.",
+    indicator:
+      "Menganalisis hubungan antara gaya, massa, dan percepatan pada gerak lurus serta aksi-reaksi benda.",
     subject: "Fisika",
     grade: "Kelas 10",
-    totalQuestions: 10,
-    status: "in_progress",
-    progressCount: 3,
-  },
-  {
-    id: "mock-set-2",
-    title: "Hukum Newton pada Benda Bergerak",
-    indicator: "Menjelaskan konsep inersia dan kesetimbangan gaya pada sistem mekanik.",
-    subject: "Fisika",
-    grade: "Kelas 10",
-    totalQuestions: 10,
+    totalQuestions: 6,
     status: "completed",
-    score: 80,
+    score: 67,
     lastAttemptId: "att-01",
   },
   {
-    id: "mock-set-3",
+    id: "mock-pack-2",
     title: "Fotosintesis dan Pertukaran Gas pada Tumbuhan",
-    indicator: "Membedakan reaksi terang dan gelap serta faktor pembatas fotosintesis.",
+    indicator:
+      "Membedakan reaksi terang dan siklus Calvin serta faktor pembatas pembentukan glukosa.",
     subject: "Biologi",
     grade: "Kelas 10",
-    totalQuestions: 8,
-    status: "not_started",
+    totalQuestions: 5,
+    status: "completed",
+    score: 80,
+    lastAttemptId: "att-05",
   },
   {
-    id: "mock-set-4",
+    id: "mock-pack-3",
     title: "Reaksi Asam Basa dan Derajat Keasaman (pH)",
-    indicator: "Mengidentifikasi larutan asam basa dengan indikator alami dan perhitungan pH.",
+    indicator:
+      "Mengidentifikasi kekuatan asam-basa berdasarkan derajat ionisasi dan perubahan warna indikator.",
     subject: "Kimia",
     grade: "Kelas 10",
-    totalQuestions: 12,
-    status: "completed",
-    score: 65,
-    lastAttemptId: "att-02",
+    totalQuestions: 4,
+    status: "in_progress",
+    progressCount: 2,
   },
   {
-    id: "mock-set-5",
+    id: "mock-pack-4",
     title: "Siklus Hidrologi dan Pembentukan Awan",
-    indicator: "Menganalisis proses evaporasi, kondensasi, dan presipitasi dalam daur air.",
+    indicator:
+      "Menganalisis proses evaporasi, kondensasi, dan presipitasi dalam daur air.",
     subject: "Geografi",
     grade: "Kelas 10",
-    totalQuestions: 10,
-    status: "completed",
-    score: 75,
-    lastAttemptId: "att-03",
+    totalQuestions: 4,
+    status: "not_started",
   },
 ];
 

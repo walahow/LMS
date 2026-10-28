@@ -9,21 +9,27 @@ Full design rationale, schema, and RLS policy table: [`docs/PLAN.md`](docs/PLAN.
 
 ## Stack
 
-- Next.js (App Router) + TypeScript
+- Next.js 16 (App Router) + TypeScript
 - Supabase (Postgres + Auth + RLS)
-- Gemini Flash via its OpenAI-compatible endpoint
+- Gemini Flash via Google AI Studio
 - Vercel
 
 ## UI & Design Direction (Neo-Brutalist / HYDE Direction)
 
-- **Palette**: Ferrari Red (Rosso Corsa `#FF2800`), Black (`#0A0A0A` / `#09090B`), White (`#FFFFFF` / `#FAFAFA`).
-- **Tactile Shadows & Dither**: Selective overshadow (3px on active card, 4px Ferrari red on selected options). 2x2 SVG checkerboard dither pattern overlays on active selections.
-- **Sticky Navbar**: Full-width header (`position: sticky; top: 0; width: 100%`) enabled by `overflow-x: clip` on `html, body`.
+- **Palette**: Ferrari Red (Rosso Corsa `#FF2800`), Soft Paper / Warm Platinum (`#F8F8FA` / `#E8E8ED`), Deep Slate (`#121215` / `#1A1A1F`), Crisp `1.5px`–`2px` borders.
+- **Tactile Shadows & Dither**: Selective overshadow (3px on active card, 4px Ferrari red shadow on selected options). 2x2 SVG halftone checkerboard dither pattern overlays on active selections and right-to-left fading dither (`.dither-fade-right`) on test pack cards across all roles.
+- **Sticky Navbar**: Full-width pinned header (`position: sticky; top: 0; width: 100%`) enabled by `overflow-x: clip` on `html, body`.
 - **Direction-Aware Deck Slide**: Dynamic slide transitions (`slide-forward` from right, `slide-backward` from left) when stepping through questions.
 - **Two-Stage Tier Unlock**: Outer container expands first (`0.36s`), followed by inner content reveal (`0.28s`).
 - **MagicUI Theme Toggler**: Rectangular box reveal (`clip-path: inset(...)`) with 8-bit pixel sun/moon icons and snappy 250ms transition.
 - **Score Swipe Overlay**: Fullscreen swipe-up sheet (`translateY(100%) -> 0`) with animated `NumberTicker` score and four diagnostic category counts, plus smooth exit animation.
 - **Streamlined Quiz Interface**: Minimalist, distraction-free cards focusing on learning content (single question counter `SOAL 01`, clean section titles without tier badges or redundant selection labels).
+- **Mobile-First Role Dashboards**:
+  - **Student** (`/dashboard`, `/profile`): time-based greeting, diagnostic metrics, active test resume banner, subject filter pills, card score feedback.
+  - **Teacher** (`/teacher/dashboard`, `/teacher/sets/[id]`, `/teacher/profile`): test pack directory, class diagnostic distribution bar, per-student matrix strip chips (`01`..`06`) color-coded by diagnosis, 3-tier expandable answer details.
+  - **Admin** (`/admin/dashboard`, `/admin/sets/[id]`, `/admin/profile`): unified command center with 3 segmented tabs (`✦ BUAT SOAL (AI)`, `🗂 PAKET SOAL`, `👥 PENGGUNA`), metric cards matching student/teacher layouts, AI question generator with Gemini Flash branding, question editor with answer/reason key toggles, user management with password resets.
+  - **Authentication** (`/login`): mobile-first neo-brutalist login screen with 3-tier visual mark, `.boxy-input`, 1-click Quick Demo Account pills (`🎓 SISWA`, `👩‍🏫 GURU`, `⚙ ADMIN`), dual-mode Supabase/offline mock support.
+- **Tactile Route Transitions**: 0.22s Apple/Framer deceleration vertical lift + fade-in with automatic cleanup preserving CSS sticky headers.
 
 ## Local setup
 
@@ -48,8 +54,7 @@ Run the app:
 ```bash
 npm run dev       # http://localhost:3000
 npm run typecheck
-npm run lint
-npm run test       # vitest — diagnose.test.ts
+npm run test       # vitest — diagnose.test.ts, data-consistency.test.ts
 npm run build
 ```
 
@@ -103,8 +108,8 @@ session — so it's on you:
 
 ## Notes for future changes
 
-- Every colour lives in `app/theme.css` as a CSS custom property — swap that
-  one file when the client delivers a real palette, never hardcode a colour
+- Every colour lives in `app/theme.css` / `app/globals.css` as CSS custom properties — swap that
+  file when the client delivers a real palette, never hardcode a colour
   elsewhere.
 - The diagnosis rubric is `lib/diagnose.ts`, a pure function with an
   eight-assert test. It is never stored — every page computes it at read

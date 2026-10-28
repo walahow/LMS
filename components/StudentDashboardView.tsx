@@ -419,8 +419,11 @@ export function StudentDashboardView({
               flexDirection: "column",
               gap: "14px",
               backgroundColor: "var(--color-surface)",
+              position: "relative",
+              overflow: "hidden",
             }}
           >
+            <div className="dither-fade-right-accent" aria-hidden="true" />
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
               <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
                 <span
@@ -617,8 +620,11 @@ export function StudentDashboardView({
                     flexDirection: "column",
                     gap: "14px",
                     border: "1.5px solid var(--color-border)",
+                    position: "relative",
+                    overflow: "hidden",
                   }}
                 >
+                  <div className="dither-fade-right" aria-hidden="true" />
                   {/* Top Meta Line: Subject Badge + Question Count */}
                   <div
                     style={{

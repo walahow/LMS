@@ -9,9 +9,16 @@ export type ProfileDropdownProps = {
   initials: string;
   email?: string;
   grade?: string;
+  profileHref?: string;
 };
 
-export function ProfileDropdown({ fullName, initials, email, grade }: ProfileDropdownProps) {
+export function ProfileDropdown({
+  fullName,
+  initials,
+  email,
+  grade,
+  profileHref = "/profile",
+}: ProfileDropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -156,7 +163,7 @@ export function ProfileDropdown({ fullName, initials, email, grade }: ProfileDro
           <div style={{ padding: "6px", display: "flex", flexDirection: "column", gap: "4px" }}>
             {/* 1. Go to Profile */}
             <Link
-              href="/profile"
+              href={profileHref}
               onClick={() => setIsOpen(false)}
               className="font-mono boxy-pressable-sm"
               style={{

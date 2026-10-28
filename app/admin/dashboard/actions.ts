@@ -76,3 +76,47 @@ export async function generateQuestionSet(
 
   redirect(`/admin/sets/${set.id}`);
 }
+
+export type GenerateAIResult = {
+  isLive: boolean;
+  questions?: Array<{
+    stem: string;
+    options: string[];
+    correct_option: number;
+    reasons: string[];
+    correct_reason: number;
+  }>;
+  error?: string;
+};
+
+export async function generateAIQuestionsAction(params: {
+  indicator: string;
+  subject?: string;
+  grade?: string;
+  count: number;
+  difficulty: "mudah" | "sedang" | "sulit";
+}): Promise<GenerateAIResult> {
+  const apiKey = process.env.AI_API_KEY;
+  const baseUrl = process.env.AI_BASE_URL;
+  const model = process.env.AI_MODEL;
+
+  if (!apiKey || !baseUrl || !model) {
+    return { isLive: false };
+  }
+
+  try {
+    const questions = await generateSet({
+      indicator: params.indicator,
+      subject: params.subject || undefined,
+      grade: params.grade || undefined,
+      count: params.count,
+      difficulty: params.difficulty,
+    });
+    return { isLive: true, questions };
+  } catch (err) {
+    return {
+      isLive: false,
+      error: err instanceof Error ? err.message : "Gagal memanggil API AI",
+    };
+  }
+}

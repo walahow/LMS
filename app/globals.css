@@ -80,6 +80,39 @@ body {
   background-size: 4px 4px;
 }
 
+/* Right-to-Left Fading Dither Gradient for Test Pack Cards (HYDE style) */
+.dither-fade-right {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 65%;
+  pointer-events: none;
+  background-image: var(--dither-svg);
+  background-repeat: repeat;
+  background-size: 4px 4px;
+  opacity: 0.28;
+  mask-image: linear-gradient(to left, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0.5) 40%, rgba(0, 0, 0, 0) 100%);
+  -webkit-mask-image: linear-gradient(to left, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0.5) 40%, rgba(0, 0, 0, 0) 100%);
+  z-index: 0;
+}
+
+.dither-fade-right-accent {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 65%;
+  pointer-events: none;
+  background-image: var(--dither-svg-accent);
+  background-repeat: repeat;
+  background-size: 4px 4px;
+  opacity: 0.30;
+  mask-image: linear-gradient(to left, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0.5) 40%, rgba(0, 0, 0, 0) 100%);
+  -webkit-mask-image: linear-gradient(to left, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0.5) 40%, rgba(0, 0, 0, 0) 100%);
+  z-index: 0;
+}
+
 /* Direction-Aware Deck Slide Animations for Question Navigation */
 @keyframes slideInFromRight {
   0% {

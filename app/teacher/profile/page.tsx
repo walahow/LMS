@@ -1,20 +1,46 @@
 import { requireRole } from "@/lib/auth";
-import { AppShell } from "@/components/AppShell";
-import { ChangePasswordForm } from "@/components/ChangePasswordForm";
+import { TeacherProfileView, type TeacherProfileData } from "@/components/TeacherProfileView";
 
-const links = [
-  { href: "/teacher/dashboard", label: "Beranda" },
-  { href: "/teacher/profile", label: "Profil" },
-];
+export const dynamic = "force-dynamic";
+
+const MOCK_TEACHER: TeacherProfileData = {
+  fullName: "Bu Sari Wulandari, M.Pd.",
+  initials: "SW",
+  email: "teacher@lms.local",
+  roleTitle: "GURU PENGAMPU",
+};
+
+async function getTeacherProfileData(): Promise<TeacherProfileData> {
+  const isSupabaseConfigured = Boolean(
+    process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  );
+
+  if (!isSupabaseConfigured) {
+    return MOCK_TEACHER;
+  }
+
+  try {
+    const { user, profile } = await requireRole("teacher");
+    const initials = profile.full_name
+      .split(" ")
+      .map((w) => w[0])
+      .join("")
+      .slice(0, 2)
+      .toUpperCase();
+
+    return {
+      fullName: profile.full_name,
+      initials: initials || "GR",
+      email: user.email || "teacher@lms.local",
+      roleTitle: "GURU PENGAMPU",
+    };
+  } catch {
+    return MOCK_TEACHER;
+  }
+}
 
 export default async function TeacherProfilePage() {
-  const { profile } = await requireRole("teacher");
+  const profile = await getTeacherProfileData();
 
-  return (
-    <AppShell title="LMS Diagnostik — Guru" fullName={profile.full_name} links={links}>
-      <h1>Profil</h1>
-      <p style={{ color: "var(--color-text-muted)" }}>{profile.full_name}</p>
-      <ChangePasswordForm />
-    </AppShell>
-  );
+  return <TeacherProfileView profile={profile} />;
 }

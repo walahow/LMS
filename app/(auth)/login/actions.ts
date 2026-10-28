@@ -20,6 +20,17 @@ export async function signIn(_prevState: LoginState, formData: FormData): Promis
     return { error: "Email atau kata sandi salah." };
   }
 
+  // Standalone preview fallback when Supabase is not configured
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
+    if (email.toLowerCase().includes("teacher")) {
+      redirect("/teacher/dashboard");
+    } else if (email.toLowerCase().includes("admin")) {
+      redirect("/admin/dashboard");
+    } else {
+      redirect("/dashboard");
+    }
+  }
+
   const supabase = await createClient();
   const { error } = await supabase.auth.signInWithPassword({ email, password });
 
