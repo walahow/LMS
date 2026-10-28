@@ -4,7 +4,6 @@ import React, { useState, useMemo } from "react";
 import Link from "next/link";
 import { ThemeToggler } from "@/components/ThemeToggler";
 import { ProfileDropdown } from "@/components/ProfileDropdown";
-import { generateAIQuestionsAction } from "@/app/admin/dashboard/actions";
 import type { AdminProfile, AdminStats, AdminQuestionSet, AdminUser, AdminQuestion } from "@/lib/admin-data";
 
 type AdminDashboardViewProps = {
@@ -174,82 +173,40 @@ export function AdminDashboardView({
     showToast(`Pengguna "${newUser.fullName}" berhasil ditambahkan!`);
   };
 
-  // AI Question Generator (Live Gemini with Mock Fallback)
-  const handleGenerateAI = async (e: React.FormEvent) => {
+  // AI Question Generator (Pure 100% Mock Mode for UI/UX Review)
+  const handleGenerateAI = (e: React.FormEvent) => {
     e.preventDefault();
     if (!genIndicator.trim() || !genTitle.trim()) return;
 
     setIsGenerating(true);
     setGenerationStep("Menganalisis indikator pembelajaran...");
 
-    try {
-      const liveRes = await generateAIQuestionsAction({
-        indicator: genIndicator.trim(),
-        subject: genSubject,
-        grade: genGrade,
-        count: genCount,
-        difficulty: genDifficulty,
-      });
-
-      if (liveRes.isLive && liveRes.questions && liveRes.questions.length > 0) {
-        const liveQuestions: AdminQuestion[] = liveRes.questions.map((q, idx) => ({
-          id: `ai-q${idx + 1}-${Date.now()}`,
-          position: idx + 1,
-          stem: q.stem,
-          options: q.options,
-          correctOption: q.correct_option,
-          reasons: q.reasons,
-          correctReason: q.correct_reason,
-        }));
-
-        setGeneratedPreview({
-          packTitle: genTitle.trim(),
-          indicator: genIndicator.trim(),
-          subject: genSubject,
-          grade: genGrade,
-          questions: liveQuestions,
-        });
-
-        setIsGenerating(false);
-        setGenerationStep(null);
-        showToast(`Berhasil menghasilkan ${liveQuestions.length} butir soal 3-tier!`);
-        return;
-      }
-      
-      if (liveRes.error) {
-        showToast("Server AI sedang sibuk. Menampilkan pratinjau butir soal.");
-      }
-    } catch {
-      // Fallback to simulated generation
-    }
-
-    setTimeout(() => {
-      setGenerationStep("Menganalisis indikator & taksonomi Bloom...");
-    }, 900);
-
     setTimeout(() => {
       setGenerationStep("Menyusun 3-tier: stem, jawaban, dan pola miskonsepsi...");
-    }, 1800);
+    }, 600);
 
     setTimeout(() => {
       setIsGenerating(false);
       setGenerationStep(null);
 
-      // Generate mock preview questions based on input
-      const sampleQuestions: AdminQuestion[] = [
+      const title = genTitle.trim();
+      const subject = genSubject.trim() || "Fisika";
+      const sampleCount = Math.min(Math.max(genCount || 3, 1), 6);
+
+      const mockTemplates: AdminQuestion[] = [
         {
-          id: `gen-q1-${Date.now()}`,
+          id: `ai-q1-${Date.now()}`,
           position: 1,
-          stem: `Pada konsep ${genTitle.toLowerCase()}, bagaimana pengaruh perubahan variabel utama terhadap kondisi kesetimbangan benda saat diberikan perlakuan ekstrem?`,
+          stem: `Pada materi ${subject} mengenai "${title}", bagaimana pengaruh perubahan variabel utama terhadap kondisi kesetimbangan benda saat diberikan perlakuan eksternal?`,
           options: [
-            "Nilai variabel berbanding lurus dan melipatgandakan respons sistem",
+            "Nilai variabel berbanding lurus dan melipatgandakan respons sistem secara proporsional",
             "Sistem tetap mempertahankan kondisi inersia tanpa respons tambahan",
             "Respons sistem berkurang drastis menjadi setengah dari semula",
             "Tidak dapat ditentukan tanpa adanya konstanta empiris awal",
           ],
           correctOption: 0,
           reasons: [
-            "Berdasarkan hukum fundamental fisika, perubahan gaya berbanding lurus dengan percepatan pada massa konstan",
+            "Berdasarkan prinsip fundamental ilmiah, perubahan gaya berbanding lurus dengan percepatan pada kondisi batas ideal",
             "Inersia benda selalu meniadakan gaya luar dalam segala kondisi",
             "Gaya luar membutuhkan waktu penyesuaian fasa sebelum menggerakkan benda",
             "Massa benda berubah secara spontan seiring bertambahnya percepatan",
@@ -257,14 +214,14 @@ export function AdminDashboardView({
           correctReason: 0,
         },
         {
-          id: `gen-q2-${Date.now()}`,
+          id: `ai-q2-${Date.now()}`,
           position: 2,
-          stem: `Dua benda dengan rasio besaran 1 : 2 diberikan gaya luar yang identik. Bagaimanakah perbandingan laju percepatan kedua benda tersebut?`,
+          stem: `Dua sampel materi pada topik "${title}" dengan rasio besaran 1 : 2 menerima perlakuan yang identik. Manakah analisis perbandingan laju percepatan yang tepat?`,
           options: [
-            "Benda pertama memiliki percepatan dua kali lebih besar dari benda kedua",
-            "Kedua benda memiliki laju percepatan yang identik karena gaya sama",
-            "Benda kedua bergerak lebih cepat karena memiliki inersia lebih tinggi",
-            "Kedua benda langsung berhenti seketika akibat gaya gesek",
+            "Sampel pertama mengalami laju percepatan dua kali lebih besar dari sampel kedua",
+            "Kedua sampel memiliki laju percepatan yang identik karena gaya sama",
+            "Sampel kedua bergerak lebih cepat karena memiliki inersia lebih tinggi",
+            "Kedua sampel langsung berhenti seketika akibat gaya gesek",
           ],
           correctOption: 0,
           reasons: [
@@ -276,36 +233,79 @@ export function AdminDashboardView({
           correctReason: 0,
         },
         {
-          id: `gen-q3-${Date.now()}`,
+          id: `ai-q3-${Date.now()}`,
           position: 3,
-          stem: `Manakah pernyataan yang paling tepat mengenai pasangan aksi-reaksi pada interaksi benda dan bidang tumpunya?`,
+          stem: `Berdasarkan indikator pembelajaran "${genIndicator.trim()}", manakah pernyataan yang paling tepat mengenai pasangan aksi-reaksi timbal balik?`,
           options: [
-            "Gaya tekan benda ke lantai dan gaya normal lantai ke benda",
-            "Gaya berat benda dan gaya normal yang saling meniadakan",
+            "Gaya tekan kontak benda ke lantai dan gaya normal reaksi lantai ke benda",
+            "Gaya berat benda dan gaya normal yang saling meniadakan dalam satu materi",
             "Gaya gravitasi bumi dan gaya gesek statis lantai",
-            "Gaya dorong eksternal dan resultan gaya percepatan",
+            "Gaya dorong eksternal dan resultan gaya percepatan materi",
           ],
           correctOption: 0,
           reasons: [
-            "Pasangan gaya aksi-reaksi selalu bekerja pada dua benda yang berbeda dan memiliki arah berlawanan",
+            "Pasangan gaya aksi-reaksi selalu bekerja pada dua entitas berbeda dengan besar sama dan arah berlawanan",
             "Gaya normal dan gaya berat berada pada benda yang sama sehingga merupakan pasangan aksi-reaksi",
             "Hukum aksi-reaksi hanya berlaku saat benda bergerak dengan kecepatan konstan",
             "Gaya reaksi muncul lebih lambat daripada gaya aksi yang mengenainya",
           ],
           correctReason: 0,
         },
+        {
+          id: `ai-q4-${Date.now()}`,
+          position: 4,
+          stem: `Ketika parameter kontrol pada "${title}" ditingkatkan secara bertahap, bagaimanakah kurva dinamika respons sistem yang diobservasi?`,
+          options: [
+            "Kurva meningkat secara linear mengikuti gradien karakteristik sebelum mencapai saturasi",
+            "Kurva tetap mendatar sempurna karena sistem memiliki mekanisme kompensasi otomatis",
+            "Kurva langsung melonjak diskontinu tanpa melalui fase transisi",
+            "Kurva berfluktuasi secara acak tanpa pola keteraturan matematis",
+          ],
+          correctOption: 0,
+          reasons: [
+            "Respons sistem berakar pada hukum fisis linear hingga mencapai batas kapasitas kerja",
+            "Mekanisme kompensasi selalu mampu menahan segala jenis peningkatan input",
+            "Fluktuasi acak merupakan ciri utama seluruh sistem ilmiah dalam keadaan dinamis",
+            "Titik jenuh suatu sistem tidak dipengaruhi oleh parameter kontrol eksternal",
+          ],
+          correctReason: 0,
+        },
+        {
+          id: `ai-q5-${Date.now()}`,
+          position: 5,
+          stem: `Seorang siswa berpendapat bahwa pada "${title}", gaya/efek yang bekerja akan hilang seketika saat sumber perlakuan dihentikan. Bagaimanakah tinjauan konsep yang benar?`,
+          options: [
+            "Pendapat tersebut keliru; sistem tetap memiliki momentum/energi yang membutuhkan disipasi untuk berhenti",
+            "Pendapat tersebut tepat; tanpa adanya sumber luar maka kondisi sistem langsung kembali nol detik itu juga",
+            "Pendapat tersebut hanya benar untuk benda cair, sedangkan benda padat selalu bergerak selamanya",
+            "Semua sistem ilmiah tidak mematuhi hukum kekekalan saat perlakuan eksternal dihentikan",
+          ],
+          correctOption: 0,
+          reasons: [
+            "Kekekalan momentum dan energi mengharuskan adanya kerja/gaya disipatif untuk mereduksi energi kinetik sistem",
+            "Gaya selalu sebanding dengan kecepatan sesaat partikel materi dalam segala medium",
+            "Benda padat memiliki resistensi nol terhadap gaya gesek lingkungan",
+            "Energi kinetik dapat lenyap secara spontan tanpa perpindahan kalor atau kerja luar",
+          ],
+          correctReason: 0,
+        },
       ];
 
+      const questionsToUse = mockTemplates.slice(0, sampleCount).map((q, idx) => ({
+        ...q,
+        position: idx + 1,
+      }));
+
       setGeneratedPreview({
-        packTitle: genTitle.trim(),
+        packTitle: title,
         indicator: genIndicator.trim(),
-        subject: genSubject,
+        subject,
         grade: genGrade,
-        questions: sampleQuestions,
+        questions: questionsToUse,
       });
 
-      showToast("Berhasil menghasilkan 3 butir soal 3-tier!");
-    }, 2800);
+      showToast(`Berhasil menghasilkan ${questionsToUse.length} butir soal 3-tier!`);
+    }, 1200);
   };
 
   // Save generated preview as Draft or Published

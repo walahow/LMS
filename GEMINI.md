@@ -134,6 +134,11 @@ State as of 2026-10-29.
    - Smooth CSS gradient mask (mask-image: linear-gradient(to left, rgba(0,0,0,1) 0%, rgba(0,0,0,0.5) 40%, rgba(0,0,0,0) 100%)) providing an authentic HYDE-style fade from right to left without obstructing card typography or interactive buttons (pointer-events: none).
    - Integrated across: Student Dashboard (in-progress card and available test set cards), Teacher Dashboard (test pack cards), Teacher Pack Detail (overview hero card), Admin Dashboard (test pack cards), and Admin Set Detail (header card).
 
+20. **100% Pure Mock AI Question Generator for UI/UX Review**:
+   - Switched AI Question Generator (`AdminDashboardView.tsx` & `actions.ts`) to 100% client/mock simulation.
+   - Removed external Google Gemini API calls, eliminating 503 high-demand spike errors and API quota dependencies during review.
+   - Dynamic 3-tier question generation based on input topic, indicator, subject, and question count over a snappy 1.2s tactile progress sequence (`[ MEMPROSES... ]`).
+
 ## Remaining Next Steps
 - Integrate UI with backend Server Actions from `fullstack` branch when ready for live Supabase testing.
 - Scripts: `npm run dev` (runs Turbopack on port 3000), `npm run typecheck`, `npm run test` (`vitest`).
