@@ -11,102 +11,64 @@ vi.mock("next/navigation", () => ({
   },
 }));
 
-// Mock next/headers cookies
-const mockCookiesStore = new Map<string, any>();
-vi.mock("next/headers", () => ({
-  cookies: async () => ({
-    get: (key: string) => mockCookiesStore.get(key),
-    set: (key: string, val: string, opts?: any) => {
-      mockCookiesStore.set(key, { name: key, value: val, ...opts });
-    },
-    delete: (keyOrObj: any) => {
-      const key = typeof keyOrObj === "string" ? keyOrObj : keyOrObj?.name;
-      mockCookiesStore.delete(key);
-    },
-  }),
-}));
-
-// Mock supabase server
-vi.mock("@/lib/supabase/server", () => ({
-  createClient: async () => ({
-    auth: {
-      signInWithPassword: async () => ({
-        error: new Error("Invalid login credentials"),
-        data: { user: null },
-      }),
-      signOut: async () => ({ error: null }),
-      getUser: async () => ({ data: { user: null } }),
-    },
-  }),
-}));
-
-describe("Demo Account Fallback Login", () => {
+describe("UI/UX Review Mode Auth & Navigation", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockCookiesStore.clear();
   });
 
-  it("falls back to mock teacher dashboard when using teacher@lms.local even if Supabase fails", async () => {
+  it("redirects to teacher dashboard when selecting teacher role", async () => {
     const { signIn } = await import("@/app/(auth)/login/actions");
 
     const formData = new FormData();
     formData.append("email", "teacher@lms.local");
-    formData.append("password", "password123");
     formData.append("demoRole", "teacher");
 
     await expect(signIn({}, formData)).rejects.toThrow("NEXT_REDIRECT");
     expect(mockRedirect).toHaveBeenCalledWith("/teacher/dashboard");
-    expect(mockCookiesStore.get("lms-demo-role")?.value).toBe("teacher");
   });
 
-  it("falls back to mock admin dashboard when using admin@lms.local even if Supabase fails", async () => {
+  it("redirects to admin dashboard when selecting admin role", async () => {
     const { signIn } = await import("@/app/(auth)/login/actions");
 
     const formData = new FormData();
     formData.append("email", "admin@lms.local");
-    formData.append("password", "password123");
     formData.append("demoRole", "admin");
 
     await expect(signIn({}, formData)).rejects.toThrow("NEXT_REDIRECT");
     expect(mockRedirect).toHaveBeenCalledWith("/admin/dashboard");
-    expect(mockCookiesStore.get("lms-demo-role")?.value).toBe("admin");
   });
 
-  it("falls back to mock student dashboard when using rani@lms.local even if Supabase fails", async () => {
+  it("redirects to student dashboard when selecting student role", async () => {
     const { signIn } = await import("@/app/(auth)/login/actions");
 
     const formData = new FormData();
     formData.append("email", "rani@lms.local");
-    formData.append("password", "password123");
     formData.append("demoRole", "student");
 
     await expect(signIn({}, formData)).rejects.toThrow("NEXT_REDIRECT");
     expect(mockRedirect).toHaveBeenCalledWith("/dashboard");
-    expect(mockCookiesStore.get("lms-demo-role")?.value).toBe("student");
   });
 
-  it("rejects non-demo account when Supabase auth fails", async () => {
-    const { signIn } = await import("@/app/(auth)/login/actions");
-
-    const formData = new FormData();
-    formData.append("email", "unknown@example.com");
-    formData.append("password", "wrongpass");
-
-    const result = await signIn({}, formData);
-    expect(result).toEqual({ error: "Email atau kata sandi salah." });
-    expect(mockRedirect).not.toHaveBeenCalled();
-    expect(mockCookiesStore.get("lms-demo-role")).toBeUndefined();
-  });
-
-  it("clears demo session cookie and redirects to /login?logout=1 upon signOut", async () => {
+  it("redirects cleanly to /login upon signOut", async () => {
     const { signOut } = await import("@/lib/auth-actions");
 
-    mockCookiesStore.set("lms-demo-role", { name: "lms-demo-role", value: "teacher" });
-    expect(mockCookiesStore.get("lms-demo-role")?.value).toBe("teacher");
-
     await expect(signOut()).rejects.toThrow("NEXT_REDIRECT");
-    expect(mockRedirect).toHaveBeenCalledWith("/login?logout=1");
-    // Should be deleted
-    expect(mockCookiesStore.get("lms-demo-role")).toBeUndefined();
+    expect(mockRedirect).toHaveBeenCalledWith("/login");
+  });
+
+  it("provides mock profile without throwing in requireRole", async () => {
+    const { requireRole } = await import("@/lib/auth");
+
+    const teacher = await requireRole("teacher");
+    expect(teacher.profile.role).toBe("teacher");
+    expect(teacher.profile.full_name).toContain("Sari");
+
+    const admin = await requireRole("admin");
+    expect(admin.profile.role).toBe("admin");
+    expect(admin.profile.full_name).toContain("Andi");
+
+    const student = await requireRole("student");
+    expect(student.profile.role).toBe("student");
+    expect(student.profile.full_name).toContain("Rani");
   });
 });

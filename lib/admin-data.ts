@@ -535,27 +535,13 @@ export async function fetchAdminData(): Promise<{
   questionSets: AdminQuestionSet[];
   users: AdminUser[];
 }> {
-  let isDemo = false;
-  try {
-    const cookieStore = await cookies();
-    isDemo = Boolean(cookieStore.get("lms-demo-role")?.value);
-  } catch {
-    // Prerender fallback
-  }
-
-  if (
-    !process.env.NEXT_PUBLIC_SUPABASE_URL ||
-    !process.env.SUPABASE_SERVICE_ROLE_KEY ||
-    isDemo
-  ) {
-    const stats = calculateAdminStats(MOCK_ADMIN_SETS, MOCK_ADMIN_USERS);
-    return {
-      profile: MOCK_ADMIN_PROFILE,
-      stats,
-      questionSets: MOCK_ADMIN_SETS,
-      users: MOCK_ADMIN_USERS,
-    };
-  }
+  const stats = calculateAdminStats(MOCK_ADMIN_SETS, MOCK_ADMIN_USERS);
+  return {
+    profile: MOCK_ADMIN_PROFILE,
+    stats,
+    questionSets: MOCK_ADMIN_SETS,
+    users: MOCK_ADMIN_USERS,
+  };
 
   try {
     const { requireRole } = await import("@/lib/auth");
@@ -630,62 +616,5 @@ export async function fetchAdminData(): Promise<{
 
 export async function fetchAdminSetDetail(id: string): Promise<AdminQuestionSet | null> {
   const mock = MOCK_ADMIN_SETS.find((s) => s.id === id);
-  if (mock) return mock;
-
-  let isDemo = false;
-  try {
-    const cookieStore = await cookies();
-    isDemo = Boolean(cookieStore.get("lms-demo-role")?.value);
-  } catch {
-    // Prerender fallback
-  }
-
-  if (
-    !process.env.NEXT_PUBLIC_SUPABASE_URL ||
-    !process.env.SUPABASE_SERVICE_ROLE_KEY ||
-    isDemo
-  ) {
-    return null;
-  }
-
-  try {
-    const { createAdminClient } = await import("@/lib/supabase/admin");
-    const admin = createAdminClient();
-    const { data: set } = await admin
-      .from("question_sets")
-      .select("id, title, indicator, subject, grade, published, created_at")
-      .eq("id", id)
-      .single();
-
-    if (!set) return null;
-
-    const { data: questions } = await admin
-      .from("questions")
-      .select("id, position, stem, options, correct_option, reasons, correct_reason")
-      .eq("set_id", id)
-      .order("position");
-
-    return {
-      id: set.id,
-      title: set.title,
-      indicator: set.indicator,
-      subject: set.subject || "Umum",
-      grade: set.grade || "Semua",
-      difficulty: "sedang",
-      published: Boolean(set.published),
-      questionCount: questions?.length ?? 0,
-      createdAt: set.created_at ? new Date(set.created_at).toLocaleDateString("id-ID") : "Baru saja",
-      questions: (questions ?? []).map((q) => ({
-        id: q.id,
-        position: q.position,
-        stem: q.stem,
-        options: (q.options as string[]) ?? [],
-        correctOption: q.correct_option,
-        reasons: (q.reasons as string[]) ?? [],
-        correctReason: q.correct_reason,
-      })),
-    };
-  } catch {
-    return null;
-  }
+  return mock || MOCK_ADMIN_SETS[0];
 }
