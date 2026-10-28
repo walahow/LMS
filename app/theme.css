@@ -22,11 +22,14 @@
   --shadow-boxy: 4px 4px 0px 0px var(--color-shadow);
   --shadow-boxy-lg: 6px 6px 0px 0px var(--color-shadow);
   --shadow-boxy-accent: 4px 4px 0px 0px var(--color-accent);
+  --shadow-ambient-card: 0 2px 4px rgba(24, 24, 27, 0.055), 0 8px 20px -3px rgba(24, 24, 27, 0.08);
 
   /* High-contrast, clearly visible 2x2 pixel checkerboard dither patterns */
-  --dither-svg: url("data:image/svg+xml,%3Csvg width='4' height='4' viewBox='0 0 4 4' xmlns='http://www.w3.org/2000/svg'%3E%3Crect x='0' y='0' width='2' height='2' fill='%2318181B' fill-opacity='0.50'/%3E%3Crect x='2' y='2' width='2' height='2' fill='%2318181B' fill-opacity='0.50'/%3E%3C/svg%3E");
+  --dither-svg: url("data:image/svg+xml,%3Csvg width='4' height='4' viewBox='0 0 4 4' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h2v2H0zM2 2h2v2H2z' fill='%2318181B' fill-opacity='1' fill-rule='evenodd'/%3E%3C/svg%3E");
   --dither-svg-accent: url("data:image/svg+xml,%3Csvg width='4' height='4' viewBox='0 0 4 4' xmlns='http://www.w3.org/2000/svg'%3E%3Crect x='0' y='0' width='2' height='2' fill='%23FF2800' fill-opacity='0.75'/%3E%3Crect x='2' y='2' width='2' height='2' fill='%23FF2800' fill-opacity='0.75'/%3E%3C/svg%3E");
-  --dither-svg-solid: url("data:image/svg+xml,%3Csvg width='4' height='4' viewBox='0 0 4 4' xmlns='http://www.w3.org/2000/svg'%3E%3Crect x='0' y='0' width='2' height='2' fill='%2318181B' fill-opacity='0.80'/%3E%3Crect x='2' y='2' width='2' height='2' fill='%2318181B' fill-opacity='0.80'/%3E%3C/svg%3E");
+  --dither-svg-solid: url("data:image/svg+xml,%3Csvg width='4' height='4' viewBox='0 0 4 4' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h2v2H0zM2 2h2v2H2z' fill='%2318181B' fill-opacity='1' fill-rule='evenodd'/%3E%3C/svg%3E");
+  --dither-fade-opacity: 0.24;
+  --dither-blend-mode: multiply;
 
   --radius-none: 0px;
 }
@@ -55,9 +58,12 @@ html.dark {
   --shadow-boxy: 4px 4px 0px 0px var(--color-shadow);
   --shadow-boxy-lg: 6px 6px 0px 0px var(--color-shadow);
   --shadow-boxy-accent: 4px 4px 0px 0px var(--color-accent);
+  --shadow-ambient-card: 0 3px 8px rgba(0, 0, 0, 0.35), 0 12px 26px -3px rgba(0, 0, 0, 0.48);
 
   /* Softened dither patterns for dark mode */
   --dither-svg: url("data:image/svg+xml,%3Csvg width='4' height='4' viewBox='0 0 4 4' xmlns='http://www.w3.org/2000/svg'%3E%3Crect x='0' y='0' width='2' height='2' fill='%23E8E8ED' fill-opacity='0.45'/%3E%3Crect x='2' y='2' width='2' height='2' fill='%23E8E8ED' fill-opacity='0.45'/%3E%3C/svg%3E");
   --dither-svg-accent: url("data:image/svg+xml,%3Csvg width='4' height='4' viewBox='0 0 4 4' xmlns='http://www.w3.org/2000/svg'%3E%3Crect x='0' y='0' width='2' height='2' fill='%23FF2800' fill-opacity='0.80'/%3E%3Crect x='2' y='2' width='2' height='2' fill='%23FF2800' fill-opacity='0.80'/%3E%3C/svg%3E");
   --dither-svg-solid: url("data:image/svg+xml,%3Csvg width='4' height='4' viewBox='0 0 4 4' xmlns='http://www.w3.org/2000/svg'%3E%3Crect x='0' y='0' width='2' height='2' fill='%23E8E8ED' fill-opacity='0.75'/%3E%3Crect x='2' y='2' width='2' height='2' fill='%23E8E8ED' fill-opacity='0.75'/%3E%3C/svg%3E");
+  --dither-fade-opacity: 0.28;
+  --dither-blend-mode: normal;
 }

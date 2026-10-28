@@ -41,7 +41,7 @@ body {
 .boxy-card-flat {
   background-color: var(--color-surface);
   border: 1.5px solid var(--color-border);
-  box-shadow: none;
+  box-shadow: var(--shadow-ambient-card);
   position: relative;
 }
 
@@ -66,18 +66,21 @@ body {
   background-image: var(--dither-svg);
   background-repeat: repeat;
   background-size: 4px 4px;
+  image-rendering: pixelated;
 }
 
 .dither-overlay-accent {
   background-image: var(--dither-svg-accent);
   background-repeat: repeat;
   background-size: 4px 4px;
+  image-rendering: pixelated;
 }
 
 .dither-overlay-solid {
   background-image: var(--dither-svg-solid);
   background-repeat: repeat;
   background-size: 4px 4px;
+  image-rendering: pixelated;
 }
 
 /* Right-to-Left Fading Dither Gradient for Test Pack Cards (HYDE style) */
@@ -91,7 +94,9 @@ body {
   background-image: var(--dither-svg);
   background-repeat: repeat;
   background-size: 4px 4px;
-  opacity: 0.28;
+  image-rendering: pixelated;
+  mix-blend-mode: var(--dither-blend-mode, normal);
+  opacity: var(--dither-fade-opacity, 0.28);
   mask-image: linear-gradient(to left, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0.5) 40%, rgba(0, 0, 0, 0) 100%);
   -webkit-mask-image: linear-gradient(to left, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0.5) 40%, rgba(0, 0, 0, 0) 100%);
   z-index: 0;
@@ -243,8 +248,17 @@ body {
   box-shadow: 0px 0px 0px 0px var(--color-shadow) !important;
 }
 
+/* Ensure all card content and buttons sit cleanly ON TOP of the background dither */
+.boxy-card-flat > :not(.dither-fade-right):not(.dither-fade-right-accent),
+.boxy-card-active > :not(.dither-fade-right):not(.dither-fade-right-accent) {
+  position: relative;
+  z-index: 1;
+}
+
 /* Interactive Boxy Buttons */
 .boxy-btn {
+  position: relative;
+  z-index: 2;
   display: inline-flex;
   align-items: center;
   justify-content: center;

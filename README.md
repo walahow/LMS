@@ -17,7 +17,7 @@ Full design rationale, schema, and RLS policy table: [`docs/PLAN.md`](docs/PLAN.
 ## UI & Design Direction (Neo-Brutalist / HYDE Direction)
 
 - **Palette**: Ferrari Red (Rosso Corsa `#FF2800`), Soft Paper / Warm Platinum (`#F8F8FA` / `#E8E8ED`), Deep Slate (`#121215` / `#1A1A1F`), Crisp `1.5px`–`2px` borders.
-- **Tactile Shadows & Dither**: Selective overshadow (3px on active card, 4px Ferrari red shadow on selected options). 2x2 SVG halftone checkerboard dither pattern overlays on active selections and right-to-left fading dither (`.dither-fade-right`) on test pack cards across all roles.
+- **Tactile Shadows, Ambient Card Depth & HYDE Dither**: Subtle Apple-style ambient cardstock drop shadow (`--shadow-ambient-card`) on `.boxy-card-flat` containers, paired with selective hard offset shadows (3px on active card, 4px Ferrari red shadow on selected options). Crisp 2x2 SVG halftone checkerboard dither (`image-rendering: pixelated`, `mix-blend-mode: multiply` in light mode) on active selections and right-to-left fading dither (`.dither-fade-right`) on test pack cards, with card content and `.boxy-btn` elevated cleanly above the dither layer.
 - **Sticky Navbar**: Full-width pinned header (`position: sticky; top: 0; width: 100%`) enabled by `overflow-x: clip` on `html, body`.
 - **Direction-Aware Deck Slide**: Dynamic slide transitions (`slide-forward` from right, `slide-backward` from left) when stepping through questions.
 - **Two-Stage Tier Unlock**: Outer container expands first (`0.36s`), followed by inner content reveal (`0.28s`).

@@ -27,9 +27,10 @@ State as of 2026-10-29.
   - Accent: **Ferrari Red (Rosso Corsa `#FF2800`)** across both light and dark modes with `#D40000` hover. Zero pink/magenta bias (unlike TikTok's rose red).
   - Text & Contrast: Deep zinc-900 `#18181B` (light) / Warm platinum `#E8E8ED` (dark) to prevent halation and eye fatigue while maintaining WCAG AAA legibility.
   - Borders: Crisp `1.5px` - `2px` solid (`#18181B` light / `#D4D4D8` dark).
-- **Tactile Neo-Brutalist Shadows & Dither**:
-  - Overshadow is selective: subtle 3px shadow only on currently active question card, and 4px Ferrari red shadow (`--shadow-boxy-accent`) on selected options. Other containers stay clean and flat (`box-shadow: none`).
-  - High-contrast 2x2 pixel checkerboard SVG dither patterns (`--dither-svg`, `--dither-svg-accent`, `--dither-svg-solid`) applied as textured overlays on active and selected elements.
+- **Tactile Neo-Brutalist Shadows, Ambient Card Depth & HYDE Dither**:
+  - **Ambient Apple-Style Card Depth (`--shadow-ambient-card`)**: `.boxy-card-flat` uses a subtle two-layer contact + ambient shadow (`0 2px 4px rgba(24, 24, 27, 0.055), 0 8px 20px -3px rgba(24, 24, 27, 0.08)` in light mode; `0 3px 8px rgba(0, 0, 0, 0.35), 0 12px 26px -3px rgba(0, 0, 0, 0.48)` in dark mode) for physical cardstock lift off the page.
+  - **Hard Offset Interactive Shadows**: Reserved strictly for active/interactive states — 3px shadow (`--shadow-boxy-sm`) on active cards, 4px Ferrari red shadow (`--shadow-boxy-accent`) on selected options, and 6px shadow (`--shadow-boxy-lg`) on modals.
+  - **Crisp HYDE Dither & Layering**: High-contrast 2x2 pixel checkerboard SVG dither patterns (`--dither-svg`, `--dither-svg-accent`, `--dither-svg-solid`) with `image-rendering: pixelated`, `evenodd` path geometry, and `mix-blend-mode: multiply` (`--dither-fade-opacity: 0.24`) in light mode. All card children and `.boxy-btn` sit cleanly on top (`z-index: 1` / `z-index: 2`) of `.dither-fade-right` (`z-index: 0`) so buttons and badges never have dither bleeding through them.
 - **Mechanical Tactile Clicks**:
   - `.boxy-pressable-sm` / `.boxy-pressable-md` / `.boxy-btn` use snappy `transition: transform 0.08s ease, box-shadow 0.08s ease`.
   - On press (`:active`): amblas ke dalam (`translate(2px, 2px)` or `translate(3.5px, 3.5px)` with zero shadow).
@@ -129,10 +130,11 @@ State as of 2026-10-29.
    - 1-click Quick Demo Account pills: `[ 🎓 SISWA ]` (Rani Putri), `[ 👩‍🏫 GURU ]` (Bu Sari), and `[ ⚙ ADMIN ]` (Pak Andi) for instant evaluator/demo role testing.
    - Dual-mode operation: connects to live Supabase Auth when credentials exist, or performs automatic mock redirection to the appropriate dashboard (`/dashboard`, `/teacher/dashboard`, `/admin/dashboard`) in standalone preview mode.
 
-19. **Right-to-Left Fading Dither Texture on Cards (.dither-fade-right)**:
-   - High-contrast 2x2 halftone checkerboard pattern (--dither-svg) positioned on the right edge (width: 65%) of test pack cards.
-   - Smooth CSS gradient mask (mask-image: linear-gradient(to left, rgba(0,0,0,1) 0%, rgba(0,0,0,0.5) 40%, rgba(0,0,0,0) 100%)) providing an authentic HYDE-style fade from right to left without obstructing card typography or interactive buttons (pointer-events: none).
-   - Integrated across: Student Dashboard (in-progress card and available test set cards), Teacher Dashboard (test pack cards), Teacher Pack Detail (overview hero card), Admin Dashboard (test pack cards), and Admin Set Detail (header card).
+19. **Right-to-Left Fading Dither Texture on Cards (`.dither-fade-right`) & Ambient Card Depth**:
+   - High-contrast 2x2 halftone checkerboard pattern (`--dither-svg`) positioned on the right edge (`width: 65%`) of test pack cards with `image-rendering: pixelated`, `mix-blend-mode: multiply` in light mode (`opacity: 0.24`), and `0.28` opacity in dark mode.
+   - Smooth CSS gradient mask (`mask-image: linear-gradient(to left, rgba(0,0,0,1) 0%, rgba(0,0,0,0.5) 40%, rgba(0,0,0,0) 100%)`) providing an authentic HYDE-style fade from right to left.
+   - Strict Z-index elevation ensures all card content (`z-index: 1`) and interactive `.boxy-btn` buttons (`z-index: 2`) render cleanly above the background dither (`z-index: 0`).
+   - Paired with Apple-style ambient cardstock drop shadows (`--shadow-ambient-card`) on `.boxy-card-flat` containers across Student, Teacher, Admin, and Auth screens.
 
 20. **100% Pure Mock AI Question Generator for UI/UX Review**:
    - Switched AI Question Generator (`AdminDashboardView.tsx` & `actions.ts`) to 100% client/mock simulation.
