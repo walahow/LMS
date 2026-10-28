@@ -144,6 +144,10 @@ State as of 2026-10-29.
    - Tracks tab indices (0, 1, 2) to dynamically switch between `.slide-forward` (`slideInFromRight` 0.26s cubic-bezier) and `.slide-backward` (`slideInFromLeft` 0.26s cubic-bezier).
    - Cleaned AI question button state to only show snappy animated `[ MEMPROSES... ]` during mock generation.
 
+22. **Viewport Pinned Toast Notification (`components/AdminDashboardView.tsx` & `app/globals.css`)**:
+   - Pinned success notifications directly to the physical viewport bottom via React Portal (`createPortal(..., document.body)`), completely breaking out of transformed ancestor containers (`PageTransition`, deck sliders).
+   - Centered horizontally (`bottom: 28px; left: 50%; transform: translate(-50%, 0)`), responsive (`maxWidth: 460px; width: calc(100% - 32px)`), with springy `@keyframes toastSlideUp` animation, high-contrast boxy shadow, and `[ SUKSES ]` accent badge.
+
 ## Remaining Next Steps
 - Integrate UI with backend Server Actions from `fullstack` branch when ready for live Supabase testing.
 - Scripts: `npm run dev` (runs Turbopack on port 3000), `npm run typecheck`, `npm run test` (`vitest`).

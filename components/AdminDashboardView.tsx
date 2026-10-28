@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import { ThemeToggler } from "@/components/ThemeToggler";
 import { ProfileDropdown } from "@/components/ProfileDropdown";
@@ -37,6 +38,10 @@ export function AdminDashboardView({
     sets: 1,
     users: 2,
   };
+  const [isMounted, setIsMounted] = useState(false);
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
   const [activeTab, setActiveTab] = useState<ActiveTab>("generator");
   const [tabDirection, setTabDirection] = useState<"forward" | "backward">("forward");
 
@@ -345,31 +350,45 @@ export function AdminDashboardView({
 
   return (
     <div style={{ minHeight: "100dvh", display: "flex", flexDirection: "column" }}>
-      {/* Toast Notification */}
-      {toastMessage && (
+      {/* Toast Notification (Rendered via Portal directly to body, guaranteed pinned to viewport bottom) */}
+      {isMounted && toastMessage && createPortal(
         <div
+          role="status"
+          aria-live="polite"
+          className="toast-bottom-screen"
           style={{
-            position: "fixed",
-            bottom: "24px",
-            right: "24px",
-            zIndex: 9999,
             backgroundColor: "var(--color-surface)",
             color: "var(--color-text)",
             border: "2px solid var(--color-accent)",
-            boxShadow: "var(--shadow-boxy)",
+            boxShadow: "0 6px 0 var(--color-border), 0 12px 28px rgba(0, 0, 0, 0.35)",
             padding: "12px 18px",
             fontSize: "13px",
-            fontWeight: 700,
+            fontWeight: 800,
+            fontFamily: "var(--font-mono), monospace",
             display: "flex",
             alignItems: "center",
-            gap: "10px",
-            maxWidth: "400px",
-            animation: "pageEnter 0.2s ease",
+            gap: "12px",
+            width: "calc(100% - 32px)",
+            maxWidth: "460px",
+            pointerEvents: "auto",
           }}
         >
-          <span style={{ color: "var(--color-accent)", fontSize: "16px" }}>✦</span>
-          <span>{toastMessage}</span>
-        </div>
+          <span
+            style={{
+              backgroundColor: "var(--color-accent)",
+              color: "var(--color-accent-contrast)",
+              padding: "3px 7px",
+              fontSize: "11px",
+              fontWeight: 900,
+              letterSpacing: "0.04em",
+              flexShrink: 0,
+            }}
+          >
+            [ SUKSES ]
+          </span>
+          <span style={{ flex: 1, lineHeight: 1.4 }}>{toastMessage}</span>
+        </div>,
+        document.body
       )}
 
       {/* Pinned Sticky Header Bar */}
