@@ -499,7 +499,7 @@ export default function QuizDemoPage() {
                     border: "1px solid var(--color-accent)",
                   }}
                 >
-                  SOAL {String(qNum).padStart(2, "0")} / {String(total).padStart(2, "0")}
+                  SOAL {String(qNum).padStart(2, "0")}
                 </span>
                 <span
                   className="font-mono"
@@ -534,7 +534,7 @@ export default function QuizDemoPage() {
               gap: "16px",
             }}
           >
-            {/* Tier 1 Header */}
+            {/* Jawaban Header */}
             <div
               style={{
                 display: "flex",
@@ -542,45 +542,17 @@ export default function QuizDemoPage() {
                 justifyContent: "space-between",
               }}
             >
-              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                <span
-                  className="font-mono"
-                  style={{
-                    fontSize: "10px",
-                    fontWeight: 900,
-                    letterSpacing: "0.04em",
-                    padding: "2px 6px",
-                    backgroundColor: "var(--color-text)",
-                    color: "var(--color-bg)",
-                  }}
-                >
-                  TIER 1
-                </span>
-                <h3
-                  className="font-mono"
-                  style={{
-                    fontSize: "12.5px",
-                    fontWeight: 800,
-                    letterSpacing: "0.04em",
-                    margin: 0,
-                  }}
-                >
-                  PILIHAN JAWABAN
-                </h3>
-              </div>
-
-              {selectedAnswer && (
-                <span
-                  className="font-mono"
-                  style={{
-                    fontSize: "11px",
-                    fontWeight: 900,
-                    color: "var(--color-accent)",
-                  }}
-                >
-                  TERPILIH: [{selectedAnswer}]
-                </span>
-              )}
+              <h3
+                className="font-mono"
+                style={{
+                  fontSize: "12.5px",
+                  fontWeight: 800,
+                  letterSpacing: "0.04em",
+                  margin: 0,
+                }}
+              >
+                PILIHAN JAWABAN
+              </h3>
             </div>
 
             {/* Options */}
@@ -701,45 +673,17 @@ export default function QuizDemoPage() {
                     justifyContent: "space-between",
                   }}
                 >
-                  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                    <span
-                      className="font-mono"
-                      style={{
-                        fontSize: "10px",
-                        fontWeight: 900,
-                        letterSpacing: "0.04em",
-                        padding: "2px 6px",
-                        backgroundColor: "var(--color-accent)",
-                        color: "var(--color-accent-contrast)",
-                      }}
-                    >
-                      TIER 2
-                    </span>
-                    <h3
-                      className="font-mono"
-                      style={{
-                        fontSize: "12.5px",
-                        fontWeight: 800,
-                        letterSpacing: "0.04em",
-                        margin: 0,
-                      }}
-                    >
-                      PILIHAN ALASAN
-                    </h3>
-                  </div>
-
-                  {selectedReason && (
-                    <span
-                      className="font-mono"
-                      style={{
-                        fontSize: "11px",
-                        fontWeight: 900,
-                        color: "var(--color-accent)",
-                      }}
-                    >
-                      TERPILIH: [{selectedReason}]
-                    </span>
-                  )}
+                  <h3
+                    className="font-mono"
+                    style={{
+                      fontSize: "12.5px",
+                      fontWeight: 800,
+                      letterSpacing: "0.04em",
+                      margin: 0,
+                    }}
+                  >
+                    PILIHAN ALASAN
+                  </h3>
                 </div>
 
                 {/* Reasons List */}
@@ -846,28 +790,15 @@ export default function QuizDemoPage() {
               }}
             >
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                  <span
-                    className="font-mono"
-                    style={{
-                      fontSize: "10px",
-                      fontWeight: 800,
-                      padding: "2px 6px",
-                      border: "1px dashed var(--color-border)",
-                    }}
-                  >
-                    TIER 2
-                  </span>
-                  <span className="font-mono" style={{ fontSize: "12px", fontWeight: 700 }}>
-                    PILIHAN ALASAN
-                  </span>
-                </div>
+                <span className="font-mono" style={{ fontSize: "12px", fontWeight: 700 }}>
+                  PILIHAN ALASAN
+                </span>
                 <span className="font-mono" style={{ fontSize: "11px", color: "var(--color-text-muted)" }}>
                   [ TERKUNCI 🔒 ]
                 </span>
               </div>
               <p style={{ margin: 0, fontSize: "12px", color: "var(--color-text-muted)", lineHeight: 1.4 }}>
-                Pilih jawaban pada Tier 1 di atas terlebih dahulu untuk membuka pilihan alasan.
+                Pilih jawaban di atas terlebih dahulu untuk membuka pilihan alasan.
               </p>
             </div>
           )}
@@ -900,45 +831,17 @@ export default function QuizDemoPage() {
                     justifyContent: "space-between",
                   }}
                 >
-                  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                    <span
-                      className="font-mono"
-                      style={{
-                        fontSize: "10px",
-                        fontWeight: 900,
-                        letterSpacing: "0.04em",
-                        padding: "2px 6px",
-                        backgroundColor: "var(--color-text)",
-                        color: "var(--color-bg)",
-                      }}
-                    >
-                      TIER 3
-                    </span>
-                    <h3
-                      className="font-mono"
-                      style={{
-                        fontSize: "12.5px",
-                        fontWeight: 800,
-                        letterSpacing: "0.04em",
-                        margin: 0,
-                      }}
-                    >
-                      TINGKAT KEYAKINAN
-                    </h3>
-                  </div>
-
-                  {selectedConfidence !== undefined && (
-                    <span
-                      className="font-mono"
-                      style={{
-                        fontSize: "11px",
-                        fontWeight: 900,
-                        color: "var(--color-accent)",
-                      }}
-                    >
-                      [{selectedConfidence ? "YAKIN" : "TIDAK YAKIN"}]
-                    </span>
-                  )}
+                  <h3
+                    className="font-mono"
+                    style={{
+                      fontSize: "12.5px",
+                      fontWeight: 800,
+                      letterSpacing: "0.04em",
+                      margin: 0,
+                    }}
+                  >
+                    TINGKAT KEYAKINAN
+                  </h3>
                 </div>
 
                 <p style={{ margin: 0, fontSize: "12.5px", color: "var(--color-text-muted)", lineHeight: 1.45 }}>
@@ -1046,28 +949,15 @@ export default function QuizDemoPage() {
               }}
             >
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                  <span
-                    className="font-mono"
-                    style={{
-                      fontSize: "10px",
-                      fontWeight: 800,
-                      padding: "2px 6px",
-                      border: "1px dashed var(--color-border)",
-                    }}
-                  >
-                    TIER 3
-                  </span>
-                  <span className="font-mono" style={{ fontSize: "12px", fontWeight: 700 }}>
-                    TINGKAT KEYAKINAN
-                  </span>
-                </div>
+                <span className="font-mono" style={{ fontSize: "12px", fontWeight: 700 }}>
+                  TINGKAT KEYAKINAN
+                </span>
                 <span className="font-mono" style={{ fontSize: "11px", color: "var(--color-text-muted)" }}>
                   [ TERKUNCI 🔒 ]
                 </span>
               </div>
               <p style={{ margin: 0, fontSize: "12px", color: "var(--color-text-muted)", lineHeight: 1.4 }}>
-                Pilih alasan pada Tier 2 di atas terlebih dahulu untuk konfirmasi keyakinan.
+                Pilih alasan di atas terlebih dahulu untuk konfirmasi keyakinan.
               </p>
             </div>
           )}

@@ -23,6 +23,7 @@ Full design rationale, schema, and RLS policy table: [`docs/PLAN.md`](docs/PLAN.
 - **Two-Stage Tier Unlock**: Outer container expands first (`0.36s`), followed by inner content reveal (`0.28s`).
 - **MagicUI Theme Toggler**: Rectangular box reveal (`clip-path: inset(...)`) with 8-bit pixel sun/moon icons and snappy 250ms transition.
 - **Score Swipe Overlay**: Fullscreen swipe-up sheet (`translateY(100%) -> 0`) with animated `NumberTicker` score and four diagnostic category counts, plus smooth exit animation.
+- **Streamlined Quiz Interface**: Minimalist, distraction-free cards focusing on learning content (single question counter `SOAL 01`, clean section titles without tier badges or redundant selection labels).
 
 ## Local setup
 

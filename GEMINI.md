@@ -7,7 +7,7 @@ options. For each question the student picks (1) an answer, (2) a reason, (3) **
 Roles and pages: student (dashboard, quiz, history, profile) · teacher (dashboard, student detail with
 diagnosis, profile) · admin (generate set, set history/edit, user management) · login.
 
-State as of 2026-10-27.
+State as of 2026-10-28.
 
 ## ⚠ Branch Structure & Code Location
 - **`fullstack` branch**:
@@ -86,6 +86,11 @@ State as of 2026-10-27.
    - Snappy neo-brutalist entry animation `@keyframes pageEnter`: subtle 8px vertical lift + fade-in over 0.22s with Apple/Framer snappy deceleration curve `cubic-bezier(0.16, 1, 0.3, 1)`.
    - Zero interference with `position: sticky; top: 0;`: `PageTransition` client wrapper listens to `onAnimationEnd` and removes the transition class once complete, restoring pure `transform: none` on the container so headers adhere natively to viewport scroll.
    - Respects `prefers-reduced-motion: reduce` by disabling animations instantly.
+11. **Quiz Clean UI Streamlining (`app/quiz/page.tsx`)**:
+   - Removed redundant `TIER 1`, `TIER 2`, `TIER 3` badges across active and locked card headers for clean, distraction-free section headers (`PILIHAN JAWABAN`, `PILIHAN ALASAN`, `TINGKAT KEYAKINAN`).
+   - Streamlined question counter badge to show only the current question number (`SOAL 01`), eliminating duplication with the sticky header's progress button `[ 03 | 10 ▾ ]`.
+   - Removed `TERPILIH: [*]` badges from section headers since selection is already prominently signaled by the Ferrari Red border, active translation, and dither pattern.
+   - Updated placeholder guidance text (`Pilih jawaban di atas...`, `Pilih alasan di atas...`).
 
 ## Remaining Next Steps
 - Apply this established design language to the remaining views:
