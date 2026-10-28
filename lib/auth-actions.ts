@@ -1,11 +1,22 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
 
 export async function signOut() {
-  const supabase = await createClient();
-  await supabase.auth.signOut();
+  const cookieStore = await cookies();
+  cookieStore.delete("lms-demo-role");
+
+  try {
+    if (process.env.NEXT_PUBLIC_SUPABASE_URL) {
+      const supabase = await createClient();
+      await supabase.auth.signOut();
+    }
+  } catch {
+    // Offline / standalone
+  }
+
   redirect("/login");
 }
 
@@ -25,11 +36,21 @@ export async function changePassword(
     return { error: "Konfirmasi kata sandi tidak cocok." };
   }
 
-  const supabase = await createClient();
-  const { error } = await supabase.auth.updateUser({ password });
-  if (error) {
-    return { error: "Gagal mengubah kata sandi. Coba lagi." };
+  const cookieStore = await cookies();
+  const isDemo = Boolean(cookieStore.get("lms-demo-role")?.value);
+  if (isDemo || !process.env.NEXT_PUBLIC_SUPABASE_URL) {
+    // Simulated password update for demo session
+    return { success: true };
   }
 
-  return { success: true };
+  try {
+    const supabase = await createClient();
+    const { error } = await supabase.auth.updateUser({ password });
+    if (error) {
+      return { error: "Gagal mengubah kata sandi. Coba lagi." };
+    }
+    return { success: true };
+  } catch {
+    return { error: "Gagal mengubah kata sandi. Coba lagi." };
+  }
 }

@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useActionState } from "react";
-import { ThemeToggler } from "@/components/ThemeToggler";
 import { signIn, type LoginState } from "@/app/(auth)/login/actions";
 
 const initialState: LoginState = {};
@@ -41,18 +40,6 @@ export function LoginView() {
         position: "relative",
       }}
     >
-      {/* Top Fixed Theme Toggler */}
-      <div
-        style={{
-          position: "absolute",
-          top: "16px",
-          right: "16px",
-          zIndex: 50,
-        }}
-      >
-        <ThemeToggler />
-      </div>
-
       {/* Main Container */}
       <main
         style={{
@@ -171,6 +158,7 @@ export function LoginView() {
           </div>
 
           <form action={formAction} style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+            <input type="hidden" name="demoRole" value={selectedDemoRole ?? ""} />
             {/* Email Field */}
             <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
               <label

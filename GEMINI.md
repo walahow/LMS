@@ -124,7 +124,6 @@ State as of 2026-10-29.
    - Administrator profile screen with tactile boxy avatar (`[ AK ]` with Ferrari Red background), identity card, change password form, and session sign-out button.
 18. **Mobile-First Neo-Brutalist Login Screen (`components/LoginView.tsx` & `app/(auth)/login/page.tsx`)**:
    - Mobile-first neo-brutalist authentication screen (`maxWidth: 420px`) with Ferrari Red / Rosso Corsa aesthetic.
-   - Pinned top-right `ThemeToggler` allowing users to switch themes before signing in.
    - 3-tier visual mark (3 horizontal bars in Ferrari Red, soft slate, and border) representing the three diagnostic tiers (Jawaban, Alasan, Keyakinan).
    - Tactile login card with `.boxy-input` for email and password, show/hide password toggle, and Ferrari Red submit CTA button (`[ MASUK KE SISTEM ➔ ]`).
    - 1-click Quick Demo Account pills: `[ 🎓 SISWA ]` (Rani Putri), `[ 👩‍🏫 GURU ]` (Bu Sari), and `[ ⚙ ADMIN ]` (Pak Andi) for instant evaluator/demo role testing.

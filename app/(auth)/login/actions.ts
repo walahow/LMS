@@ -1,6 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
 import type { UserRole } from "@/lib/database.types";
 
@@ -12,49 +13,74 @@ function roleHome(role: UserRole) {
   return "/dashboard";
 }
 
+function detectDemoRole(email: string): UserRole | null {
+  const lower = email.toLowerCase().trim();
+  if (lower.includes("teacher")) return "teacher";
+  if (lower.includes("admin")) return "admin";
+  if (lower.includes("student") || lower.includes("rani")) return "student";
+  return null;
+}
+
 export async function signIn(_prevState: LoginState, formData: FormData): Promise<LoginState> {
   const email = String(formData.get("email") ?? "").trim();
   const password = String(formData.get("password") ?? "");
+  const demoRoleParam = String(formData.get("demoRole") ?? "").trim() as UserRole | "";
 
   if (!email || !password) {
     return { error: "Email atau kata sandi salah." };
   }
 
-  // Standalone preview fallback when Supabase is not configured
-  if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
-    if (email.toLowerCase().includes("teacher")) {
-      redirect("/teacher/dashboard");
-    } else if (email.toLowerCase().includes("admin")) {
-      redirect("/admin/dashboard");
-    } else {
-      redirect("/dashboard");
+  const detectedRole = demoRoleParam || detectDemoRole(email);
+  const isDemoCredential = Boolean(
+    detectedRole &&
+      (password === "password123" || email.toLowerCase().endsWith("@lms.local"))
+  );
+
+  let targetRedirect: string | null = null;
+
+  // 1. If Supabase is configured, try authenticating with Supabase Auth first
+  if (process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+    try {
+      const supabase = await createClient();
+      const { error, data } = await supabase.auth.signInWithPassword({ email, password });
+
+      if (!error && data?.user) {
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("role")
+          .eq("id", data.user.id)
+          .single();
+
+        // Clear mock demo session cookie if live login succeeded
+        const cookieStore = await cookies();
+        cookieStore.delete("lms-demo-role");
+
+        targetRedirect = roleHome((profile?.role ?? "student") as UserRole);
+      } else {
+        console.warn("[login] Supabase auth rejected:", error?.message);
+      }
+    } catch (err) {
+      console.warn("[login] Supabase connection error:", err);
     }
   }
 
-  const supabase = await createClient();
-  const { error } = await supabase.auth.signInWithPassword({ email, password });
-
-  // One generic message for any failure — never reveal whether the email exists.
-  // TEMP diagnostic logging (server-side only, never shown to the user) while
-  // debugging the seeded accounts against a fresh Supabase project.
-  if (error) {
-    console.error("[login] signInWithPassword failed", {
-      message: error.message,
-      status: error.status,
-      code: (error as { code?: string }).code,
-    });
-    return { error: "Email atau kata sandi salah." };
+  // 2. If live login succeeded, perform redirect
+  if (targetRedirect) {
+    redirect(targetRedirect);
   }
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // 3. Fallback: If live login was unsuccessful BUT user entered a demo account, log them in via mock demo session!
+  if (isDemoCredential && detectedRole) {
+    const cookieStore = await cookies();
+    cookieStore.set("lms-demo-role", detectedRole, {
+      path: "/",
+      httpOnly: true,
+      sameSite: "lax",
+      maxAge: 60 * 60 * 24, // 24 hours
+    });
+    redirect(roleHome(detectedRole));
+  }
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", user!.id)
-    .single();
-
-  redirect(roleHome((profile?.role ?? "student") as UserRole));
+  // 4. Otherwise, return generic error for invalid credentials
+  return { error: "Email atau kata sandi salah." };
 }
