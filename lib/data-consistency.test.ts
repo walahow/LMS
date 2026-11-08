@@ -163,6 +163,26 @@ describe("Admin mock dataset reconciliation", () => {
     expect(selectedAttempts[0].id).toBe("attempt-2-latest");
     expect(selectedAttempts[0].score).toBe(85);
   });
+
+  it("excludes draft question sets from teacher data", async () => {
+    const { fetchTeacherData, MOCK_TEST_PACKS } = await import("./teacher-data");
+    const data = await fetchTeacherData();
+
+    // Verify mock packs contain both published and draft sets (for consistency with admin sets)
+    expect(MOCK_TEST_PACKS.some((p) => p.published === false)).toBe(true);
+    expect(MOCK_TEST_PACKS.some((p) => p.published === true)).toBe(true);
+
+    // Verify teacher data strictly receives only published test packs
+    expect(data.testPacks.length).toBeGreaterThan(0);
+    for (const pack of data.testPacks) {
+      expect(pack.published).not.toBe(false);
+    }
+
+    // Number of published packs in teacher view should match published packs in MOCK_TEST_PACKS
+    const expectedPublishedCount = MOCK_TEST_PACKS.filter((p) => p.published !== false).length;
+    expect(data.testPacks.length).toBe(expectedPublishedCount);
+    expect(data.stats.totalPacks).toBe(expectedPublishedCount);
+  });
 });
 
 

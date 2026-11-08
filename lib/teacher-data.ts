@@ -44,6 +44,7 @@ export type TeacherTestPack = {
   indicator: string;
   subject: string;
   grade?: string;
+  published?: boolean;
   questionCount: number;
   studentAttemptCount: number;
   totalStudents: number;
@@ -129,7 +130,15 @@ function buildStudentResult(
 }
 
 function buildPack(
-  packMeta: { id: string; title: string; indicator: string; subject: string; grade: string; totalStudents: number },
+  packMeta: {
+    id: string;
+    title: string;
+    indicator: string;
+    subject: string;
+    grade: string;
+    totalStudents: number;
+    published?: boolean;
+  },
   students: StudentPackResult[]
 ): TeacherTestPack {
   const diagnosticsCount: DiagnosticCount = { paham: 0, miskonsepsi: 0, lucky_guess: 0, tidak_paham: 0 };
@@ -143,6 +152,7 @@ function buildPack(
 
   return {
     ...packMeta,
+    published: packMeta.published ?? true,
     questionCount,
     studentAttemptCount: students.length,
     diagnosticsCount,
@@ -338,6 +348,7 @@ const PACK_1 = buildPack(
     subject: "Fisika",
     grade: "Kelas 10",
     totalStudents: 28,
+    published: true,
   },
   [raniPack1, budiPack1, sitiPack1, dimasPack1]
 );
@@ -484,6 +495,7 @@ const PACK_2 = buildPack(
     subject: "Biologi",
     grade: "Kelas 10",
     totalStudents: 28,
+    published: true,
   },
   [raniPack2, budiPack2, dimasPack2]
 );
@@ -602,6 +614,7 @@ const PACK_3 = buildPack(
     subject: "Kimia",
     grade: "Kelas 10",
     totalStudents: 28,
+    published: false,
   },
   [budiPack3, sitiPack3]
 );
@@ -705,6 +718,7 @@ const PACK_4 = buildPack(
     subject: "Geografi",
     grade: "Kelas 10",
     totalStudents: 28,
+    published: false,
   },
   [sitiPack4, dimasPack4]
 );
@@ -745,10 +759,11 @@ export async function fetchTeacherData(): Promise<{
   testPacks: TeacherTestPack[];
 }> {
   if (!isSupabaseConfigured()) {
+    const publishedPacks = MOCK_TEST_PACKS.filter((p) => p.published !== false);
     return {
       profile: MOCK_TEACHER,
-      stats: MOCK_TEACHER_STATS,
-      testPacks: MOCK_TEST_PACKS,
+      stats: calculateCohortStats(publishedPacks),
+      testPacks: publishedPacks,
     };
   }
 
@@ -766,10 +781,11 @@ export async function fetchTeacherData(): Promise<{
     title: "GURU FISIKA",
   };
 
-  // Fetch real question sets
+  // Fetch real question sets (published only)
   const setsRes = await supabase
     .from("question_sets")
     .select("id, title, indicator, subject, grade, published, created_at, questions(id, position, stem, options, reasons, correct_option, correct_reason, explanation)")
+    .eq("published", true)
     .order("created_at", { ascending: false });
 
   const dbSets: any[] = setsRes.data ?? [];
@@ -884,6 +900,7 @@ export async function fetchTeacherData(): Promise<{
       indicator: s.indicator,
       subject: s.subject || "Fisika",
       grade: s.grade || "Kelas 10",
+      published: s.published ?? true,
       questionCount: questions.length,
       studentAttemptCount: students.length,
       totalStudents: totalCohortStudents,

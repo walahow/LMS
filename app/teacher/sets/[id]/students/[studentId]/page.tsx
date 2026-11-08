@@ -12,16 +12,13 @@ export default async function TeacherSetStudentDetailPage({
   const { id, studentId } = await params;
   const { testPacks } = await fetchTeacherData();
 
-  const pack =
-    testPacks.find((p) => p.id === id) || (id.startsWith("mock-") ? testPacks[0] : null);
+  const pack = testPacks.find((p) => p.id === id);
 
   if (!pack) {
     notFound();
   }
 
-  const student =
-    pack.students.find((s) => s.studentId === studentId) ||
-    (studentId.startsWith("mock-") ? pack.students[0] : null);
+  const student = pack.students.find((s) => s.studentId === studentId);
 
   if (!student) {
     notFound();

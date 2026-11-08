@@ -25,12 +25,6 @@ export default async function TeacherStudentDetailPage({
     }
   }
 
-  // Fallback for mock IDs
-  if (!foundStudent && id.startsWith("mock-") && testPacks.length > 0 && testPacks[0].students.length > 0) {
-    foundPack = testPacks[0];
-    foundStudent = testPacks[0].students[0];
-  }
-
   if (!foundPack || !foundStudent) {
     notFound();
   }

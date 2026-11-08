@@ -12,7 +12,7 @@ export default async function TeacherSetDetailPage({
   const { id } = await params;
   const { profile, testPacks } = await fetchTeacherData();
 
-  const pack = testPacks.find((p) => p.id === id) || (id.startsWith("mock-") ? testPacks[0] : null);
+  const pack = testPacks.find((p) => p.id === id);
 
   if (!pack) {
     notFound();
