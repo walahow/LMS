@@ -148,7 +148,10 @@ export function AdminDashboardView({
   }, [users, userSearch, roleFilter]);
 
   // Toggle publish status of a set with live Supabase persistence
-  const [togglingSetId, setTogglingSetId] = useState<string | null>(null);
+  const [togglingAction, setTogglingAction] = useState<{
+    id: string;
+    nextPublished: boolean;
+  } | null>(null);
 
   const handleTogglePublish = async (id: string, e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
@@ -156,23 +159,20 @@ export function AdminDashboardView({
     if (!targetSet) return;
     const nextPub = !targetSet.published;
 
-    setTogglingSetId(id);
-    // Optimistic UI update
-    setSets((prev) =>
-      prev.map((s) => (s.id === id ? { ...s, published: nextPub } : s))
-    );
+    setTogglingAction({ id, nextPublished: nextPub });
 
     const res = await togglePublishSetAction({ setId: id, published: nextPub });
-    setTogglingSetId(null);
+    setTogglingAction(null);
 
     if (!res.success) {
-      // Revert on failure
-      setSets((prev) =>
-        prev.map((s) => (s.id === id ? { ...s, published: !nextPub } : s))
-      );
       showToast(res.error || "Gagal mengubah status publikasi.");
       return;
     }
+
+    // Update state upon server success
+    setSets((prev) =>
+      prev.map((s) => (s.id === id ? { ...s, published: nextPub } : s))
+    );
 
     showToast(
       nextPub
@@ -1665,7 +1665,7 @@ export function AdminDashboardView({
                         {/* 2. Publish/Draft Toggle Action */}
                         <button
                           type="button"
-                          disabled={togglingSetId === set.id}
+                          disabled={togglingAction?.id === set.id}
                           onClick={(e) => handleTogglePublish(set.id, e)}
                           className="boxy-pressable-sm font-mono"
                           style={{
@@ -1681,7 +1681,7 @@ export function AdminDashboardView({
                             color: set.published
                               ? "var(--color-text)"
                               : "var(--color-accent-contrast)",
-                            cursor: togglingSetId === set.id ? "not-allowed" : "pointer",
+                            cursor: togglingAction?.id === set.id ? "not-allowed" : "pointer",
                             display: "flex",
                             alignItems: "center",
                             justifyContent: "center",
@@ -1690,11 +1690,15 @@ export function AdminDashboardView({
                             width: "100%",
                           }}
                         >
-                          {togglingSetId === set.id ? (
+                          {togglingAction?.id === set.id ? (
                             <>
-                              <span>{set.published ? "MENARIK..." : "MENERBITKAN..."}</span>
+                              <span>
+                                {togglingAction.nextPublished
+                                  ? "MENERBITKAN..."
+                                  : "MENARIK..."}
+                              </span>
                               <ButtonLoadingBar
-                                variant={set.published ? "surface" : "contrast"}
+                                variant={togglingAction.nextPublished ? "contrast" : "surface"}
                                 height={3}
                               />
                             </>
