@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useActionState } from "react";
+import React, { useActionState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { ThemeToggler } from "@/components/ThemeToggler";
 import { changePassword, signOut, type ChangePasswordState } from "@/lib/auth-actions";
+import { BoxyPasswordInput } from "@/components/BoxyPasswordInput";
 
 export type TeacherProfileData = {
   fullName: string;
@@ -16,6 +17,14 @@ const initialPasswordState: ChangePasswordState = {};
 
 export function TeacherProfileView({ profile }: { profile: TeacherProfileData }) {
   const [state, formAction, pending] = useActionState(changePassword, initialPasswordState);
+  const formRef = useRef<HTMLFormElement>(null);
+
+  // Bersihkan form input secara otomatis saat kata sandi berhasil diperbarui
+  useEffect(() => {
+    if (state.success) {
+      formRef.current?.reset();
+    }
+  }, [state.success]);
 
   return (
     <div
@@ -213,17 +222,18 @@ export function TeacherProfileView({ profile }: { profile: TeacherProfileData })
             </p>
           </div>
 
-          <form action={formAction} style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+          <form ref={formRef} action={formAction} style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
             {state.error && (
               <div
                 className="font-mono"
                 style={{
-                  padding: "8px 10px",
+                  padding: "9px 12px",
                   backgroundColor: "var(--color-accent-dim)",
-                  border: "1px solid var(--color-accent)",
+                  border: "1.5px solid var(--color-accent)",
                   color: "var(--color-accent)",
-                  fontSize: "11px",
-                  fontWeight: 800,
+                  fontSize: "12px",
+                  fontWeight: 700,
+                  lineHeight: 1.45,
                 }}
               >
                 ⚠ {state.error}
@@ -234,56 +244,40 @@ export function TeacherProfileView({ profile }: { profile: TeacherProfileData })
               <div
                 className="font-mono"
                 style={{
-                  padding: "8px 10px",
+                  padding: "9px 12px",
                   backgroundColor: "rgba(14, 164, 122, 0.12)",
-                  border: "1px solid #0EA47A",
+                  border: "1.5px solid #0EA47A",
                   color: "#0B6B50",
-                  fontSize: "11px",
-                  fontWeight: 800,
+                  fontSize: "12px",
+                  fontWeight: 700,
+                  lineHeight: 1.45,
                 }}
               >
-                ✓ {state.success}
+                ✓ {state.message || "Kata sandi berhasil diperbarui!"}
               </div>
             )}
 
-            <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-              <label
-                htmlFor="currentPassword"
-                className="font-mono"
-                style={{ fontSize: "11px", fontWeight: 800, color: "var(--color-text-muted)" }}
-              >
-                KATA SANDI SAAT INI
-              </label>
-              <input
-                id="currentPassword"
-                name="currentPassword"
-                type="password"
-                required
-                autoComplete="current-password"
-                className="boxy-input font-mono"
-                style={{ fontSize: "13px" }}
-              />
-            </div>
+            {/* New Password with Show Password Toggle */}
+            <BoxyPasswordInput
+              id="newPassword"
+              name="password"
+              label="KATA SANDI BARU"
+              autoComplete="new-password"
+              minLength={8}
+              required
+              placeholder="Minimal 8 karakter"
+            />
 
-            <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-              <label
-                htmlFor="newPassword"
-                className="font-mono"
-                style={{ fontSize: "11px", fontWeight: 800, color: "var(--color-text-muted)" }}
-              >
-                KATA SANDI BARU
-              </label>
-              <input
-                id="newPassword"
-                name="newPassword"
-                type="password"
-                required
-                minLength={8}
-                autoComplete="new-password"
-                className="boxy-input font-mono"
-                style={{ fontSize: "13px" }}
-              />
-            </div>
+            {/* Confirm Password with Show Password Toggle */}
+            <BoxyPasswordInput
+              id="confirmPassword"
+              name="confirm"
+              label="KONFIRMASI KATA SANDI"
+              autoComplete="new-password"
+              minLength={8}
+              required
+              placeholder="Ulangi kata sandi baru"
+            />
 
             <button
               type="submit"
@@ -291,11 +285,13 @@ export function TeacherProfileView({ profile }: { profile: TeacherProfileData })
               className="boxy-btn boxy-btn-accent font-mono boxy-pressable-md"
               style={{
                 width: "100%",
-                padding: "10px",
+                height: "44px",
                 fontSize: "12.5px",
                 fontWeight: 900,
                 letterSpacing: "0.04em",
                 marginTop: "4px",
+                cursor: pending ? "wait" : "pointer",
+                opacity: pending ? 0.7 : 1,
               }}
             >
               {pending ? "MENYIMPAN..." : "SIMPAN KATA SANDI ➔"}

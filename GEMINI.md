@@ -7,7 +7,7 @@ options. For each question the student picks (1) an answer, (2) a reason, (3) **
 Roles and pages: student (dashboard, quiz, history, profile) · teacher (dashboard, student detail with
 diagnosis, profile) · admin (generate set, set history/edit, user management) · login.
 
-State as of 2026-10-29.
+State as of 2026-11-07.
 
 ## ⚠ Branch Structure & Code Location
 - **`fullstack` branch**:
@@ -18,18 +18,18 @@ State as of 2026-10-29.
 - **`main` branch (Active Frontend)**:
   - Rebuilt student quiz interface from scratch with a **mobile-first neo-brutalist aesthetic** inspired by the HYDE project (`D:\proj\HYDE`).
   - `proxy.ts` (Next.js 16) has a safe bypass guard returning `NextResponse.next()` when `NEXT_PUBLIC_SUPABASE_URL` is unset, enabling standalone frontend UI development and preview without throwing 500 errors.
-  - Root route `/` redirects automatically to `/quiz`.
+  - Root route `/` redirects automatically to `/login`.
 
 ## Design System & Aesthetic (Locked Decisions)
-- **Palette (Ferrari Red + Monochrome Ergonomics)**:
-  - Background: Soft warm paper `#F8F8FA` / Comfortable deep slate `#121215` (avoiding harsh OLED `#000000`).
-  - Surface: Pure white `#FFFFFF` / Soft dark slate `#1A1A1F`.
-  - Accent: **Ferrari Red (Rosso Corsa `#FF2800`)** across both light and dark modes with `#D40000` hover. Zero pink/magenta bias (unlike TikTok's rose red).
-  - Text & Contrast: Deep zinc-900 `#18181B` (light) / Warm platinum `#E8E8ED` (dark) to prevent halation and eye fatigue while maintaining WCAG AAA legibility.
-  - Borders: Crisp `1.5px` - `2px` solid (`#18181B` light / `#D4D4D8` dark).
+- **Palette (Electric Royal Blue & Deep Midnight Oceanic Ergonomics)**:
+  - Background: Soft cool paper `#F4F7FC` / Deep midnight navy `#060D24` (inspired by customer `#020D33`).
+  - Surface: Pure white `#FFFFFF` / Midnight slate `#0C1736` (elevated cardstock).
+  - Accent: **Electric Royal Blue (`#116AF8`)** in light mode with `#0C56CC` hover; **Electric Cerulean Cyan (`#20BCED`)** in dark mode with `#A0E9FF` hover. Zero glare, high contrast.
+  - Text & Contrast: Deep oceanic ink `#0B152B` (light) / Ice platinum `#F0F6FF` (dark) for pristine WCAG AAA legibility.
+  - Borders: Crisp `1.5px` - `2px` solid (`#0B152B` light / `#8EA9CD` dark).
 - **Tactile Neo-Brutalist Shadows, Ambient Card Depth & HYDE Dither**:
   - **Ambient Apple-Style Card Depth (`--shadow-ambient-card`)**: `.boxy-card-flat` uses a subtle two-layer contact + ambient shadow (`0 2px 4px rgba(24, 24, 27, 0.055), 0 8px 20px -3px rgba(24, 24, 27, 0.08)` in light mode; `0 3px 8px rgba(0, 0, 0, 0.35), 0 12px 26px -3px rgba(0, 0, 0, 0.48)` in dark mode) for physical cardstock lift off the page.
-  - **Hard Offset Interactive Shadows**: Reserved strictly for active/interactive states — 3px shadow (`--shadow-boxy-sm`) on active cards, 4px Ferrari red shadow (`--shadow-boxy-accent`) on selected options, and 6px shadow (`--shadow-boxy-lg`) on modals.
+  - **Hard Offset Interactive Shadows**: Reserved strictly for active/interactive states — 3px shadow (`--shadow-boxy-sm`) on active cards, 4px electric blue/cyan shadow (`--shadow-boxy-accent`) on selected options, and 6px shadow (`--shadow-boxy-lg`) on modals.
   - **Crisp HYDE Dither & Layering**: High-contrast 2x2 pixel checkerboard SVG dither patterns (`--dither-svg`, `--dither-svg-accent`, `--dither-svg-solid`) with `image-rendering: pixelated`, `evenodd` path geometry, and `mix-blend-mode: multiply` (`--dither-fade-opacity: 0.24`) in light mode. All card children and `.boxy-btn` sit cleanly on top (`z-index: 1` / `z-index: 2`) of `.dither-fade-right` (`z-index: 0`) so buttons and badges never have dither bleeding through them.
 - **Mechanical Tactile Clicks**:
   - `.boxy-pressable-sm` / `.boxy-pressable-md` / `.boxy-btn` use snappy `transition: transform 0.08s ease, box-shadow 0.08s ease`.
@@ -63,10 +63,10 @@ State as of 2026-10-29.
    - 4-category diagnostic summary: Paham Konsep, Miskonsepsi, Lucky Guess, Tidak Paham.
    - Smooth swipe-down exit animation (`translateY(100%)` 0.40s) on clicking `SELESAI & KELUAR ➔` or `ULAS JAWABAN`.
 7. **`components/StudentBottomNav.tsx` & `components/StudentDashboardView.tsx` (`app/(student)/dashboard/page.tsx`)**:
-   - Complete mobile-first neo-brutalist student dashboard UI matching Ferrari Red / HYDE aesthetic.
+   - Complete mobile-first neo-brutalist student dashboard UI matching Electric Blue / HYDE aesthetic.
    - Sticky top header with brand mark `[ LMS DIAGNOSTIK ]`, theme toggle, and profile avatar initials.
    - Time-based greeting ("Selamat pagi/siang/sore/malam") with student name and grade badge.
-   - 3-box diagnostic stats row: Completed Sets, Average Score (highlighted with Ferrari Red shadow), and Available Sets.
+   - 3-box diagnostic stats row: Completed Sets, Average Score (highlighted with Accent shadow), and Available Sets.
    - Active in-progress test card banner with progress tracking and direct resume CTA button.
    - Category filter pills (`[ SEMUA ]`, `[ FISIKA ]`, `[ BIOLOGI ]`, etc.) with instant client-side filtering.
    - Question set cards showing subject color dots, question count, learning indicator, score feedback (e.g. `80 / 100`), and dynamic CTA buttons (`MULAI ➔`, `LANJUTKAN ➔`, `ULAS ➔`, `COBA LAGI ↺`). Misconception diagnoses are kept exclusively for teachers and replaced with scores for students.
@@ -90,13 +90,13 @@ State as of 2026-10-29.
 11. **Quiz Clean UI Streamlining (`app/quiz/page.tsx`)**:
    - Removed redundant `TIER 1`, `TIER 2`, `TIER 3` badges across active and locked card headers for clean, distraction-free section headers (`PILIHAN JAWABAN`, `PILIHAN ALASAN`, `TINGKAT KEYAKINAN`).
    - Streamlined question counter badge to show only the current question number (`SOAL 01`), eliminating duplication with the sticky header's progress button `[ 03 | 10 ▾ ]`.
-   - Removed `TERPILIH: [*]` badges from section headers since selection is already prominently signaled by the Ferrari Red border, active translation, and dither pattern.
+   - Removed `TERPILIH: [*]` badges from section headers since selection is already prominently signaled by the Accent border, active translation, and dither pattern.
    - Updated placeholder guidance text (`Pilih jawaban di atas...`, `Pilih alasan di atas...`).
 12. **Teacher Dashboard — Inspired by Student Dashboard (`components/TeacherDashboardView.tsx` & `app/teacher/dashboard/page.tsx`)**:
    - Mobile-first single-column ergonomics (`maxWidth: 440px`), mirroring the student dashboard layout and aesthetics.
    - Pinned sticky navbar with brand mark `[ LMS DIAGNOSTIK ] [GURU]`, theme toggle, and profile avatar initials.
    - Hero greeting card ("Selamat pagi/siang/sore/malam, Bu Sari Wulandari, M.Pd.") + role badge.
-   - 3-box diagnostic stats row: Total Paket Soal, Rata-Rata Skor Kelas (highlighted with Ferrari Red shadow), and Tingkat Partisipasi Siswa.
+   - 3-box diagnostic stats row: Total Paket Soal, Rata-Rata Skor Kelas (highlighted with Accent shadow), and Tingkat Partisipasi Siswa.
    - Search input (`.boxy-input`) for test packs & indicators + subject filter pills (`[ SEMUA ]`, `[ FISIKA ]`, `[ BIOLOGI ]`, etc.).
    - Test pack cards with subject dot badges, question counts, learning indicator snippets, student participation counter (`4 / 28 Mengerjakan`), misconception warning tags (`⚠ 3 Siswa Miskonsepsi`), and direct CTA link `LIHAT HASIL & SISWA ➔` to `/teacher/sets/[id]`.
 13. **Teacher Test Pack Detail & Diagnostic Matrix (`components/TeacherPackDetailView.tsx` & `app/teacher/sets/[id]/page.tsx`)**:
@@ -110,9 +110,9 @@ State as of 2026-10-29.
 14. **Teacher Profile View (`components/TeacherProfileView.tsx` & `app/teacher/profile/page.tsx`)**:
    - Neo-brutalist profile view tailored for teachers with sticky header, back button (`[ ❮ KEMBALI KE BERANDA ]`), theme toggler, identity card (`[ SW ] Bu Sari Wulandari, M.Pd.`), change password form, and sign-out button.
 15. **Unified Admin Command Center Hub (`components/AdminDashboardView.tsx` & `app/admin/dashboard/page.tsx`)**:
-   - Single-screen responsive neo-brutalist command center (`maxWidth: 760px`) matching Ferrari Red / Rosso Corsa aesthetic.
+   - Single-screen responsive neo-brutalist command center (`maxWidth: 760px`) matching Electric Blue / Oceanic aesthetic.
    - Pinned sticky navbar with brand mark `[ LMS DIAGNOSTIK ] [ADMIN]`, theme toggle, and profile avatar initials `[ AK ]` (`Pak Andi Kurniawan`).
-   - Hero greeting card + 3-box tactical stats row: `04 PAKET SOAL` (18 Butir Soal), `02 DITERBITKAN` (highlighted with Ferrari Red shadow), and `32 PENGGUNA` (28 Siswa · 3 Guru · 1 Admin).
+   - Hero greeting card + 3-box tactical stats row: `04 PAKET SOAL` (18 Butir Soal), `02 DITERBITKAN` (highlighted with Accent shadow), and `32 PENGGUNA` (28 Siswa · 3 Guru · 1 Admin).
    - Interactive segmented tab bar:
      - `✦ BUAT SOAL (AI)`: AI Question Generator with indicator textarea, subject, grade, difficulty, question count inputs, animated loading state with Gemini 1.5 Flash branding, instant 3-tier question preview with green key badges for answers and reasons, and CTAs to save as draft or publish directly.
      - `🗂 PAKET SOAL (4)`: Question sets / test cases directory with real-time search, status filter pills (`[ SEMUA ]`, `[ DITERBITKAN ]`, `[ DRAF ]`), quick question preview toggle (`INTIP SOAL ▾`), publish status toggle button, and direct link to question editor (`/admin/sets/[id]`).
@@ -122,12 +122,12 @@ State as of 2026-10-29.
    - Per-question editor card with question stem textarea, radio selectors and letter badges (A, B, C, D) for Tier 1 answer keys, radio selectors for Tier 2 reason keys, and instant save button.
    - Supports standalone mock preview fallback (`fetchAdminSetDetail` in `lib/admin-data.ts`) and live Supabase persistence.
 17. **Admin Profile View (`components/AdminProfileView.tsx` & `app/admin/profile/page.tsx`)**:
-   - Administrator profile screen with tactile boxy avatar (`[ AK ]` with Ferrari Red background), identity card, change password form, and session sign-out button.
+   - Administrator profile screen with tactile boxy avatar (`[ AK ]` with Accent background), identity card, change password form, and session sign-out button.
 18. **Mobile-First Neo-Brutalist Login Screen (`components/LoginView.tsx` & `app/(auth)/login/page.tsx`)**:
-   - Mobile-first neo-brutalist authentication screen (`maxWidth: 420px`) with Ferrari Red / Rosso Corsa aesthetic.
-   - 3-tier visual mark (3 horizontal bars in Ferrari Red, soft slate, and border) representing the three diagnostic tiers (Jawaban, Alasan, Keyakinan).
-   - Tactile login card with `.boxy-input` for email and password, show/hide password toggle, and Ferrari Red submit CTA button (`[ MASUK KE SISTEM ➔ ]`).
-   - 1-click Quick Demo Account pills: `[ 🎓 SISWA ]` (Rani Putri), `[ 👩‍🏫 GURU ]` (Bu Sari), and `[ ⚙ ADMIN ]` (Pak Andi) for instant evaluator/demo role testing.
+   - Mobile-first neo-brutalist authentication screen (`maxWidth: 420px`) with Electric Blue / Oceanic aesthetic.
+   - 3-tier visual mark (3 horizontal bars in Electric Blue, soft slate, and border) representing the three diagnostic tiers (Jawaban, Alasan, Keyakinan).
+   - Tactile login card with `.boxy-input` for email and password, interactive show/hide password toggle button embedded inside the input with an animated diagonal stroke SVG eye icon (pupil always visible, smooth line draw/retract animation), and bullet placeholder masking (`••••••••` when hidden, `Masukkan password...` when shown).
+   - Accent submit CTA button (`[ LOG IN ➔ ]`) featuring right-to-left fading blue dither (`.dither-fade-right-accent` on `.boxy-btn-dither-accent`).
    - Dual-mode operation: connects to live Supabase Auth when credentials exist, or performs automatic mock redirection to the appropriate dashboard (`/dashboard`, `/teacher/dashboard`, `/admin/dashboard`) in standalone preview mode.
 
 19. **Right-to-Left Fading Dither Texture on Cards (`.dither-fade-right`) & Ambient Card Depth**:
@@ -136,10 +136,14 @@ State as of 2026-10-29.
    - Strict Z-index elevation ensures all card content (`z-index: 1`) and interactive `.boxy-btn` buttons (`z-index: 2`) render cleanly above the background dither (`z-index: 0`).
    - Paired with Apple-style ambient cardstock drop shadows (`--shadow-ambient-card`) on `.boxy-card-flat` containers across Student, Teacher, Admin, and Auth screens.
 
-20. **100% Pure Mock AI Question Generator for UI/UX Review**:
-   - Switched AI Question Generator (`AdminDashboardView.tsx` & `actions.ts`) to 100% client/mock simulation.
-   - Removed external Google Gemini API calls, eliminating 503 high-demand spike errors and API quota dependencies during review.
-   - Dynamic 3-tier question generation based on input topic, indicator, subject, and question count over a snappy 1.2s tactile progress sequence (`[ MEMPROSES... ]`).
+20. **Real AI Question Generator (Session-Only & In-Memory Review)**:
+   - Connected AdminDashboardView.tsx and Server Action app/admin/dashboard/actions.ts to the real Google Gemini API via lib/ai.ts.
+   - API key configured cleanly via .env.local (AI_API_KEY), with fallback to GEMINI_API_KEY.
+   - Automatic exponential backoff retry on 429 (rate limit) and 503 (temporary high load).
+   - Option & reason shuffling (shuffleQuestion) so that the correct answer is randomly distributed across options A, B, C, D instead of always landing on option A.
+   - Non-power user friendly error messages for teachers and school admins (clear explanations instead of raw API stack traces).
+   - Session-only storage: generated packs persist in browser session state & sessionStorage (lms_session_sets) without modifying the database.
+   - Clean UI without provider branding: button displays [ MEMPROSES... ] while active, and cards blend seamlessly without synthetic badges.
 
 21. **Direction-Aware Segment Deck Slide in Admin Dashboard (`components/AdminDashboardView.tsx`)**:
    - Replicated quiz question slide transition physics for the 3 main admin command center segments (`BUAT SOAL`, `PAKET SOAL`, `PENGGUNA`).
@@ -150,6 +154,114 @@ State as of 2026-10-29.
    - Pinned success notifications directly to the physical viewport bottom via React Portal (`createPortal(..., document.body)`), completely breaking out of transformed ancestor containers (`PageTransition`, deck sliders).
    - Centered horizontally (`bottom: 28px; left: 50%; transform: translate(-50%, 0)`), responsive (`maxWidth: 460px; width: calc(100% - 32px)`), with springy `@keyframes toastSlideUp` animation, high-contrast boxy shadow, and `[ SUKSES ]` accent badge.
 
+23. **Supabase RBAC & Edge Proxy Security (`proxy.ts` & `app/(auth)/login/actions.ts`)**:
+   - Live Supabase Auth integration with role-based routing in Next.js 16 Edge proxy (`proxy.ts`).
+   - Initial Hogwarts role accounts: Admin (`admin@lms.local` — Albus Dumbledore), Teacher (`teacher@lms.local` — Severus Snape), Student (`student@lms.local` — Hermione Granger). Password `password123`.
+   - Admin Superuser Access: Albus can inspect `/admin/*`, `/teacher/*`, `/dashboard`, and `/quiz/*` seamlessly without logging out.
+   - Cleaned `ProfileDropdown.tsx`: universal review shortcuts removed; replaced with Admin-only "MODE SUPERVISI ADMIN" switcher.
+
+24. **Question Explanation Column (`questions.explanation`) & AI Schema (`lib/ai.ts`)**:
+   - Added `explanation text` to `questions` schema (`0002_question_explanation.sql`, `lib/database.types.ts`).
+   - Extended Gemini Flash prompt and structured output schema in `lib/ai.ts` to generate rich explanations for each question.
+   - Seeder (`scripts/seed.mjs`) provisions Hogwarts accounts and a complete 6-question 3-tier Physics test pack (*Hukum Newton*) with comprehensive explanations.
+
+25. **Post-Quiz Question Review & Explanation Reveal (`app/quiz/page.tsx` & `components/ScoreSwipeOverlay.tsx`)**:
+   - `explanation` is strictly hidden during the active test.
+   - On quiz completion, clicking `[ ULAS JAWABAN ]` opens Review Mode with per-question diagnostic badge, chosen vs key answer and reason comparison, and the **💡 PENJELASAN KONSEP & ALASAN BENAR** callout box.
+   - Answer modification is strictly locked in Review Mode: all selection handlers bail out early, option buttons and confidence buttons are disabled (`disabled={isReviewMode}`), and active click layout shifts are prevented.
+
+26. **Theme Toggler Scoping & Quiz Focus**:
+   - `ThemeToggler` is scoped strictly to Dashboard and Profile views (`StudentDashboardView`, `TeacherDashboardView`, `AdminDashboardView`, profile views) and removed from the active Quiz interface (`app/quiz/page.tsx`) to eliminate distractions during test taking and review.
+
+27. **Right-to-Left Fading Dither on Quiz & Login CTA**:
+   - Replaced uniform flat dithers with HYDE-style `.dither-fade-right-accent` and `.dither-fade-right` across selected options, confidence chips, question cards, and the login `LOG IN ➔` CTA button.
+
+28. **Live Supabase Seeder & Hogwarts Role Provisioning (`scripts/seed.mjs` & `supabase/migrations/0002_question_explanation.sql`)**:
+   - Automated Admin API seed script (`node scripts/seed.mjs`) provisioning live accounts in `auth.users` and `profiles`: Albus Dumbledore (`admin@lms.local` — Admin), Severus Snape (`teacher@lms.local` — Teacher), and Hermione Granger (`student@lms.local` — Student) with password `password123`.
+   - Provisions active 6-question 3-tier Physics test pack: *Hukum Newton tentang Gerak dan Gaya* (`5e4aa618-e064-45ef-8cda-2fb58e8d6c93`) with full pedagogical explanations, correct options, and correct reasons.
+   - Database schema extended with `questions.explanation` column (`0002_question_explanation.sql`).
+   - Cleaned obsolete legacy test sets from initial prototypes via `clean_old_sets.mjs`.
+
+29. **Live Student Dashboard & Mock Attempt Purge (`app/(student)/dashboard/page.tsx`)**:
+   - Stripped all hardcoded simulated scores (e.g. 67, 80) and dummy completed test entries.
+   - Connected directly to live Supabase queries (`question_sets`, `attempts`, `responses`).
+   - Clean state for new students: zero attempts, zero average score, and real published test packs showing status `MULAI TES ➔` linking to `/quiz/[setId]`.
+
+30. **Live Teacher Dashboard Diagnostic Matrix & Real Cohort Querying (`lib/teacher-data.ts`, `app/teacher/dashboard/page.tsx`, `app/teacher/sets/[id]/page.tsx`)**:
+   - Fully replaced hardcoded mock student attempts (`sitiPack4`, `dimasPack4`, etc.) with live Supabase database queries across `question_sets`, enrolled `profiles`, `attempts`, and `responses`.
+   - Real-time cohort metrics: 0% participation rate until tests are submitted, dynamic class diagnostic distribution bar, and live student question matrix strip chips (`01`..`06`) computed dynamically at read time via `diagnose()`.
+
+31. **Neo-Brutalist Quiz Runner & Full Quiz Live Submission (`components/QuizRunnerView.tsx`, `app/(student)/quiz/[setId]/page.tsx`, `app/(student)/quiz/[setId]/actions.ts`)**:
+   - Extracted modular Neo-Brutalist HYDE runner into `QuizRunnerView` used by live `/quiz/[setId]` route as well as preview mode.
+   - Server action `submitFullQuiz` writes genuine `attempts` (with timestamp) and student `responses` (answer, reason, confidence) to live Supabase DB upon completion.
+   - Post-quiz Review Mode locks all option selections, reveals pedagogical explanations, correct answers, and diagnostic badges, and navigates cleanly back to the student dashboard.
+
+32. **Unified Boxy Password Input & Accurate Error Diagnostics (`components/BoxyPasswordInput.tsx`, `lib/auth-actions.ts`, `StudentProfileView`, `TeacherProfileView`, `AdminProfileView`)**:
+   - Reusable `BoxyPasswordInput` with `.boxy-input-group`, `.password-toggle-btn`, and animated diagonal stroke eye SVG (`.eye-contour`, `.eye-pupil`, `.eye-slash`). Bullet masking `••••••••` with letter-spacing transition when hidden, plain text when shown.
+   - Unified password change forms across all three profiles (Student, Teacher, Admin) with two explicit fields: "KATA SANDI BARU" (`name="password"`) and "KONFIRMASI KATA SANDI" (`name="confirm"`).
+   - Fixed previously broken field mappings in `TeacherProfileView` (which had mismatched `currentPassword` & `newPassword`) and `AdminProfileView` (which was missing confirmation).
+   - Added auto-reset on success (`formRef.current?.reset()`) while preserving typed input on error.
+   - Detailed, accurate error messaging in Indonesian:
+     - Empty password ("Kata sandi baru tidak boleh kosong.")
+     - Length < 8 with exact count ("Kata sandi baru minimal 8 karakter (saat ini X karakter).")
+     - Empty confirmation ("Harap masukkan konfirmasi kata sandi baru.")
+     - Mismatched confirmation ("Konfirmasi kata sandi tidak cocok dengan kata sandi baru.")
+     - Expired/missing session detection ("Sesi login Anda telah berakhir. Silakan keluar dan login kembali terlebih dahulu.")
+     - Same password as previous ("Kata sandi baru tidak boleh sama dengan kata sandi saat ini.")
+     - Rate-limiting protection ("Terlalu banyak permintaan perubahan kata sandi. Silakan tunggu beberapa saat.")
+     - Weak password detection ("Kata sandi terlalu mudah ditebak...")
+     - Database network connection issues ("Gagal terhubung ke server database...")
+   - Fixed success state rendering bug in `TeacherProfileView` (`✓ {state.success}` -> `✓ {state.message}`).
+   - Comprehensive unit test coverage added in `lib/auth-demo.test.ts` (all 27 tests passing).
+
+33. **Centered Neo-Brutalist Loading Screen & Live Quiz Submission Persistence (`components/Spinner.tsx`, `QuizRunnerView.tsx`, `app/(student)/quiz/[setId]/actions.ts`, `ScoreSwipeOverlay.tsx`)**:
+   - Replaced basic round spinner with centered Neo-Brutalist card loader: 52px geometric dual loader (spinning Electric Accent circle + counter-rotating tactile spark box `✦`), `[ MEMUAT DATA... ]` mono badge, and dead-center viewport positioning (`minHeight: 100vh`).
+   - Added `@keyframes spin` in `app/globals.css` and added root `app/loading.tsx`.
+   - Fixed student answer database persistence:
+     - `onSubmitQuiz` was previously declared as a prop in `QuizRunnerView` but never invoked on quiz completion.
+     - Connected `handleFinishQuiz` to call `await onSubmitQuiz(answers)` before showing `ScoreSwipeOverlay`.
+     - Added centered loading modal overlay (`MENYIMPAN JAWABAN...`) with backdrop blur during submission.
+     - Added robust index mapping (1-based, 0-based, string, number) in `submitFullQuiz` (`app/(student)/quiz/[setId]/actions.ts`).
+     - Added `revalidatePath` to immediately invalidate Next.js server cache across `/dashboard`, `/quiz/[setId]`, `/teacher/dashboard`, and `/teacher/sets/[setId]`.
+     - Added confirmation badge in `ScoreSwipeOverlay`: `✓ JAWABAN TERSIMPAN DI DATABASE`.
+     - Refactored `app/quiz/page.tsx` to cleanly delegate to `QuizRunnerView` (reducing duplicate code).
+     - Added unit test in `app/(student)/quiz/[setId]/actions.test.ts` verifying attempt & responses insertion in Supabase (29/29 tests passing).
+
+34. **Quiz Completeness Enforcer, Score Overlay Cleanup, & Neo-Brutalist Review Screen (`components/QuizRunnerView.tsx`, `ScoreSwipeOverlay.tsx`, `StudentAttemptReviewView.tsx`, `app/(student)/history/[attemptId]/page.tsx`, `app/(student)/history/page.tsx`)**:
+   - Removed "Jawaban tersimpan di database" badge from `ScoreSwipeOverlay`.
+   - Added completeness validation before submitting: if any question is incomplete (missing answer, reason, or confidence), saving is strictly prevented.
+   - Pinned notification toast on screen listing incomplete questions with interactive jump chips (`[ SOAL 02 ➔ ]`, `[ SOAL 04 ➔ ]`) that slide directly to the incomplete question.
+   - Fixed the "plain HTML" look on review: replaced the legacy Phase 1 unstyled `AppShell` in `/history/[attemptId]` and `/history` with `StudentAttemptReviewView`, matching the Mobile-First Neo-Brutalist HYDE aesthetic (tactile sticky header, hero score & 4-box diagnostic summary, 3-tier question breakdown cards with answer/reason key checks, and pedagogical explanation callouts).
+
+35. **Teacher Student Review ("DETAIL") Page & Student Dashboard Test Filter Streamlining (`components/TeacherStudentDetailView.tsx`, `components/TeacherPackDetailView.tsx`, `app/teacher/sets/[id]/students/[studentId]/page.tsx`, `components/StudentDashboardView.tsx`)**:
+   - **Dedicated Teacher Review / Evaluation Page (`TeacherStudentDetailView`)**: Added full-page evaluation view for teachers to inspect an individual student's complete 3-tier submission, labeled strictly **"DETAIL"** (`[ DETAIL ➔ ]` CTA on each student card in `TeacherPackDetailView`, navigating to `/teacher/sets/[id]/students/[studentId]`).
+   - Includes student identity header (`[ HG ] Hermione Granger • KELAS X-A`), test pack meta, score card (`SKOR: 67 / 100`), 4-box diagnostic distribution summary (Paham, Miskonsepsi, Lucky Guess, Tidak Paham), and question-by-question breakdown with chosen vs correct answer, chosen vs correct reason, confidence indicator, teacher pedagogical diagnosis alert, and the **💡 PENJELASAN KONSEP & ALASAN BENAR** callout box.
+   - Streamlined student card CTA: removed inline `[ INTIP ▾ ]` accordion button in `TeacherPackDetailView`; `[ DETAIL ➔ ]` is now the single primary action leading to the comprehensive evaluation view.
+   - **Teacher Dashboard & Set Detail Streamlining**: Removed `[ SEMUA ]` and `[ FISIKA ]` category filter pills and all redundant `[ • FISIKA ]` subject badges from `TeacherDashboardView`, `TeacherPackDetailView`, and `TeacherStudentDetailView` since all tests in this deployment are Physics. Test cards now cleanly display only the grade badge (e.g. `Kelas 10`) and question count.
+   - Modernized `/teacher/students/[id]` to eliminate legacy Phase 1 unstyled HTML and display the new Neo-Brutalist detail view.
+   - Extended `lib/teacher-data.ts` to query `questions.explanation` from Supabase and provisioned mock concept explanations for standalone mode.
+   - **Student Tests UI Streamlining**: Removed `[ SEMUA ]` and `[ FISIKA ]` category filter pills and redundant `[ • FISIKA ]` subject badges from student test cards in `StudentDashboardView.tsx` since all tests in this deployment are Physics (Fisika). Cards now cleanly display only the grade badge (e.g. `Kelas 10`) and question count (`6 SOAL`), maximizing clarity and saving vertical screen real estate.
+   - All 30 unit tests passing (`vitest run`), 0 TypeScript errors (`tsc --noEmit`), and production Next.js build succeeding cleanly (`next build`).
+
+36. **Live Admin Command Center & Supabase Wiring (`lib/admin-data.ts`, `app/admin/dashboard/actions.ts`, `components/AdminDashboardView.tsx`)**:
+    - Replaced the hardcoded early-return short-circuit in `fetchAdminData()` with live Supabase database queries across `question_sets`, `questions`, `profiles`, and `auth.users` via `createAdminClient()`.
+    - Wired `fetchAdminSetDetail(id)` to query real database sets and questions (supporting `questions.explanation` and correct option/reason keys) with fallback to mock data when Supabase is unconfigured.
+    - Replaced client-only mock handlers in `AdminDashboardView` with live Server Actions:
+      - `togglePublishSetAction`: updates `question_sets.published` and revalidates paths (`/admin/dashboard`, `/admin/sets/[id]`, `/dashboard`, `/teacher/dashboard`).
+      - `createUserAction`: provisions real user in Supabase Auth via `admin.auth.admin.createUser` and upserts `profiles` record.
+      - `resetUserPasswordAction`: resets user password to default `password123` via `admin.auth.admin.updateUserById`.
+      - `saveQuestionSetAction`: persists AI-generated questions into `question_sets` and `questions` tables in Supabase with explanation, option, and reason mappings.
+    - Admin command center now reflects real Hogwarts accounts (Albus Dumbledore, Severus Snape, Hermione Granger), real Physics question sets, and real database stats with optimistic UI updates.
+    - Verified with all 30 unit tests passing (`vitest run`), 0 TypeScript errors (`tsc --noEmit`), and production Next.js build succeeding cleanly (`next build`).
+
+37. **Student & Teacher Account Deletion (`components/AdminDashboardView.tsx`, `app/admin/dashboard/actions.ts`)**:
+    - Added `deleteUserAction` server action in `app/admin/dashboard/actions.ts` to delete user accounts from Supabase Auth (`admin.auth.admin.deleteUser`), cascading cleanly to profiles, attempts, and responses.
+    - Disassociates any question sets created by the user (`created_by: null`) prior to deletion to prevent foreign key constraint errors.
+    - Strictly prevents deleting administrator accounts (`role === "admin"`) and prevents self-deletion.
+    - Added tactile Neo-Brutalist `[ HAPUS ✕ ]` button on student and teacher cards in `components/AdminDashboardView.tsx` with an inline 2-step confirmation prompt (`HAPUS? [ YA, HAPUS ] [ BATAL ]`), loading state (`[ MENGHAPUS... ]`), optimistic state filtering, and toast feedback.
+    - Administrator cards strictly exclude both `[ RESET KATA SANDI ↺ ]` and `[ HAPUS ✕ ]`.
+
 ## Remaining Next Steps
-- Integrate UI with backend Server Actions from `fullstack` branch when ready for live Supabase testing.
-- Scripts: `npm run dev` (runs Turbopack on port 3000), `npm run typecheck`, `npm run test` (`vitest`).
+- Both frontend and backend live Supabase integration, authentication, RBAC, test-taking, and diagnostic reporting are fully complete and verified with passing unit tests (`npm run test`) and zero TypeScript errors (`npm run typecheck`).
+- Production deployment to Vercel (free/Hobby) configured with environment variables (`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `AI_API_KEY`).
+- Scripts: `npm run dev` (runs Turbopack on port 3000), `npm run typecheck`, `npm run test` (`vitest`), `npm run build`.

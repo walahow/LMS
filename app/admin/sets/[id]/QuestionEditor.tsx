@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useActionState, useState } from "react";
+import { ButtonLoadingBar } from "@/components/ButtonLoadingBar";
 import { updateQuestion, type UpdateQuestionState } from "./actions";
 
 type QuestionEditorProps = {
@@ -13,6 +14,7 @@ type QuestionEditorProps = {
     correctOption: number;
     reasons: string[];
     correctReason: number;
+    explanation?: string;
   };
   index: number;
 };
@@ -309,13 +311,37 @@ export function QuestionEditor({ setId, question, index }: QuestionEditorProps) 
         </div>
       </div>
 
+      {/* Conceptual Explanation (Tier 1 & Tier 2 Concept Justification) */}
+      <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+        <label
+          htmlFor={`explanation-${question.id}`}
+          className="font-mono"
+          style={{ fontSize: "11px", fontWeight: 700, color: "var(--color-text)" }}
+        >
+          💡 PENJELASAN KONSEP & ALASAN BENAR (EXPLANATION)
+        </label>
+        <textarea
+          id={`explanation-${question.id}`}
+          name="explanation"
+          defaultValue={question.explanation || ""}
+          rows={3}
+          placeholder="Tuliskan penjelasan konseptual mengapa kunci jawaban dan alasan tersebut benar..."
+          className="boxy-input"
+          style={{
+            fontSize: "12.5px",
+            lineHeight: 1.5,
+            resize: "vertical",
+          }}
+        />
+      </div>
+
       {/* Error message */}
       {state?.error && (
         <div
           style={{
             padding: "8px 12px",
             border: "1.5px solid var(--color-accent)",
-            backgroundColor: "rgba(255, 40, 0, 0.08)",
+            backgroundColor: "var(--color-accent-dim)",
             color: "var(--color-accent)",
             fontSize: "12px",
             fontWeight: 600,
@@ -332,6 +358,8 @@ export function QuestionEditor({ setId, question, index }: QuestionEditorProps) 
           disabled={pending}
           className="boxy-pressable-sm font-mono"
           style={{
+            position: "relative",
+            overflow: "hidden",
             padding: "9px 16px",
             border: "1.5px solid var(--color-border)",
             backgroundColor: "var(--color-surface)",
@@ -344,8 +372,9 @@ export function QuestionEditor({ setId, question, index }: QuestionEditorProps) 
             gap: "6px",
           }}
         >
-          <span>{pending ? "MENYIMPAN..." : "SIMPAN SOAL INI"}</span>
-          <span>➔</span>
+          <span>{pending ? "MENYIMPAN SOAL..." : "SIMPAN SOAL INI"}</span>
+          {!pending && <span>➔</span>}
+          {pending && <ButtonLoadingBar variant="surface" height={3.5} />}
         </button>
       </div>
     </form>

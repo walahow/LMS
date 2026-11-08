@@ -10,25 +10,6 @@ import {
   type TeacherProfileInfo,
 } from "@/lib/teacher-data";
 
-const SUBJECT_COLORS: Record<string, { bg: string; text: string; dot: string }> = {
-  FISIKA: { bg: "rgba(255, 40, 0, 0.10)", text: "var(--color-accent)", dot: "#FF2800" },
-  BIOLOGI: { bg: "rgba(14, 164, 122, 0.12)", text: "#0B6B50", dot: "#0EA47A" },
-  KIMIA: { bg: "rgba(245, 165, 36, 0.14)", text: "#8A5200", dot: "#F5A524" },
-  GEOGRAFI: { bg: "rgba(11, 127, 212, 0.12)", text: "#065A96", dot: "#0B7FD4" },
-  MATEMATIKA: { bg: "rgba(139, 92, 246, 0.12)", text: "#6D28D9", dot: "#8B5CF6" },
-};
-
-function getSubjectBadge(subject: string) {
-  const norm = subject.toUpperCase();
-  return (
-    SUBJECT_COLORS[norm] || {
-      bg: "var(--color-surface-dim)",
-      text: "var(--color-text)",
-      dot: "var(--color-text-muted)",
-    }
-  );
-}
-
 const DIAGNOSIS_THEME: Record<
   Diagnosis,
   { label: string; short: string; bg: string; text: string; border: string; dot: string }
@@ -44,10 +25,10 @@ const DIAGNOSIS_THEME: Record<
   miskonsepsi: {
     label: "Miskonsepsi",
     short: "MISK",
-    bg: "rgba(255, 40, 0, 0.12)",
-    text: "var(--color-accent)",
-    border: "var(--color-accent)",
-    dot: "#FF2800",
+    bg: "rgba(225, 29, 72, 0.10)",
+    text: "#E11D48",
+    border: "#E11D48",
+    dot: "#E11D48",
   },
   lucky_guess: {
     label: "Lucky Guess",
@@ -76,9 +57,6 @@ export function TeacherPackDetailView({
 }) {
   const [studentSearch, setStudentSearch] = useState<string>("");
   const [studentFilter, setStudentFilter] = useState<"SEMUA" | Diagnosis>("SEMUA");
-  const [expandedStudentId, setExpandedStudentId] = useState<string | null>(null);
-
-  const badge = getSubjectBadge(pack.subject);
 
   // Filter students under active test pack
   const filteredStudents = useMemo(() => {
@@ -103,11 +81,6 @@ export function TeacherPackDetailView({
       return matchQuery && matchFilter;
     });
   }, [pack, studentSearch, studentFilter]);
-
-  // Toggle student expansion
-  const toggleStudent = (studentId: string) => {
-    setExpandedStudentId((curr) => (curr === studentId ? null : studentId));
-  };
 
   // Pack total responses count
   const packTotalResponses = useMemo(() => {
@@ -167,27 +140,18 @@ export function TeacherPackDetailView({
             <span>BERANDA GURU</span>
           </Link>
 
-          {/* Subject Badge */}
+          {/* Page Badge */}
           <span
-            className="badge-mono"
+            className="badge-mono font-mono"
             style={{
-              backgroundColor: badge.bg,
-              color: badge.text,
-              border: "1px solid var(--color-border)",
-              fontSize: "10px",
-              padding: "2px 7px",
+              fontSize: "11px",
+              fontWeight: 900,
+              backgroundColor: "var(--color-surface)",
+              borderColor: "var(--color-border)",
+              color: "var(--color-text)",
             }}
           >
-            <span
-              style={{
-                width: "6px",
-                height: "6px",
-                borderRadius: "50%",
-                backgroundColor: badge.dot,
-                display: "inline-block",
-              }}
-            />
-            {pack.subject.toUpperCase()}
+            DETAIL PAKET
           </span>
 
           {/* Right Controls: Theme Toggler & Avatar Dropdown */}
@@ -485,9 +449,9 @@ export function TeacherPackDetailView({
                 cursor: "pointer",
                 whiteSpace: "nowrap",
                 backgroundColor:
-                  studentFilter === "miskonsepsi" ? "var(--color-accent)" : "var(--color-accent-dim)",
-                color: studentFilter === "miskonsepsi" ? "var(--color-accent-contrast)" : "var(--color-accent)",
-                border: "1.5px solid var(--color-accent)",
+                  studentFilter === "miskonsepsi" ? "#E11D48" : "rgba(225, 29, 72, 0.10)",
+                color: studentFilter === "miskonsepsi" ? "#FFFFFF" : "#E11D48",
+                border: "1.5px solid #E11D48",
               }}
             >
               ⚠ MISKONSEPSI ({pack.students.filter((s) => s.diagnosticsCount.miskonsepsi > 0).length})
@@ -579,7 +543,6 @@ export function TeacherPackDetailView({
             </div>
           ) : (
             filteredStudents.map((student) => {
-              const isExpanded = expandedStudentId === student.studentId;
               const hasMisconception = student.diagnosticsCount.miskonsepsi > 0;
 
               return (
@@ -589,11 +552,9 @@ export function TeacherPackDetailView({
                   style={{
                     display: "flex",
                     flexDirection: "column",
-                    border: isExpanded
-                      ? "2px solid var(--color-accent)"
+                    border: hasMisconception
+                      ? "1.5px solid rgba(225, 29, 72, 0.4)"
                       : "1.5px solid var(--color-border)",
-                    boxShadow: isExpanded ? "var(--shadow-boxy-accent)" : "none",
-                    transition: "border-color 0.12s ease, box-shadow 0.12s ease",
                   }}
                 >
                   {/* Student Card Summary Header */}
@@ -689,11 +650,11 @@ export function TeacherPackDetailView({
                             className="font-mono"
                             style={{
                               padding: "4px 8px",
-                              backgroundColor: "var(--color-accent-dim)",
-                              border: "1.5px solid var(--color-accent)",
+                              backgroundColor: "rgba(225, 29, 72, 0.10)",
+                              border: "1.5px solid #E11D48",
                               fontSize: "11px",
                               fontWeight: 800,
-                              color: "var(--color-accent)",
+                              color: "#E11D48",
                             }}
                           >
                             ⚠ {student.diagnosticsCount.miskonsepsi} MISK
@@ -745,290 +706,24 @@ export function TeacherPackDetailView({
                         })}
                       </div>
 
-                      {/* Accordion Expand/Collapse Trigger */}
-                      <button
-                        type="button"
-                        onClick={() => toggleStudent(student.studentId)}
-                        className="font-mono boxy-pressable-sm"
+                      {/* Action button: Dedicated DETAIL page */}
+                      <Link
+                        href={`/teacher/sets/${pack.id}/students/${student.studentId}`}
+                        className="font-mono boxy-btn boxy-btn-accent boxy-pressable-sm"
                         style={{
-                          padding: "5px 10px",
-                          fontSize: "11px",
-                          fontWeight: 800,
-                          cursor: "pointer",
-                          backgroundColor: isExpanded ? "var(--color-accent)" : "var(--color-surface)",
-                          color: isExpanded ? "var(--color-accent-contrast)" : "var(--color-text)",
-                          border: "1.5px solid var(--color-border)",
-                          boxShadow: isExpanded ? "none" : "var(--shadow-boxy-xs)",
+                          padding: "5px 14px",
+                          fontSize: "11.5px",
+                          fontWeight: 900,
+                          textDecoration: "none",
                           display: "inline-flex",
                           alignItems: "center",
-                          gap: "5px",
+                          gap: "4px",
                         }}
                       >
-                        {isExpanded ? "TUTUP DETAIL ▴" : "LIHAT JAWABAN 3-TIER ▾"}
-                      </button>
+                        DETAIL ➔
+                      </Link>
                     </div>
                   </div>
-
-                  {/* Expanded 3-Tier Drill-Down */}
-                  {isExpanded && (
-                    <div
-                      style={{
-                        padding: "16px",
-                        backgroundColor: "var(--color-surface-dim)",
-                        borderTop: "1.5px solid var(--color-border)",
-                        display: "flex",
-                        flexDirection: "column",
-                        gap: "14px",
-                      }}
-                    >
-                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                        <span
-                          className="font-mono"
-                          style={{
-                            fontSize: "11.5px",
-                            fontWeight: 800,
-                            color: "var(--color-text)",
-                            letterSpacing: "0.04em",
-                          }}
-                        >
-                          DETAIL JAWABAN & DIAGNOSIS — {student.fullName.toUpperCase()}
-                        </span>
-                        <span className="font-mono" style={{ fontSize: "11px", color: "var(--color-text-muted)" }}>
-                          {student.questions.length} SOAL
-                        </span>
-                      </div>
-
-                      {/* Question by question inspection */}
-                      <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-                        {student.questions.map((q) => {
-                          const theme = DIAGNOSIS_THEME[q.diagnosis];
-                          const isAnswerCorrect = q.studentAnswer === q.correctOption;
-                          const isReasonCorrect = q.studentReason === q.correctReason;
-                          const isMisconception = q.diagnosis === "miskonsepsi";
-
-                          return (
-                            <div
-                              key={q.questionId}
-                              className="boxy-card-flat"
-                              style={{
-                                padding: "12px 14px",
-                                display: "flex",
-                                flexDirection: "column",
-                                gap: "10px",
-                                border: isMisconception
-                                  ? "2px solid var(--color-accent)"
-                                  : "1.5px solid var(--color-border)",
-                                backgroundColor: "var(--color-surface)",
-                              }}
-                            >
-                              {/* Header: Position & Diagnosis */}
-                              <div
-                                style={{
-                                  display: "flex",
-                                  alignItems: "flex-start",
-                                  justifyContent: "space-between",
-                                  gap: "8px",
-                                }}
-                              >
-                                <span
-                                  className="font-mono"
-                                  style={{
-                                    fontSize: "11px",
-                                    fontWeight: 900,
-                                    padding: "2px 6px",
-                                    backgroundColor: "var(--color-surface-dim)",
-                                    border: "1px solid var(--color-border)",
-                                  }}
-                                >
-                                  SOAL {String(q.position).padStart(2, "0")}
-                                </span>
-
-                                <span
-                                  className="font-mono"
-                                  style={{
-                                    fontSize: "10.5px",
-                                    fontWeight: 800,
-                                    padding: "3px 8px",
-                                    backgroundColor: theme.bg,
-                                    border: `1.5px solid ${theme.border}`,
-                                    color: theme.text,
-                                    letterSpacing: "0.04em",
-                                  }}
-                                >
-                                  {isMisconception && "⚠ "}
-                                  {theme.label.toUpperCase()}
-                                </span>
-                              </div>
-
-                              {/* Question Stem */}
-                              <p
-                                style={{
-                                  fontSize: "13px",
-                                  fontWeight: 700,
-                                  color: "var(--color-text)",
-                                  margin: 0,
-                                  lineHeight: 1.4,
-                                }}
-                              >
-                                {q.stem}
-                              </p>
-
-                              {/* 3-Tier Grid Breakdown */}
-                              <div
-                                style={{
-                                  display: "grid",
-                                  gridTemplateColumns: "1fr",
-                                  gap: "8px",
-                                  paddingTop: "6px",
-                                  borderTop: "1px solid var(--color-border)",
-                                }}
-                              >
-                                {/* Tier 1: Answer */}
-                                <div
-                                  style={{
-                                    padding: "8px 10px",
-                                    backgroundColor: "var(--color-surface-dim)",
-                                    border: "1px solid var(--color-border)",
-                                    display: "flex",
-                                    flexDirection: "column",
-                                    gap: "3px",
-                                  }}
-                                >
-                                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                                    <span
-                                      className="font-mono"
-                                      style={{ fontSize: "10px", fontWeight: 800, color: "var(--color-text-muted)" }}
-                                    >
-                                      TIER 1: PILIHAN JAWABAN
-                                    </span>
-                                    <span
-                                      className="font-mono"
-                                      style={{
-                                        fontSize: "10px",
-                                        fontWeight: 800,
-                                        color: isAnswerCorrect ? "#0B6B50" : "var(--color-accent)",
-                                      }}
-                                    >
-                                      {isAnswerCorrect ? "✓ BENAR" : "✗ SALAH"}
-                                    </span>
-                                  </div>
-                                  <p style={{ fontSize: "12px", color: "var(--color-text)", margin: 0, lineHeight: 1.35 }}>
-                                    {q.options[q.studentAnswer] ?? "Pilihan tidak ada"}
-                                  </p>
-                                  {!isAnswerCorrect && (
-                                    <span
-                                      className="font-mono"
-                                      style={{ fontSize: "10px", color: "var(--color-text-muted)", marginTop: "2px" }}
-                                    >
-                                      Kunci: {q.options[q.correctOption]}
-                                    </span>
-                                  )}
-                                </div>
-
-                                {/* Tier 2: Reason */}
-                                <div
-                                  style={{
-                                    padding: "8px 10px",
-                                    backgroundColor: "var(--color-surface-dim)",
-                                    border: "1px solid var(--color-border)",
-                                    display: "flex",
-                                    flexDirection: "column",
-                                    gap: "3px",
-                                  }}
-                                >
-                                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                                    <span
-                                      className="font-mono"
-                                      style={{ fontSize: "10px", fontWeight: 800, color: "var(--color-text-muted)" }}
-                                    >
-                                      TIER 2: PILIHAN ALASAN
-                                    </span>
-                                    <span
-                                      className="font-mono"
-                                      style={{
-                                        fontSize: "10px",
-                                        fontWeight: 800,
-                                        color: isReasonCorrect ? "#0B6B50" : "var(--color-accent)",
-                                      }}
-                                    >
-                                      {isReasonCorrect ? "✓ BENAR" : "✗ SALAH"}
-                                    </span>
-                                  </div>
-                                  <p style={{ fontSize: "12px", color: "var(--color-text)", margin: 0, lineHeight: 1.35 }}>
-                                    {q.reasons[q.studentReason] ?? "Alasan tidak ada"}
-                                  </p>
-                                  {!isReasonCorrect && (
-                                    <span
-                                      className="font-mono"
-                                      style={{ fontSize: "10px", color: "var(--color-text-muted)", marginTop: "2px" }}
-                                    >
-                                      Kunci: {q.reasons[q.correctReason]}
-                                    </span>
-                                  )}
-                                </div>
-
-                                {/* Tier 3: Confidence */}
-                                <div
-                                  style={{
-                                    padding: "8px 10px",
-                                    backgroundColor: "var(--color-surface-dim)",
-                                    border: "1px solid var(--color-border)",
-                                    display: "flex",
-                                    flexDirection: "column",
-                                    gap: "3px",
-                                  }}
-                                >
-                                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                                    <span
-                                      className="font-mono"
-                                      style={{ fontSize: "10px", fontWeight: 800, color: "var(--color-text-muted)" }}
-                                    >
-                                      TIER 3: KEYAKINAN
-                                    </span>
-                                    <span
-                                      className="font-mono"
-                                      style={{
-                                        fontSize: "10px",
-                                        fontWeight: 900,
-                                        color: q.confident ? "var(--color-accent)" : "var(--color-text-muted)",
-                                      }}
-                                    >
-                                      {q.confident ? "YAKIN" : "TIDAK YAKIN"}
-                                    </span>
-                                  </div>
-                                  <span
-                                    className="font-mono"
-                                    style={{ fontSize: "10.5px", color: "var(--color-text-muted)" }}
-                                  >
-                                    {q.confident
-                                      ? "Siswa merasa yakin dengan kombinasi jawaban & alasannya"
-                                      : "Siswa ragu-ragu atau menebak"}
-                                  </span>
-                                </div>
-                              </div>
-
-                              {/* Misconception Alert Callout */}
-                              {isMisconception && (
-                                <div
-                                  style={{
-                                    padding: "8px 10px",
-                                    backgroundColor: "var(--color-accent-dim)",
-                                    border: "1px dashed var(--color-accent)",
-                                    fontSize: "11px",
-                                    color: "var(--color-text)",
-                                    lineHeight: 1.4,
-                                  }}
-                                >
-                                  <strong style={{ color: "var(--color-accent)" }}>Peringatan Miskonsepsi: </strong>
-                                  Siswa menjawab yakin meskipun jawaban atau alasannya salah. Hal ini menunjukkan miskonsepsi nyata yang perlu dibahas di kelas.
-                                </div>
-                              )}
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  )}
                 </div>
               );
             })

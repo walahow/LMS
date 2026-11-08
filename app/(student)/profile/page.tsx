@@ -4,8 +4,8 @@ import { StudentProfileView, type StudentProfileData } from "@/components/Studen
 export const dynamic = "force-dynamic";
 
 const MOCK_PROFILE: StudentProfileData = {
-  fullName: "Rani Putri",
-  initials: "RP",
+  fullName: "Hermione Granger",
+  initials: "HG",
   email: "student@lms.local",
   grade: "KELAS X-A",
 };

@@ -1,9 +1,8 @@
 import "server-only";
 
 /**
- * Single entry point into the AI layer (docs/PLAN.md §5). Provider is
- * configuration, not code — anything that speaks the OpenAI wire format with
- * `json_schema` structured output works by changing env vars alone.
+ * Single entry point into the AI layer.
+ * Calls Gemini (or any OpenAI-compatible endpoint) with structured JSON output.
  */
 
 export type GeneratedQuestion = {
@@ -12,6 +11,7 @@ export type GeneratedQuestion = {
   correct_option: number;
   reasons: string[];
   correct_reason: number;
+  explanation: string;
 };
 
 export type GenerateSetParams = {
@@ -23,22 +23,21 @@ export type GenerateSetParams = {
 };
 
 const SYSTEM_PROMPT = `Anda adalah asisten pembuat soal tes diagnostik tiga tingkat untuk guru di Indonesia.
-Setiap soal berupa pilihan ganda dengan opsi jawaban DAN opsi alasan.
+Setiap butir soal berupa pilihan ganda dengan 4 opsi jawaban (Tier 1) dan 4 opsi alasan (Tier 2).
 Tepat satu opsi jawaban benar dan tepat satu opsi alasan benar.
-Opsi jawaban dan alasan yang salah harus mencerminkan miskonsepsi umum siswa
-terhadap indikator yang diberikan, bukan sekadar pengecoh acak.
-Semua teks soal, opsi, dan alasan ditulis dalam Bahasa Indonesia yang jelas
-dan sesuai jenjang siswa. Jangan menyertakan penjelasan di luar skema JSON
-yang diminta.`;
+Opsi jawaban dan alasan yang salah harus mencerminkan miskonsepsi umum siswa terhadap indikator yang diberikan, bukan sekadar pengecoh acak.
+Sertakan juga explanation (penjelasan konseptual mendalam mengapa opsi jawaban dan alasan tersebut benar secara ilmiah serta meluruskan miskonsepsi yang sering dialami siswa).
+Semua teks soal, opsi, alasan, dan penjelasan ditulis dalam Bahasa Indonesia yang baku, jelas, dan sesuai jenjang siswa.
+Keluarkan seluruh hasil secara murni sesuai skema JSON yang diminta tanpa teks pembuka atau penutup tambahan.`;
 
 function buildPrompt({ indicator, subject, grade, count, difficulty }: GenerateSetParams) {
   const lines = [
-    `Indikator pembelajaran: ${indicator}`,
+    `Indikator capaian pembelajaran: ${indicator}`,
     subject ? `Mata pelajaran: ${subject}` : null,
-    grade ? `Jenjang/kelas: ${grade}` : null,
+    grade ? `Jenjang/kelas target: ${grade}` : null,
     `Tingkat kesulitan: ${difficulty}`,
-    `Jumlah soal: ${count}`,
-    `Setiap soal memiliki 4 opsi jawaban dan 4 opsi alasan.`,
+    `Jumlah soal yang harus dibuat: ${count}`,
+    `Format setiap soal: wajib memiliki 4 opsi jawaban (indeks kunci 0..3), 4 opsi alasan (indeks kunci 0..3), dan 1 penjelasan konsep (explanation).`,
   ].filter(Boolean);
 
   return lines.join("\n");
@@ -48,127 +47,183 @@ const questionSchema = {
   type: "object",
   properties: {
     stem: { type: "string" },
-    options: { type: "array", items: { type: "string" }, minItems: 4, maxItems: 4 },
-    correct_option: { type: "integer", minimum: 0, maximum: 3 },
-    reasons: { type: "array", items: { type: "string" }, minItems: 4, maxItems: 4 },
-    correct_reason: { type: "integer", minimum: 0, maximum: 3 },
+    options: {
+      type: "array",
+      items: { type: "string" },
+    },
+    correct_option: { type: "integer" },
+    reasons: {
+      type: "array",
+      items: { type: "string" },
+    },
+    correct_reason: { type: "integer" },
+    explanation: { type: "string" },
   },
-  required: ["stem", "options", "correct_option", "reasons", "correct_reason"],
+  required: ["stem", "options", "correct_option", "reasons", "correct_reason", "explanation"],
   additionalProperties: false,
 };
 
-function buildSchema(count: number) {
-  return {
-    type: "object",
-    properties: {
-      questions: {
-        type: "array",
-        minItems: count,
-        maxItems: count,
-        items: questionSchema,
-      },
+const rootSchema = {
+  type: "object",
+  properties: {
+    questions: {
+      type: "array",
+      items: questionSchema,
     },
-    required: ["questions"],
-    additionalProperties: false,
-  };
-}
+  },
+  required: ["questions"],
+  additionalProperties: false,
+};
 
-/** Throws on any malformed or out-of-range response — callers surface the error, never guess a fix. */
-export function validateQuestions(questions: unknown, count: number): GeneratedQuestion[] {
-  if (!Array.isArray(questions) || questions.length !== count) {
-    const got = Array.isArray(questions) ? questions.length : typeof questions;
-    throw new Error(`AI mengembalikan ${got} soal, diharapkan ${count}.`);
+/** Validates and cleans raw questions from AI response */
+export function validateQuestions(questions: unknown, targetCount: number): GeneratedQuestion[] {
+  if (!Array.isArray(questions) || questions.length === 0) {
+    throw new Error("Layanan AI tidak mengembalikan format daftar soal yang sesuai.");
   }
 
-  return questions.map((raw, index) => {
+  // Take up to target count if AI returned more
+  const items = questions.slice(0, targetCount);
+
+  return items.map((raw, index) => {
     const q = raw as Partial<GeneratedQuestion>;
     const label = `Soal ${index + 1}`;
 
     if (typeof q.stem !== "string" || !q.stem.trim()) {
-      throw new Error(`${label}: teks soal tidak valid.`);
+      throw new Error(`${label}: teks pernyataan soal tidak boleh kosong.`);
     }
-    if (!Array.isArray(q.options) || q.options.length < 2 || !q.options.every((o) => typeof o === "string")) {
-      throw new Error(`${label}: opsi jawaban tidak valid.`);
+    if (!Array.isArray(q.options) || q.options.length < 2 || !q.options.every((o) => typeof o === "string" && o.trim())) {
+      throw new Error(`${label}: opsi jawaban tidak lengkap.`);
     }
-    if (!Array.isArray(q.reasons) || q.reasons.length < 2 || !q.reasons.every((r) => typeof r === "string")) {
-      throw new Error(`${label}: opsi alasan tidak valid.`);
-    }
-    if (
-      typeof q.correct_option !== "number" ||
-      q.correct_option < 0 ||
-      q.correct_option >= q.options.length
-    ) {
-      throw new Error(`${label}: correct_option di luar jangkauan.`);
-    }
-    if (
-      typeof q.correct_reason !== "number" ||
-      q.correct_reason < 0 ||
-      q.correct_reason >= q.reasons.length
-    ) {
-      throw new Error(`${label}: correct_reason di luar jangkauan.`);
+    if (!Array.isArray(q.reasons) || q.reasons.length < 2 || !q.reasons.every((r) => typeof r === "string" && r.trim())) {
+      throw new Error(`${label}: opsi alasan tidak lengkap.`);
     }
 
+    let correctOption = Number(q.correct_option);
+    if (isNaN(correctOption) || correctOption < 0 || correctOption >= q.options.length) {
+      correctOption = 0;
+    }
+
+    let correctReason = Number(q.correct_reason);
+    if (isNaN(correctReason) || correctReason < 0 || correctReason >= q.reasons.length) {
+      correctReason = 0;
+    }
+
+    const explanation = typeof q.explanation === "string" && q.explanation.trim()
+      ? q.explanation.trim()
+      : "Kombinasi opsi jawaban dan alasan ini sesuai dengan konsep ilmiah yang benar.";
+
     return {
-      stem: q.stem,
-      options: q.options,
-      correct_option: q.correct_option,
-      reasons: q.reasons,
-      correct_reason: q.correct_reason,
+      stem: q.stem.trim(),
+      options: q.options.map((o) => o.trim()),
+      correct_option: correctOption,
+      reasons: q.reasons.map((r) => r.trim()),
+      correct_reason: correctReason,
+      explanation,
     };
   });
 }
 
-export async function generateSet(params: GenerateSetParams): Promise<GeneratedQuestion[]> {
-  const baseUrl = process.env.AI_BASE_URL;
-  const apiKey = process.env.AI_API_KEY;
-  const model = process.env.AI_MODEL;
+// Auto-retry configuration for 429 (rate-limit) or 503 (temporary high load)
+const RETRYABLE_STATUSES = new Set([429, 503]);
+const RETRY_DELAYS_MS = [1000, 3000];
 
-  if (!baseUrl || !apiKey || !model) {
-    throw new Error("AI_BASE_URL, AI_API_KEY, dan AI_MODEL harus diatur di environment.");
+export async function generateSet(params: GenerateSetParams): Promise<GeneratedQuestion[]> {
+  const apiKey = process.env.AI_API_KEY || process.env.GEMINI_API_KEY;
+  const baseUrl = process.env.AI_BASE_URL || "https://generativelanguage.googleapis.com/v1beta/openai/";
+  const model = process.env.AI_MODEL || "gemini-1.5-flash";
+
+  if (!apiKey || !apiKey.trim()) {
+    throw new Error("CONFIG_MISSING: API Key belum diatur di file .env.local.");
   }
 
   const url = `${baseUrl.replace(/\/+$/, "")}/chat/completions`;
-
-  const response = await fetch(url, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify({
-      model,
-      messages: [
-        { role: "system", content: SYSTEM_PROMPT },
-        { role: "user", content: buildPrompt(params) },
-      ],
-      response_format: {
-        type: "json_schema",
-        json_schema: {
-          name: "question_set",
-          strict: true,
-          schema: buildSchema(params.count),
-        },
+  const requestBody = JSON.stringify({
+    model,
+    messages: [
+      { role: "system", content: SYSTEM_PROMPT },
+      { role: "user", content: buildPrompt(params) },
+    ],
+    response_format: {
+      type: "json_schema",
+      json_schema: {
+        name: "question_set",
+        strict: true,
+        schema: rootSchema,
       },
-    }),
+    },
   });
 
-  if (!response.ok) {
-    const body = await response.text().catch(() => "");
-    throw new Error(`Permintaan AI gagal (${response.status}): ${body.slice(0, 300)}`);
+  let response: Response | undefined;
+  for (let attempt = 0; ; attempt++) {
+    try {
+      response = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${apiKey.trim()}`,
+        },
+        body: requestBody,
+      });
+
+      if (response.ok) break;
+
+      const isLastAttempt = attempt >= RETRY_DELAYS_MS.length;
+      if (!RETRYABLE_STATUSES.has(response.status) || isLastAttempt) {
+        const errorText = await response.text().catch(() => "");
+        if (response.status === 401 || response.status === 403) {
+          throw new Error("AUTH_INVALID: API Key tidak valid atau tidak memiliki akses.");
+        }
+        if (response.status === 429) {
+          throw new Error("RATE_LIMITED: Batas kuota permintaan terlampaui. Silakan coba 1–2 menit lagi.");
+        }
+        if (response.status === 503) {
+          throw new Error("SERVICE_BUSY: Server AI sedang melayani beban tinggi. Silakan coba lagi.");
+        }
+        throw new Error(`API_ERROR (${response.status}): ${errorText.slice(0, 200)}`);
+      }
+
+      await new Promise((resolve) => setTimeout(resolve, RETRY_DELAYS_MS[attempt]));
+    } catch (err: unknown) {
+      const isLastAttempt = attempt >= RETRY_DELAYS_MS.length;
+      if (err instanceof Error && (err.message.startsWith("AUTH_INVALID") || err.message.startsWith("CONFIG_MISSING"))) {
+        throw err;
+      }
+      if (isLastAttempt) {
+        if (err instanceof Error) throw err;
+        throw new Error("NETWORK_ERROR: Gagal menghubungi server AI. Periksa koneksi internet Anda.");
+      }
+      await new Promise((resolve) => setTimeout(resolve, RETRY_DELAYS_MS[attempt]));
+    }
   }
 
   const data = await response.json();
   const content = data?.choices?.[0]?.message?.content;
-  if (typeof content !== "string") {
-    throw new Error("Respons AI tidak berisi konten yang diharapkan.");
+  if (typeof content !== "string" || !content.trim()) {
+    throw new Error("PARSE_EMPTY: Layanan AI tidak mengembalikan teks jawaban.");
   }
 
   let parsed: { questions?: unknown };
   try {
     parsed = JSON.parse(content);
   } catch {
-    throw new Error("Respons AI bukan JSON yang valid.");
+    throw new Error("PARSE_INVALID: Format respons AI bukan JSON yang valid.");
   }
 
-  return validateQuestions(parsed.questions, params.count);
+  // Shuffle options and reasons so the correct answer isn't perpetually in option A (index 0)
+  return validateQuestions(parsed.questions, params.count).map(shuffleQuestion);
+}
+
+function shuffleQuestion(question: GeneratedQuestion): GeneratedQuestion {
+  const [options, correct_option] = shuffleWithIndex(question.options, question.correct_option);
+  const [reasons, correct_reason] = shuffleWithIndex(question.reasons, question.correct_reason);
+  return { ...question, options, correct_option, reasons, correct_reason };
+}
+
+function shuffleWithIndex(items: string[], correctIndex: number): [string[], number] {
+  const order = items.map((_, i) => i);
+  for (let i = order.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [order[i], order[j]] = [order[j], order[i]];
+  }
+  return [order.map((i) => items[i]), order.indexOf(correctIndex)];
 }

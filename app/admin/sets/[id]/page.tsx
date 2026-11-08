@@ -3,7 +3,7 @@ import Link from "next/link";
 import { ThemeToggler } from "@/components/ThemeToggler";
 import { fetchAdminSetDetail } from "@/lib/admin-data";
 import { QuestionEditor } from "./QuestionEditor";
-import { togglePublish } from "./actions";
+import { PublishToggleButton } from "./PublishToggleButton";
 
 export const dynamic = "force-dynamic";
 
@@ -147,29 +147,7 @@ export default async function AdminSetDetailPage({
             </div>
 
             {/* Toggle Publish action */}
-            <form action={togglePublish}>
-              <input type="hidden" name="set_id" value={set.id} />
-              <input type="hidden" name="next" value={(!set.published).toString()} />
-              <button
-                type="submit"
-                className="boxy-pressable-sm font-mono"
-                style={{
-                  padding: "7px 14px",
-                  fontSize: "11px",
-                  fontWeight: 800,
-                  border: "1.5px solid var(--color-border)",
-                  backgroundColor: set.published
-                    ? "var(--color-surface)"
-                    : "var(--color-accent)",
-                  color: set.published
-                    ? "var(--color-text)"
-                    : "var(--color-accent-contrast)",
-                  cursor: "pointer",
-                }}
-              >
-                {set.published ? "JADIKAN DRAF" : "TERBITKAN KE SISWA ➔"}
-              </button>
-            </form>
+            <PublishToggleButton setId={set.id} published={set.published} />
           </div>
 
           {/* Title & Indicator */}

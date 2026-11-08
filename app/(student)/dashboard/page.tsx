@@ -1,5 +1,5 @@
-import { cookies } from "next/headers";
 import { requireRole } from "@/lib/auth";
+import { isSupabaseConfigured } from "@/lib/supabase/server";
 import {
   StudentDashboardView,
   type DashboardSet,
@@ -9,79 +9,20 @@ import {
 
 export const dynamic = "force-dynamic";
 
-const MOCK_PROFILE: StudentProfileInfo = {
-  fullName: "Rani Putri",
-  initials: "RP",
+// Fallback for standalone preview when Supabase env is not configured
+const FALLBACK_PROFILE: StudentProfileInfo = {
+  fullName: "Hermione Granger",
+  initials: "HG",
   email: "student@lms.local",
   grade: "KELAS X-A",
 };
 
-const MOCK_STATS: StudentStats = {
-  completedSets: 2,
-  totalSets: 4,
-  averageScore: 74,
-  pendingSets: 2,
+const FALLBACK_STATS: StudentStats = {
+  completedSets: 0,
+  totalSets: 0,
+  averageScore: 0,
+  pendingSets: 0,
 };
-
-const MOCK_SETS: DashboardSet[] = [
-  {
-    id: "mock-pack-1",
-    title: "Hukum II & III Newton pada Gerak Benda",
-    indicator:
-      "Menganalisis hubungan antara gaya, massa, dan percepatan pada gerak lurus serta aksi-reaksi benda.",
-    subject: "Fisika",
-    grade: "Kelas 10",
-    totalQuestions: 6,
-    status: "completed",
-    score: 67,
-    lastAttemptId: "att-01",
-  },
-  {
-    id: "mock-pack-2",
-    title: "Fotosintesis dan Pertukaran Gas pada Tumbuhan",
-    indicator:
-      "Membedakan reaksi terang dan siklus Calvin serta faktor pembatas pembentukan glukosa.",
-    subject: "Biologi",
-    grade: "Kelas 10",
-    totalQuestions: 5,
-    status: "completed",
-    score: 80,
-    lastAttemptId: "att-05",
-  },
-  {
-    id: "mock-pack-3",
-    title: "Reaksi Asam Basa dan Derajat Keasaman (pH)",
-    indicator:
-      "Mengidentifikasi kekuatan asam-basa berdasarkan derajat ionisasi dan perubahan warna indikator.",
-    subject: "Kimia",
-    grade: "Kelas 10",
-    totalQuestions: 4,
-    status: "in_progress",
-    progressCount: 2,
-  },
-  {
-    id: "mock-pack-4",
-    title: "Siklus Hidrologi dan Pembentukan Awan",
-    indicator:
-      "Menganalisis proses evaporasi, kondensasi, dan presipitasi dalam daur air.",
-    subject: "Geografi",
-    grade: "Kelas 10",
-    totalQuestions: 4,
-    status: "not_started",
-  },
-];
-
-async function getDashboardData(): Promise<{
-  profile: StudentProfileInfo;
-  stats: StudentStats;
-  sets: DashboardSet[];
-}> {
-  return {
-    profile: MOCK_PROFILE,
-    stats: MOCK_STATS,
-    sets: MOCK_SETS,
-  };
-}
 
 export default async function StudentDashboardPage({
   searchParams,
@@ -89,13 +30,135 @@ export default async function StudentDashboardPage({
   searchParams: Promise<{ selesai?: string }>;
 }) {
   const { selesai } = await searchParams;
-  const data = await getDashboardData();
+
+  if (!isSupabaseConfigured()) {
+    return (
+      <StudentDashboardView
+        profile={FALLBACK_PROFILE}
+        stats={FALLBACK_STATS}
+        sets={[]}
+        showCelebrationAlert={selesai === "1"}
+      />
+    );
+  }
+
+  const { supabase, user, profile } = await requireRole("student");
+
+  const initials = profile.full_name
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
+
+  const studentProfile: StudentProfileInfo = {
+    fullName: profile.full_name,
+    initials,
+    email: user.email || "student@lms.local",
+    grade: "KELAS X-A",
+  };
+
+  // Fetch real published question sets
+  const setsRes = await supabase
+    .from("question_sets")
+    .select("id, title, indicator, subject, grade, published, questions(id)")
+    .eq("published", true)
+    .order("created_at", { ascending: false });
+
+  const dbSets: any[] = setsRes.data ?? [];
+
+  // Fetch student's real attempts
+  const attemptsRes = await supabase
+    .from("attempts")
+    .select("id, set_id, submitted_at, started_at")
+    .eq("student_id", user.id)
+    .order("started_at", { ascending: false });
+
+  const dbAttempts: any[] = attemptsRes.data ?? [];
+
+  const sets: DashboardSet[] = [];
+  let completedCount = 0;
+  let totalScoreSum = 0;
+
+  for (const s of dbSets) {
+    const totalQuestions = (s.questions as any[])?.length ?? 0;
+    const attempt = dbAttempts.find((a: any) => a.set_id === s.id);
+
+    if (!attempt) {
+      sets.push({
+        id: s.id,
+        title: s.title,
+        indicator: s.indicator,
+        subject: s.subject || "Fisika",
+        grade: s.grade || "Kelas 10",
+        totalQuestions,
+        status: "not_started",
+      });
+    } else if (attempt.submitted_at) {
+      // Completed attempt: calculate real score
+      const responsesRes = await supabase
+        .from("responses")
+        .select("answer, reason, question_id, questions(correct_option, correct_reason)")
+        .eq("attempt_id", attempt.id);
+
+      const responses: any[] = responsesRes.data ?? [];
+      let correctCount = 0;
+      for (const r of responses) {
+        const q = r.questions as any;
+        if (q && r.answer === q.correct_option && r.reason === q.correct_reason) {
+          correctCount++;
+        }
+      }
+      const score = totalQuestions > 0 ? Math.round((correctCount / totalQuestions) * 100) : 0;
+      completedCount++;
+      totalScoreSum += score;
+
+      sets.push({
+        id: s.id,
+        title: s.title,
+        indicator: s.indicator,
+        subject: s.subject || "Fisika",
+        grade: s.grade || "Kelas 10",
+        totalQuestions,
+        status: "completed",
+        score,
+        lastAttemptId: attempt.id,
+      });
+    } else {
+      // In-progress attempt
+      const { count: answeredCount } = await supabase
+        .from("responses")
+        .select("*", { count: "exact", head: true })
+        .eq("attempt_id", attempt.id);
+
+      sets.push({
+        id: s.id,
+        title: s.title,
+        indicator: s.indicator,
+        subject: s.subject || "Fisika",
+        grade: s.grade || "Kelas 10",
+        totalQuestions,
+        status: "in_progress",
+        progressCount: answeredCount ?? 0,
+        lastAttemptId: attempt.id,
+      });
+    }
+  }
+
+  const averageScore = completedCount > 0 ? Math.round(totalScoreSum / completedCount) : 0;
+
+  const stats: StudentStats = {
+    completedSets: completedCount,
+    totalSets: sets.length,
+    averageScore,
+    pendingSets: sets.length - completedCount,
+  };
 
   return (
     <StudentDashboardView
-      profile={data.profile}
-      stats={data.stats}
-      sets={data.sets}
+      profile={studentProfile}
+      stats={stats}
+      sets={sets}
       showCelebrationAlert={selesai === "1"}
     />
   );

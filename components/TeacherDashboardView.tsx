@@ -10,25 +10,6 @@ import {
   type TeacherStats,
 } from "@/lib/teacher-data";
 
-const SUBJECT_COLORS: Record<string, { bg: string; text: string; dot: string }> = {
-  FISIKA: { bg: "rgba(255, 40, 0, 0.10)", text: "var(--color-accent)", dot: "#FF2800" },
-  BIOLOGI: { bg: "rgba(14, 164, 122, 0.12)", text: "#0B6B50", dot: "#0EA47A" },
-  KIMIA: { bg: "rgba(245, 165, 36, 0.14)", text: "#8A5200", dot: "#F5A524" },
-  GEOGRAFI: { bg: "rgba(11, 127, 212, 0.12)", text: "#065A96", dot: "#0B7FD4" },
-  MATEMATIKA: { bg: "rgba(139, 92, 246, 0.12)", text: "#6D28D9", dot: "#8B5CF6" },
-};
-
-function getSubjectBadge(subject: string) {
-  const norm = subject.toUpperCase();
-  return (
-    SUBJECT_COLORS[norm] || {
-      bg: "var(--color-surface-dim)",
-      text: "var(--color-text)",
-      dot: "var(--color-text-muted)",
-    }
-  );
-}
-
 function getTimeGreeting() {
   const hour = new Date().getHours();
   if (hour >= 4 && hour < 11) return "Selamat pagi,";
@@ -47,27 +28,17 @@ export function TeacherDashboardView({
   testPacks: TeacherTestPack[];
 }) {
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const [selectedSubject, setSelectedSubject] = useState<string>("SEMUA");
 
-  // Derive distinct subjects from test packs
-  const availableSubjects = useMemo(() => {
-    const list = Array.from(new Set(testPacks.map((p) => p.subject.toUpperCase()))).filter(Boolean);
-    return ["SEMUA", ...list];
-  }, [testPacks]);
-
-  // Filter test packs
+  // Filter test packs by search query
   const filteredPacks = useMemo(() => {
-    return testPacks.filter((pack) => {
-      const matchSubject = selectedSubject === "SEMUA" || pack.subject.toUpperCase() === selectedSubject;
-      const query = searchQuery.toLowerCase().trim();
-      const matchQuery =
-        !query ||
+    const query = searchQuery.toLowerCase().trim();
+    if (!query) return testPacks;
+    return testPacks.filter(
+      (pack) =>
         pack.title.toLowerCase().includes(query) ||
-        pack.indicator.toLowerCase().includes(query) ||
-        pack.subject.toLowerCase().includes(query);
-      return matchSubject && matchQuery;
-    });
-  }, [testPacks, selectedSubject, searchQuery]);
+        pack.indicator.toLowerCase().includes(query)
+    );
+  }, [testPacks, searchQuery]);
 
   return (
     <div
@@ -262,7 +233,7 @@ export function TeacherDashboardView({
               </span>
             </div>
 
-            {/* Box 2: Rata-Rata Skor Kelas (Ferrari Red Highlight) */}
+            {/* Box 2: Rata-Rata Skor Kelas (Accent Highlight) */}
             <div
               style={{
                 border: "1.5px solid var(--color-border)",
@@ -430,42 +401,6 @@ export function TeacherDashboardView({
             )}
           </div>
 
-          {/* Filter Pills */}
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "6px",
-              overflowX: "auto",
-              paddingBottom: "4px",
-            }}
-          >
-            {availableSubjects.map((sub) => {
-              const isSelected = selectedSubject === sub;
-              return (
-                <button
-                  key={sub}
-                  type="button"
-                  onClick={() => setSelectedSubject(sub)}
-                  className="font-mono boxy-pressable-sm"
-                  style={{
-                    padding: "5px 12px",
-                    fontSize: "11px",
-                    fontWeight: 800,
-                    cursor: "pointer",
-                    whiteSpace: "nowrap",
-                    backgroundColor: isSelected ? "var(--color-accent)" : "var(--color-surface)",
-                    color: isSelected ? "var(--color-accent-contrast)" : "var(--color-text)",
-                    border: isSelected ? "1.5px solid var(--color-border)" : "1.5px solid var(--color-border)",
-                    boxShadow: isSelected ? "var(--shadow-boxy-xs)" : "none",
-                  }}
-                >
-                  {sub}
-                </button>
-              );
-            })}
-          </div>
-
           {/* 5. Test Pack Cards List (Inspired by Student Dashboard Cards) */}
           <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
             {filteredPacks.length === 0 ? (
@@ -484,7 +419,6 @@ export function TeacherDashboardView({
               </div>
             ) : (
               filteredPacks.map((pack) => {
-                const badge = getSubjectBadge(pack.subject);
                 const studentsWithMisconception = pack.students.filter(
                   (s) => s.diagnosticsCount.miskonsepsi > 0
                 ).length;
@@ -510,27 +444,16 @@ export function TeacherDashboardView({
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                       <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
                         <span
-                          className="badge-mono"
+                          className="font-mono"
                           style={{
-                            backgroundColor: badge.bg,
-                            color: badge.text,
+                            fontSize: "11px",
+                            fontWeight: 800,
+                            padding: "3px 8px",
+                            backgroundColor: "var(--color-surface-dim)",
+                            color: "var(--color-text)",
                             border: "1px solid var(--color-border)",
-                            fontSize: "10px",
-                            padding: "2px 7px",
                           }}
                         >
-                          <span
-                            style={{
-                              width: "6px",
-                              height: "6px",
-                              borderRadius: "50%",
-                              backgroundColor: badge.dot,
-                              display: "inline-block",
-                            }}
-                          />
-                          {pack.subject.toUpperCase()}
-                        </span>
-                        <span className="font-mono" style={{ fontSize: "10.5px", color: "var(--color-text-muted)" }}>
                           {pack.grade || "Kelas 10"}
                         </span>
                       </div>
@@ -597,10 +520,10 @@ export function TeacherDashboardView({
                           style={{
                             fontSize: "10.5px",
                             fontWeight: 800,
-                            color: "var(--color-accent)",
-                            backgroundColor: "var(--color-accent-dim)",
+                            color: "#E11D48",
+                            backgroundColor: "rgba(225, 29, 72, 0.10)",
                             padding: "1px 6px",
-                            border: "1px solid var(--color-accent)",
+                            border: "1px solid #E11D48",
                           }}
                         >
                           ⚠ {studentsWithMisconception} Miskonsepsi

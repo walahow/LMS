@@ -1,69 +1,75 @@
 :root {
-  /* Ergonomic Light Mode (Soft warm paper + deep charcoal ink, no blinding glare) */
-  --color-bg: #F8F8FA;
+  /* Ergonomic Light Mode (Soft cool paper + deep oceanic ink + Electric Royal Blue #116AF8) */
+  --color-bg: #F4F7FC;
   --color-surface: #FFFFFF;
-  --color-surface-dim: #F0F0F3;
-  --color-border: #18181B;
-  --color-text: #18181B;
-  --color-text-muted: #52525B;
+  --color-surface-dim: #EBF2FA;
+  --color-border: #0B152B;
+  --color-text: #0B152B;
+  --color-text-muted: #53657D;
   --color-text-inverse: #FFFFFF;
 
-  --color-accent: #FF2800; /* Ferrari Red (Rosso Corsa) */
-  --color-accent-hover: #D40000;
-  --color-accent-dim: rgba(255, 40, 0, 0.12);
+  --color-accent: #116AF8; /* Electric Royal Blue (from customer palette) */
+  --color-accent-hover: #0C56CC;
+  --color-accent-dim: rgba(17, 106, 248, 0.09);
   --color-accent-contrast: #FFFFFF;
 
-  --color-shadow: #18181B;
-  --color-shadow-dim: #E4E4E7;
-  --color-shadow-accent: #FF2800;
+  --color-accent-cyan: #20BCED;
+  --color-accent-cyan-dim: rgba(32, 188, 237, 0.12);
+
+  --color-shadow: #0B152B;
+  --color-shadow-dim: #D5E1F0;
+  --color-shadow-accent: #116AF8;
 
   --shadow-boxy-xs: 2px 2px 0px 0px var(--color-shadow);
   --shadow-boxy-sm: 3px 3px 0px 0px var(--color-shadow);
   --shadow-boxy: 4px 4px 0px 0px var(--color-shadow);
   --shadow-boxy-lg: 6px 6px 0px 0px var(--color-shadow);
   --shadow-boxy-accent: 4px 4px 0px 0px var(--color-accent);
-  --shadow-ambient-card: 0 2px 4px rgba(24, 24, 27, 0.055), 0 8px 20px -3px rgba(24, 24, 27, 0.08);
+  --shadow-ambient-card: 0 2px 4px rgba(11, 21, 43, 0.04), 0 8px 20px -3px rgba(17, 106, 248, 0.07);
 
   /* High-contrast, clearly visible 2x2 pixel checkerboard dither patterns */
-  --dither-svg: url("data:image/svg+xml,%3Csvg width='4' height='4' viewBox='0 0 4 4' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h2v2H0zM2 2h2v2H2z' fill='%2318181B' fill-opacity='1' fill-rule='evenodd'/%3E%3C/svg%3E");
-  --dither-svg-accent: url("data:image/svg+xml,%3Csvg width='4' height='4' viewBox='0 0 4 4' xmlns='http://www.w3.org/2000/svg'%3E%3Crect x='0' y='0' width='2' height='2' fill='%23FF2800' fill-opacity='0.75'/%3E%3Crect x='2' y='2' width='2' height='2' fill='%23FF2800' fill-opacity='0.75'/%3E%3C/svg%3E");
-  --dither-svg-solid: url("data:image/svg+xml,%3Csvg width='4' height='4' viewBox='0 0 4 4' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h2v2H0zM2 2h2v2H2z' fill='%2318181B' fill-opacity='1' fill-rule='evenodd'/%3E%3C/svg%3E");
-  --dither-fade-opacity: 0.24;
+  --dither-svg: url("data:image/svg+xml,%3Csvg width='4' height='4' viewBox='0 0 4 4' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h2v2H0zM2 2h2v2H2z' fill='%230B152B' fill-opacity='1' fill-rule='evenodd'/%3E%3C/svg%3E");
+  --dither-svg-accent: url("data:image/svg+xml,%3Csvg width='4' height='4' viewBox='0 0 4 4' xmlns='http://www.w3.org/2000/svg'%3E%3Crect x='0' y='0' width='2' height='2' fill='%23116AF8' fill-opacity='0.75'/%3E%3Crect x='2' y='2' width='2' height='2' fill='%23116AF8' fill-opacity='0.75'/%3E%3C/svg%3E");
+  --dither-svg-solid: url("data:image/svg+xml,%3Csvg width='4' height='4' viewBox='0 0 4 4' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h2v2H0zM2 2h2v2H2z' fill='%230B152B' fill-opacity='1' fill-rule='evenodd'/%3E%3C/svg%3E");
+  --dither-fade-opacity: 0.22;
   --dither-blend-mode: multiply;
 
   --radius-none: 0px;
 }
 
 html.dark {
-  /* Ergonomic Dark Mode (Deep charcoal slate + soft warm platinum, zero halation/eye-strain) */
-  --color-bg: #121215;
-  --color-surface: #1A1A1F;
-  --color-surface-dim: #222228;
-  --color-border: #D4D4D8;
-  --color-text: #E8E8ED;
-  --color-text-muted: #A1A1AA;
-  --color-text-inverse: #121215;
+  /* Ergonomic Dark Mode (Deep Midnight Navy #020D33 + Electric Cyan #20BCED / Sky Cyan #A0E9FF) */
+  --color-bg: #060D24; /* Deep midnight navy inspired by #020D33 */
+  --color-surface: #0C1736;
+  --color-surface-dim: #13224A;
+  --color-border: #8EA9CD;
+  --color-text: #F0F6FF;
+  --color-text-muted: #8CA2C2;
+  --color-text-inverse: #060D24;
 
-  --color-accent: #FF2800; /* Ferrari Red (Rosso Corsa) */
-  --color-accent-hover: #FF4D2E;
-  --color-accent-dim: rgba(255, 40, 0, 0.20);
-  --color-accent-contrast: #FFFFFF;
+  --color-accent: #20BCED; /* Electric Cerulean Cyan (from customer palette) */
+  --color-accent-hover: #A0E9FF; /* Sky Cyan */
+  --color-accent-dim: rgba(32, 188, 237, 0.16);
+  --color-accent-contrast: #060D24;
 
-  --color-shadow: #D4D4D8;
-  --color-shadow-dim: #27272A;
-  --color-shadow-accent: #FF2800;
+  --color-accent-cyan: #20BCED;
+  --color-accent-cyan-dim: rgba(32, 188, 237, 0.16);
+
+  --color-shadow: #8EA9CD;
+  --color-shadow-dim: #182852;
+  --color-shadow-accent: #20BCED;
 
   --shadow-boxy-xs: 2px 2px 0px 0px var(--color-shadow);
   --shadow-boxy-sm: 3px 3px 0px 0px var(--color-shadow);
   --shadow-boxy: 4px 4px 0px 0px var(--color-shadow);
   --shadow-boxy-lg: 6px 6px 0px 0px var(--color-shadow);
   --shadow-boxy-accent: 4px 4px 0px 0px var(--color-accent);
-  --shadow-ambient-card: 0 3px 8px rgba(0, 0, 0, 0.35), 0 12px 26px -3px rgba(0, 0, 0, 0.48);
+  --shadow-ambient-card: 0 3px 8px rgba(0, 0, 0, 0.45), 0 12px 28px -3px rgba(2, 13, 51, 0.65);
 
   /* Softened dither patterns for dark mode */
-  --dither-svg: url("data:image/svg+xml,%3Csvg width='4' height='4' viewBox='0 0 4 4' xmlns='http://www.w3.org/2000/svg'%3E%3Crect x='0' y='0' width='2' height='2' fill='%23E8E8ED' fill-opacity='0.45'/%3E%3Crect x='2' y='2' width='2' height='2' fill='%23E8E8ED' fill-opacity='0.45'/%3E%3C/svg%3E");
-  --dither-svg-accent: url("data:image/svg+xml,%3Csvg width='4' height='4' viewBox='0 0 4 4' xmlns='http://www.w3.org/2000/svg'%3E%3Crect x='0' y='0' width='2' height='2' fill='%23FF2800' fill-opacity='0.80'/%3E%3Crect x='2' y='2' width='2' height='2' fill='%23FF2800' fill-opacity='0.80'/%3E%3C/svg%3E");
-  --dither-svg-solid: url("data:image/svg+xml,%3Csvg width='4' height='4' viewBox='0 0 4 4' xmlns='http://www.w3.org/2000/svg'%3E%3Crect x='0' y='0' width='2' height='2' fill='%23E8E8ED' fill-opacity='0.75'/%3E%3Crect x='2' y='2' width='2' height='2' fill='%23E8E8ED' fill-opacity='0.75'/%3E%3C/svg%3E");
+  --dither-svg: url("data:image/svg+xml,%3Csvg width='4' height='4' viewBox='0 0 4 4' xmlns='http://www.w3.org/2000/svg'%3E%3Crect x='0' y='0' width='2' height='2' fill='%23CBD5E1' fill-opacity='0.40'/%3E%3Crect x='2' y='2' width='2' height='2' fill='%23CBD5E1' fill-opacity='0.40'/%3E%3C/svg%3E");
+  --dither-svg-accent: url("data:image/svg+xml,%3Csvg width='4' height='4' viewBox='0 0 4 4' xmlns='http://www.w3.org/2000/svg'%3E%3Crect x='0' y='0' width='2' height='2' fill='%2320BCED' fill-opacity='0.80'/%3E%3Crect x='2' y='2' width='2' height='2' fill='%2320BCED' fill-opacity='0.80'/%3E%3C/svg%3E");
+  --dither-svg-solid: url("data:image/svg+xml,%3Csvg width='4' height='4' viewBox='0 0 4 4' xmlns='http://www.w3.org/2000/svg'%3E%3Crect x='0' y='0' width='2' height='2' fill='%23CBD5E1' fill-opacity='0.75'/%3E%3Crect x='2' y='2' width='2' height='2' fill='%23CBD5E1' fill-opacity='0.75'/%3E%3C/svg%3E");
   --dither-fade-opacity: 0.28;
   --dither-blend-mode: normal;
 }

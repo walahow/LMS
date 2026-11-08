@@ -4,8 +4,8 @@ import { TeacherProfileView, type TeacherProfileData } from "@/components/Teache
 export const dynamic = "force-dynamic";
 
 const MOCK_TEACHER: TeacherProfileData = {
-  fullName: "Bu Sari Wulandari, M.Pd.",
-  initials: "SW",
+  fullName: "Severus Snape",
+  initials: "SS",
   email: "teacher@lms.local",
   roleTitle: "GURU PENGAMPU",
 };

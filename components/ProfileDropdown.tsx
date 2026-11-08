@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useTransition } from "react";
 import Link from "next/link";
 import { signOut } from "@/lib/auth-actions";
 
@@ -9,6 +9,7 @@ export type ProfileDropdownProps = {
   initials: string;
   email?: string;
   grade?: string;
+  role?: string;
   profileHref?: string;
 };
 
@@ -17,10 +18,13 @@ export function ProfileDropdown({
   initials,
   email,
   grade,
+  role,
   profileHref = "/profile",
 }: ProfileDropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [isPending, startTransition] = useTransition();
   const containerRef = useRef<HTMLDivElement>(null);
+  const isAdmin = role === "admin" || (grade ? grade.toUpperCase().includes("ADMIN") : false);
 
   // Close when clicking outside
   useEffect(() => {
@@ -139,7 +143,7 @@ export function ProfileDropdown({
                   flexShrink: 0,
                 }}
               >
-                {grade || "SISWA"}
+                {grade || "PENGGUNA"}
               </span>
             </div>
 
@@ -200,104 +204,87 @@ export function ProfileDropdown({
               <span style={{ color: "var(--color-text-muted)" }}>➔</span>
             </Link>
 
-            {/* Divider */}
-            <div
-              style={{
-                height: "1px",
-                backgroundColor: "var(--color-border)",
-                opacity: 0.25,
-                margin: "2px 0",
-              }}
-            />
+            {/* Admin Supervision Switcher: Visible ONLY for Admin */}
+            {isAdmin && (
+              <>
+                <div
+                  style={{
+                    height: "1px",
+                    backgroundColor: "var(--color-border)",
+                    opacity: 0.25,
+                    margin: "2px 0",
+                  }}
+                />
+                <div
+                  style={{
+                    fontSize: "9.5px",
+                    fontWeight: 800,
+                    color: "var(--color-text-muted)",
+                    padding: "4px 10px 2px",
+                    letterSpacing: "0.05em",
+                  }}
+                >
+                  MODE SUPERVISI ADMIN
+                </div>
 
-            {/* Quick Switch Role Section for Review */}
-            <div
-              style={{
-                fontSize: "9.5px",
-                fontWeight: 800,
-                color: "var(--color-text-muted)",
-                padding: "4px 10px 2px",
-                letterSpacing: "0.05em",
-              }}
-            >
-              NAVIGASI REVIEW (UI/UX)
-            </div>
+                <Link
+                  href="/dashboard"
+                  onClick={() => setIsOpen(false)}
+                  className="font-mono boxy-pressable-sm"
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    padding: "6px 10px",
+                    fontSize: "11px",
+                    fontWeight: 700,
+                    color: "var(--color-text)",
+                    textDecoration: "none",
+                  }}
+                >
+                  <span>🎓 PRATINJAU SISWA</span>
+                  <span style={{ color: "var(--color-text-muted)" }}>➔</span>
+                </Link>
 
-            <Link
-              href="/dashboard"
-              onClick={() => setIsOpen(false)}
-              className="font-mono boxy-pressable-sm"
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                padding: "6px 10px",
-                fontSize: "11px",
-                fontWeight: 700,
-                color: "var(--color-text)",
-                textDecoration: "none",
-              }}
-            >
-              <span>🎓 DASHBOARD SISWA</span>
-              <span style={{ color: "var(--color-text-muted)" }}>➔</span>
-            </Link>
+                <Link
+                  href="/teacher/dashboard"
+                  onClick={() => setIsOpen(false)}
+                  className="font-mono boxy-pressable-sm"
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    padding: "6px 10px",
+                    fontSize: "11px",
+                    fontWeight: 700,
+                    color: "var(--color-text)",
+                    textDecoration: "none",
+                  }}
+                >
+                  <span>👩‍🏫 PRATINJAU GURU</span>
+                  <span style={{ color: "var(--color-text-muted)" }}>➔</span>
+                </Link>
 
-            <Link
-              href="/teacher/dashboard"
-              onClick={() => setIsOpen(false)}
-              className="font-mono boxy-pressable-sm"
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                padding: "6px 10px",
-                fontSize: "11px",
-                fontWeight: 700,
-                color: "var(--color-text)",
-                textDecoration: "none",
-              }}
-            >
-              <span>👩‍🏫 DASHBOARD GURU</span>
-              <span style={{ color: "var(--color-text-muted)" }}>➔</span>
-            </Link>
-
-            <Link
-              href="/admin/dashboard"
-              onClick={() => setIsOpen(false)}
-              className="font-mono boxy-pressable-sm"
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                padding: "6px 10px",
-                fontSize: "11px",
-                fontWeight: 700,
-                color: "var(--color-text)",
-                textDecoration: "none",
-              }}
-            >
-              <span>⚙ DASHBOARD ADMIN</span>
-              <span style={{ color: "var(--color-text-muted)" }}>➔</span>
-            </Link>
-
-            <Link
-              href="/quiz"
-              onClick={() => setIsOpen(false)}
-              className="font-mono boxy-pressable-sm"
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                padding: "6px 10px",
-                fontSize: "11px",
-                fontWeight: 700,
-                color: "var(--color-text)",
-                textDecoration: "none",
-              }}
-            >
-              <span>📝 KUIS DIAGNOSTIK 3-TIER</span>
-              <span style={{ color: "var(--color-text-muted)" }}>➔</span>
-            </Link>
+                <Link
+                  href="/admin/dashboard"
+                  onClick={() => setIsOpen(false)}
+                  className="font-mono boxy-pressable-sm"
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    padding: "6px 10px",
+                    fontSize: "11px",
+                    fontWeight: 700,
+                    color: "var(--color-text)",
+                    textDecoration: "none",
+                  }}
+                >
+                  <span>⚙ COMMAND CENTER</span>
+                  <span style={{ color: "var(--color-text-muted)" }}>➔</span>
+                </Link>
+              </>
+            )}
 
             {/* Divider */}
             <div
@@ -309,14 +296,15 @@ export function ProfileDropdown({
               }}
             />
 
-            {/* 2. Direct Logout */}
-            <Link
-              href="/login"
+            {/* Sign Out Action Button */}
+            <button
+              type="button"
+              disabled={isPending}
               onClick={() => {
                 setIsOpen(false);
-                try {
-                  document.cookie = "lms-demo-role=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-                } catch {}
+                startTransition(async () => {
+                  await signOut();
+                });
               }}
               className="font-mono boxy-pressable-sm"
               style={{
@@ -328,9 +316,11 @@ export function ProfileDropdown({
                 fontSize: "11.5px",
                 fontWeight: 800,
                 color: "var(--color-accent)",
-                textDecoration: "none",
-                cursor: "pointer",
+                backgroundColor: "transparent",
+                border: "none",
+                cursor: isPending ? "not-allowed" : "pointer",
                 textAlign: "left",
+                opacity: isPending ? 0.6 : 1,
               }}
               role="menuitem"
             >
@@ -350,10 +340,10 @@ export function ProfileDropdown({
                   <polyline points="16 17 21 12 16 7" />
                   <line x1="21" y1="12" x2="9" y2="12" />
                 </svg>
-                <span>KELUAR KE HALAMAN LOGIN</span>
+                <span>{isPending ? "KELUAR..." : "KELUAR DARI AKUN"}</span>
               </div>
               <span>➔</span>
-            </Link>
+            </button>
           </div>
         </div>
       )}

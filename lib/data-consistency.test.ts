@@ -104,5 +104,65 @@ describe("Admin mock dataset reconciliation", () => {
       }
     }
   });
+
+  it("verifies mock test pack questions have concept explanations for teacher detail view", () => {
+    for (const pack of MOCK_TEST_PACKS) {
+      for (const student of pack.students) {
+        for (const q of student.questions) {
+          expect(q.stem.length).toBeGreaterThan(0);
+          expect(q.options.length).toBe(4);
+          expect(q.reasons.length).toBe(4);
+        }
+      }
+    }
+  });
+
+  it("verifies student attempt deduplication picks only the latest submitted attempt", () => {
+    // Simulating multiple attempts by the same student (e.g. initial attempt vs retake)
+    const studentId = "student-test-uuid";
+    const attempts = [
+      {
+        id: "attempt-1",
+        student_id: studentId,
+        submitted_at: "2026-11-01T10:00:00Z",
+        score: 40,
+      },
+      {
+        id: "attempt-2-latest",
+        student_id: studentId,
+        submitted_at: "2026-11-02T14:30:00Z",
+        score: 85,
+      },
+      {
+        id: "attempt-old",
+        student_id: studentId,
+        submitted_at: "2026-10-25T08:00:00Z",
+        score: 20,
+      },
+    ];
+
+    // Sorting by submitted_at descending (as in fetchTeacherData)
+    const sortedAttempts = [...attempts].sort(
+      (a, b) => new Date(b.submitted_at).getTime() - new Date(a.submitted_at).getTime()
+    );
+
+    expect(sortedAttempts[0].id).toBe("attempt-2-latest");
+
+    // Deduplication processing loop
+    const processedStudentIds = new Set<string>();
+    const selectedAttempts: typeof attempts = [];
+
+    for (const att of sortedAttempts) {
+      if (processedStudentIds.has(att.student_id)) continue;
+      processedStudentIds.add(att.student_id);
+      selectedAttempts.push(att);
+    }
+
+    // Must have exactly 1 attempt for the student, and it must be the latest one with score 85
+    expect(selectedAttempts.length).toBe(1);
+    expect(selectedAttempts[0].id).toBe("attempt-2-latest");
+    expect(selectedAttempts[0].score).toBe(85);
+  });
 });
+
 

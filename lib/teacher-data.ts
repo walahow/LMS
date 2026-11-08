@@ -1,5 +1,6 @@
 import { cookies } from "next/headers";
 import { requireRole } from "@/lib/auth";
+import { isSupabaseConfigured } from "@/lib/supabase/server";
 import { diagnose, type Diagnosis } from "@/lib/diagnose";
 
 export type DiagnosticCount = {
@@ -21,6 +22,7 @@ export type StudentQuestionDetail = {
   correctReason: number;
   confident: boolean;
   diagnosis: Diagnosis;
+  explanation?: string;
 };
 
 export type StudentPackResult = {
@@ -65,8 +67,8 @@ export type TeacherStats = {
 };
 
 export const MOCK_TEACHER: TeacherProfileInfo = {
-  fullName: "Bu Sari Wulandari, M.Pd.",
-  initials: "SW",
+  fullName: "Severus Snape",
+  initials: "SS",
   email: "teacher@lms.local",
   title: "Guru Pengampu Fisika & Sains",
 };
@@ -171,6 +173,7 @@ const FISIKA_QUESTIONS = [
     ],
     correctOption: 0,
     correctReason: 0,
+    explanation: "Sesuai Hukum II Newton, percepatan berbanding lurus dengan gaya konstan (a = F/m). Karena F = 12 N dan m = 4 kg, percepatan benda adalah konstan 3 m/s² sepanjang gaya terus bekerja.",
   },
   {
     questionId: "fis-q2",
@@ -190,6 +193,7 @@ const FISIKA_QUESTIONS = [
     ],
     correctOption: 1,
     correctReason: 1,
+    explanation: "Dalam ruang tanpa hambatan udara, semua benda mengalami percepatan jatuh bebas yang sama (g ≈ 9.8 m/s²) terlepas dari massa maupun ukuran benda, sehingga mendarat secara bersamaan.",
   },
   {
     questionId: "fis-q3",
@@ -209,6 +213,7 @@ const FISIKA_QUESTIONS = [
     ],
     correctOption: 0,
     correctReason: 0,
+    explanation: "Menurut Hukum II Newton (a = F/m), percepatan berbanding lurus dengan resultan gaya. Ketika gaya dorong digandakan menjadi 2F dengan massa tetap m, percepatannya berlipat ganda menjadi dua kali lipat.",
   },
   {
     questionId: "fis-q4",
@@ -228,6 +233,7 @@ const FISIKA_QUESTIONS = [
     ],
     correctOption: 1,
     correctReason: 1,
+    explanation: "Berdasarkan Hukum I Newton (Kelembaman), benda yang sedang bergerak cenderung mempertahankan kecepatan dan arah geraknya. Ketika bus mendadak direm, tubuh penumpang terus bergerak maju karena kelembaman.",
   },
   {
     questionId: "fis-q5",
@@ -247,6 +253,7 @@ const FISIKA_QUESTIONS = [
     ],
     correctOption: 0,
     correctReason: 0,
+    explanation: "Pada gerak lurus beraturan (kecepatan konstan), percepatan adalah nol (a = 0). Menurut Hukum I Newton, resultan gaya total yang bekerja pada benda harus sama dengan nol (ΣF = 0).",
   },
   {
     questionId: "fis-q6",
@@ -266,6 +273,7 @@ const FISIKA_QUESTIONS = [
     ],
     correctOption: 1,
     correctReason: 0,
+    explanation: "Hukum III Newton menetapkan bahwa pasangan aksi-reaksi selalu bekerja pada dua benda yang berbeda. Buku menekan meja (aksi), dan meja menekan buku ke atas dengan gaya normal (reaksi).",
   },
 ];
 
@@ -736,9 +744,168 @@ export async function fetchTeacherData(): Promise<{
   stats: TeacherStats;
   testPacks: TeacherTestPack[];
 }> {
+  if (!isSupabaseConfigured()) {
+    return {
+      profile: MOCK_TEACHER,
+      stats: MOCK_TEACHER_STATS,
+      testPacks: MOCK_TEST_PACKS,
+    };
+  }
+
+  const { supabase, user, profile } = await requireRole("teacher");
+
+  const teacherProfile: TeacherProfileInfo = {
+    fullName: profile.full_name,
+    initials: profile.full_name
+      .split(" ")
+      .map((w: string) => w[0])
+      .join("")
+      .slice(0, 2)
+      .toUpperCase(),
+    email: user.email || "teacher@lms.local",
+    title: "GURU FISIKA",
+  };
+
+  // Fetch real question sets
+  const setsRes = await supabase
+    .from("question_sets")
+    .select("id, title, indicator, subject, grade, published, created_at, questions(id, position, stem, options, reasons, correct_option, correct_reason, explanation)")
+    .order("created_at", { ascending: false });
+
+  const dbSets: any[] = setsRes.data ?? [];
+
+  // Fetch student profiles
+  const studentsRes = await supabase
+    .from("profiles")
+    .select("id, full_name, role")
+    .eq("role", "student");
+
+  const dbStudents: any[] = studentsRes.data ?? [];
+  const totalCohortStudents = Math.max(dbStudents.length, 1);
+
+  // Fetch submitted attempts with responses
+  const attemptsRes = await supabase
+    .from("attempts")
+    .select("id, set_id, student_id, submitted_at, started_at, responses(question_id, answer, reason, confident)")
+    .not("submitted_at", "is", null)
+    .order("submitted_at", { ascending: false });
+
+  const dbAttempts: any[] = attemptsRes.data ?? [];
+
+  const testPacks: TeacherTestPack[] = [];
+  const allScores: number[] = [];
+  const participatingStudents = new Set<string>();
+
+  for (const s of dbSets) {
+    const questions = (((s.questions as any[]) || []).slice()).sort((a: any, b: any) => a.position - b.position);
+    const setAttempts = dbAttempts.filter((a: any) => a.set_id === s.id);
+
+    const packDiagnostics: DiagnosticCount = { paham: 0, miskonsepsi: 0, lucky_guess: 0, tidak_paham: 0 };
+    const students: StudentPackResult[] = [];
+    const processedStudentIds = new Set<string>();
+
+    for (const att of setAttempts) {
+      const studentProf = dbStudents.find((st: any) => st.id === att.student_id);
+      if (!studentProf || processedStudentIds.has(studentProf.id)) continue;
+      processedStudentIds.add(studentProf.id);
+
+      participatingStudents.add(studentProf.id);
+
+      const studentDiagnostics: DiagnosticCount = { paham: 0, miskonsepsi: 0, lucky_guess: 0, tidak_paham: 0 };
+      const studentQuestions: StudentQuestionDetail[] = [];
+      let correctCount = 0;
+
+      for (const q of questions) {
+        const resp = ((att.responses as any[]) || []).find((r: any) => r.question_id === q.id);
+        const ans = resp?.answer ?? -1;
+        const rsn = resp?.reason ?? -1;
+        const conf = Boolean(resp?.confident);
+
+        const d = diagnose(
+          { answer: ans, reason: rsn, confident: conf },
+          { correct_option: q.correct_option, correct_reason: q.correct_reason }
+        );
+        studentDiagnostics[d]++;
+        packDiagnostics[d]++;
+
+        if (ans === q.correct_option && rsn === q.correct_reason) {
+          correctCount++;
+        }
+
+        studentQuestions.push({
+          questionId: q.id,
+          position: q.position,
+          stem: q.stem,
+          options: q.options as string[],
+          reasons: q.reasons as string[],
+          studentAnswer: ans,
+          correctOption: q.correct_option,
+          studentReason: rsn,
+          correctReason: q.correct_reason,
+          confident: conf,
+          diagnosis: d,
+          explanation: q.explanation || "",
+        });
+      }
+
+      const score = questions.length > 0 ? Math.round((correctCount / questions.length) * 100) : 0;
+      allScores.push(score);
+
+      const dominant = (Object.entries(studentDiagnostics).reduce((a, b) => (b[1] > a[1] ? b : a))[0]) as Diagnosis;
+
+      students.push({
+        studentId: studentProf.id,
+        fullName: studentProf.full_name,
+        initials: studentProf.full_name
+          .split(" ")
+          .map((w: string) => w[0])
+          .join("")
+          .slice(0, 2)
+          .toUpperCase(),
+        grade: s.grade || "Kelas 10",
+        attemptId: att.id,
+        submittedAt: new Date(att.submitted_at).toLocaleDateString("id-ID", {
+          day: "numeric",
+          month: "short",
+          year: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
+        score,
+        diagnosticsCount: studentDiagnostics,
+        dominantDiagnosis: dominant,
+        questions: studentQuestions,
+      });
+    }
+
+    testPacks.push({
+      id: s.id,
+      title: s.title,
+      indicator: s.indicator,
+      subject: s.subject || "Fisika",
+      grade: s.grade || "Kelas 10",
+      questionCount: questions.length,
+      studentAttemptCount: students.length,
+      totalStudents: totalCohortStudents,
+      diagnosticsCount: packDiagnostics,
+      students,
+    });
+  }
+
+  const averageScore = allScores.length > 0 ? Math.round(allScores.reduce((a, b) => a + b, 0) / allScores.length) : 0;
+  const participationRate = Math.round((participatingStudents.size / totalCohortStudents) * 100);
+
+  const stats: TeacherStats = {
+    totalPacks: testPacks.length,
+    averageScore,
+    activeStudents: participatingStudents.size,
+    totalStudents: totalCohortStudents,
+    participationRate,
+  };
+
   return {
-    profile: MOCK_TEACHER,
-    stats: MOCK_TEACHER_STATS,
-    testPacks: MOCK_TEST_PACKS,
+    profile: teacherProfile,
+    stats,
+    testPacks,
   };
 }

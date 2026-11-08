@@ -1,21 +1,22 @@
-import type { createClient } from "@/lib/supabase/server";
+import { redirect } from "next/navigation";
+import { createClient, isSupabaseConfigured } from "@/lib/supabase/server";
 import type { UserRole } from "@/lib/database.types";
 
 const MOCK_PROFILES: Record<UserRole, { id: string; role: UserRole; full_name: string }> = {
   student: {
     id: "00000000-0000-0000-0000-000000000003",
     role: "student",
-    full_name: "Rani Putri",
+    full_name: "Hermione Granger",
   },
   teacher: {
     id: "00000000-0000-0000-0000-000000000002",
     role: "teacher",
-    full_name: "Bu Sari Wulandari, M.Pd.",
+    full_name: "Severus Snape",
   },
   admin: {
     id: "00000000-0000-0000-0000-000000000001",
     role: "admin",
-    full_name: "Pak Andi Kurniawan",
+    full_name: "Albus Dumbledore",
   },
 };
 
@@ -53,6 +54,25 @@ export function createMockSupabaseClient() {
 }
 
 export async function requireUser() {
+  if (isSupabaseConfigured()) {
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) redirect("/login");
+
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("id, role, full_name")
+      .eq("id", user.id)
+      .single();
+
+    if (!profile) redirect("/login");
+
+    return { supabase, user, profile };
+  }
+
   const profile = MOCK_PROFILES.student;
   return {
     supabase: createMockSupabaseClient(),
@@ -62,6 +82,15 @@ export async function requireUser() {
 }
 
 export async function requireRole(role: UserRole) {
+  if (isSupabaseConfigured()) {
+    const ctx = await requireUser();
+    // Admin is a superuser and can access student and teacher pages
+    if (ctx.profile.role !== role && ctx.profile.role !== "admin") {
+      redirect("/login");
+    }
+    return ctx;
+  }
+
   const profile = MOCK_PROFILES[role] ?? MOCK_PROFILES.student;
   return {
     supabase: createMockSupabaseClient(),

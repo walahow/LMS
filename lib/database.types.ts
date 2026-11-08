@@ -76,6 +76,7 @@ export interface Database {
           correct_option: number;
           reasons: string[];
           correct_reason: number;
+          explanation: string | null;
         };
         Insert: {
           id?: string;
@@ -86,6 +87,7 @@ export interface Database {
           correct_option: number;
           reasons: string[];
           correct_reason: number;
+          explanation?: string | null;
         };
         Update: {
           id?: string;
@@ -96,6 +98,7 @@ export interface Database {
           correct_option?: number;
           reasons?: string[];
           correct_reason?: number;
+          explanation?: string | null;
         };
         Relationships: [];
       };

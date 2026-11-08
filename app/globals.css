@@ -112,6 +112,7 @@ body {
   background-image: var(--dither-svg-accent);
   background-repeat: repeat;
   background-size: 4px 4px;
+  image-rendering: pixelated;
   opacity: 0.30;
   mask-image: linear-gradient(to left, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0.5) 40%, rgba(0, 0, 0, 0) 100%);
   -webkit-mask-image: linear-gradient(to left, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0.5) 40%, rgba(0, 0, 0, 0) 100%);
@@ -119,6 +120,15 @@ body {
 }
 
 /* Direction-Aware Deck Slide Animations for Question Navigation */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 @keyframes slideInFromRight {
   0% {
     opacity: 0;
@@ -292,6 +302,31 @@ body {
   box-shadow: 0px 0px 0px 0px var(--color-shadow);
 }
 
+.boxy-btn-dither-accent {
+  position: relative;
+  overflow: hidden;
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  border: 2px solid var(--color-border);
+  box-shadow: var(--shadow-boxy);
+  transition: transform 0.08s ease, box-shadow 0.08s ease, background-color 0.15s ease, border-color 0.15s ease;
+  user-select: none;
+}
+
+.boxy-btn-dither-accent:hover {
+  background-color: var(--color-accent-dim);
+  border-color: var(--color-accent);
+}
+
+.boxy-btn-dither-accent:hover .dither-fade-right-accent {
+  opacity: 0.9 !important;
+}
+
+.boxy-btn-dither-accent:active {
+  transform: translate(3.5px, 3.5px) !important;
+  box-shadow: 0px 0px 0px 0px var(--color-shadow) !important;
+}
+
 /* Option Row interactive styling (Mobile-First) */
 .option-row {
   width: 100%;
@@ -325,8 +360,18 @@ body {
   z-index: 10;
 }
 
-.option-row.locked {
-  cursor: default;
+.option-row.locked,
+.option-row:disabled,
+.option-row.review-locked {
+  cursor: default !important;
+}
+
+.option-row.review-locked:active {
+  transform: none !important;
+}
+
+.option-row.selected.review-locked:active {
+  transform: scale(1.02) !important;
 }
 
 /* Tactile badges (Flat by default) */
@@ -362,6 +407,86 @@ body {
   box-shadow: var(--shadow-boxy-accent);
 }
 
+.boxy-input-group {
+  display: flex;
+  align-items: stretch;
+  width: 100%;
+  background-color: var(--color-surface);
+  border: 1.5px solid var(--color-border);
+  box-shadow: none;
+  transition: border-color 0.12s ease, box-shadow 0.12s ease;
+}
+
+.boxy-input-group:focus-within {
+  border-color: var(--color-accent);
+  box-shadow: var(--shadow-boxy-accent);
+}
+
+.password-toggle-btn {
+  background: transparent;
+  border: none;
+  padding: 0 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--color-text-muted);
+  transition: color 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  outline: none;
+  flex-shrink: 0;
+}
+
+.password-toggle-btn:hover {
+  color: var(--color-text);
+}
+
+.password-toggle-btn.is-active {
+  color: var(--color-accent);
+}
+
+.password-toggle-btn.is-active:hover {
+  color: var(--color-accent);
+}
+
+.password-toggle-btn:focus-visible {
+  outline: 1.5px solid var(--color-accent);
+  outline-offset: -2px;
+}
+
+/* Animated Eye Toggle Micro-Interaction */
+.eye-icon {
+  display: block;
+}
+
+.eye-contour {
+  transition: opacity 0.25s ease;
+}
+
+.eye-pupil {
+  transform-origin: 12px 12px;
+  transition: stroke 0.3s ease;
+}
+
+/* Diagonal slash: draws from top-left (3, 3) to bottom-right (21, 21) */
+.eye-slash {
+  stroke-dasharray: 30;
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset 0.32s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.22s ease;
+}
+
+.eye-slash.is-retracted {
+  stroke-dashoffset: 30;
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .eye-slash,
+  .eye-pupil,
+  .password-toggle-btn {
+    transition: none !important;
+  }
+}
+
 /* Page Route Transition (Neo-Brutalist Snappy Deceleration) */
 @keyframes pageEnter {
   0% {
@@ -385,4 +510,37 @@ body {
     transform: none !important;
   }
 }
+
+/* Tactile Neo-Brutalist Loading Progress Bar on Buttons */
+@keyframes buttonProgressSlide {
+  0% {
+    transform: translateX(-100%);
+  }
+  50% {
+    transform: translateX(45%);
+  }
+  100% {
+    transform: translateX(240%);
+  }
+}
+
+.boxy-loading-bar-runner {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 45%;
+  height: 100%;
+  animation: buttonProgressSlide 1.15s cubic-bezier(0.25, 1, 0.45, 1) infinite;
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .boxy-loading-bar-runner {
+    animation: none !important;
+    width: 100% !important;
+    transform: none !important;
+    opacity: 0.8 !important;
+  }
+}
+
 

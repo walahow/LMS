@@ -32,24 +32,6 @@ export type StudentStats = {
   pendingSets: number;
 };
 
-const SUBJECT_COLORS: Record<string, { bg: string; text: string; dot: string }> = {
-  FISIKA: { bg: "rgba(255, 40, 0, 0.10)", text: "var(--color-accent)", dot: "#FF2800" },
-  BIOLOGI: { bg: "rgba(14, 164, 122, 0.12)", text: "#0B6B50", dot: "#0EA47A" },
-  KIMIA: { bg: "rgba(245, 165, 36, 0.14)", text: "#8A5200", dot: "#F5A524" },
-  GEOGRAFI: { bg: "rgba(11, 127, 212, 0.12)", text: "#065A96", dot: "#0B7FD4" },
-};
-
-function getSubjectBadge(subject: string) {
-  const norm = subject.toUpperCase();
-  return (
-    SUBJECT_COLORS[norm] || {
-      bg: "var(--color-surface-dim)",
-      text: "var(--color-text)",
-      dot: "var(--color-text-muted)",
-    }
-  );
-}
-
 function getTimeGreeting() {
   const hour = new Date().getHours();
   if (hour >= 4 && hour < 11) return "Selamat pagi,";
@@ -69,25 +51,12 @@ export function StudentDashboardView({
   sets: DashboardSet[];
   showCelebrationAlert?: boolean;
 }) {
-  const [selectedSubject, setSelectedSubject] = useState<string>("SEMUA");
   const [showAlert, setShowAlert] = useState<boolean>(showCelebrationAlert);
-
-  // Extract distinct subjects
-  const availableSubjects = useMemo(() => {
-    const list = Array.from(new Set(sets.map((s) => s.subject.toUpperCase()))).filter(Boolean);
-    return ["SEMUA", ...list];
-  }, [sets]);
 
   // Find in-progress attempt (if any)
   const inProgressSet = useMemo(() => {
     return sets.find((s) => s.status === "in_progress");
   }, [sets]);
-
-  // Filtered list
-  const filteredSets = useMemo(() => {
-    if (selectedSubject === "SEMUA") return sets;
-    return sets.filter((s) => s.subject.toUpperCase() === selectedSubject);
-  }, [sets, selectedSubject]);
 
   return (
     <div
@@ -323,7 +292,7 @@ export function StudentDashboardView({
               </span>
             </div>
 
-            {/* Box 2: Rata-Rata Skor (Ferrari Red Highlight) */}
+            {/* Box 2: Rata-Rata Skor (Accent Highlight) */}
             <div
               style={{
                 border: "1.5px solid var(--color-border)",
@@ -561,51 +530,13 @@ export function StudentDashboardView({
                 color: "var(--color-text-muted)",
               }}
             >
-              {filteredSets.length} TERSEDIA
+              {sets.length} TERSEDIA
             </span>
-          </div>
-
-          {/* Filter Pills */}
-          <div
-            style={{
-              display: "flex",
-              gap: "8px",
-              overflowX: "auto",
-              paddingBottom: "6px",
-              scrollbarWidth: "none",
-            }}
-          >
-            {availableSubjects.map((sub) => {
-              const isSelected = selectedSubject === sub;
-              return (
-                <button
-                  key={sub}
-                  type="button"
-                  onClick={() => setSelectedSubject(sub)}
-                  className={`font-mono boxy-pressable-sm`}
-                  style={{
-                    padding: "6px 12px",
-                    fontSize: "11px",
-                    fontWeight: 800,
-                    letterSpacing: "0.02em",
-                    border: "1.5px solid var(--color-border)",
-                    backgroundColor: isSelected ? "var(--color-text)" : "var(--color-surface)",
-                    color: isSelected ? "var(--color-surface)" : "var(--color-text)",
-                    cursor: "pointer",
-                    whiteSpace: "nowrap",
-                    boxShadow: isSelected ? "var(--shadow-boxy-xs)" : "none",
-                  }}
-                >
-                  {sub}
-                </button>
-              );
-            })}
           </div>
 
           {/* 6. Question Sets Stack */}
           <div style={{ display: "flex", flexDirection: "column", gap: "16px", marginTop: "4px" }}>
-            {filteredSets.map((item) => {
-              const badge = getSubjectBadge(item.subject);
+            {sets.map((item) => {
               const isCompleted = item.status === "completed";
               const isInProgress = item.status === "in_progress";
               const hasScore = isCompleted && item.score !== undefined && item.score !== null;
@@ -635,38 +566,16 @@ export function StudentDashboardView({
                     }}
                   >
                     <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                      <span
-                        className="font-mono"
-                        style={{
-                          fontSize: "11px",
-                          fontWeight: 800,
-                          padding: "3px 8px",
-                          backgroundColor: badge.bg,
-                          color: badge.text,
-                          border: "1px solid var(--color-border)",
-                          display: "inline-flex",
-                          alignItems: "center",
-                          gap: "5px",
-                        }}
-                      >
-                        <span
-                          style={{
-                            width: "5px",
-                            height: "5px",
-                            backgroundColor: badge.dot,
-                            borderRadius: "50%",
-                          }}
-                        />
-                        {item.subject.toUpperCase()}
-                      </span>
-
                       {item.grade && (
                         <span
                           className="font-mono"
                           style={{
-                            fontSize: "10.5px",
-                            fontWeight: 700,
-                            color: "var(--color-text-muted)",
+                            fontSize: "11px",
+                            fontWeight: 800,
+                            padding: "3px 8px",
+                            backgroundColor: "var(--color-surface-dim)",
+                            color: "var(--color-text)",
+                            border: "1px solid var(--color-border)",
                           }}
                         >
                           {item.grade}
@@ -830,7 +739,7 @@ export function StudentDashboardView({
               );
             })}
 
-            {filteredSets.length === 0 && (
+            {sets.length === 0 && (
               <div
                 className="boxy-card-flat"
                 style={{
@@ -844,7 +753,7 @@ export function StudentDashboardView({
                   TIDAK ADA SET SOAL
                 </p>
                 <p style={{ margin: 0, fontSize: "13px" }}>
-                  Belum ada set soal yang tersedia untuk kategori {selectedSubject}.
+                  Belum ada set soal yang tersedia saat ini.
                 </p>
               </div>
             )}

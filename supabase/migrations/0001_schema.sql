@@ -35,6 +35,7 @@ create table questions (
   correct_option int  not null,
   reasons        jsonb not null,
   correct_reason int  not null,
+  explanation    text,
   unique (set_id, position)
 );
 

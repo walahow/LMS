@@ -5,6 +5,15 @@ import { createPortal } from "react-dom";
 import Link from "next/link";
 import { ThemeToggler } from "@/components/ThemeToggler";
 import { ProfileDropdown } from "@/components/ProfileDropdown";
+import { ButtonLoadingBar } from "@/components/ButtonLoadingBar";
+import {
+  generateAIQuestionsAction,
+  createUserAction,
+  resetUserPasswordAction,
+  deleteUserAction,
+  togglePublishSetAction,
+  saveQuestionSetAction,
+} from "@/app/admin/dashboard/actions";
 import type { AdminProfile, AdminStats, AdminQuestionSet, AdminUser, AdminQuestion } from "@/lib/admin-data";
 
 type AdminDashboardViewProps = {
@@ -65,6 +74,8 @@ export function AdminDashboardView({
   const [roleFilter, setRoleFilter] = useState<UserRoleFilter>("semua");
   const [isAddingUser, setIsAddingUser] = useState(false);
   const [resetFeedbackId, setResetFeedbackId] = useState<string | null>(null);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+  const [isDeletingUserId, setIsDeletingUserId] = useState<string | null>(null);
 
   // New user form state
   const [newUserName, setNewUserName] = useState("");
@@ -81,8 +92,9 @@ export function AdminDashboardView({
   const [genSubject, setGenSubject] = useState("Fisika");
   const [genGrade, setGenGrade] = useState("Kelas 10");
   const [genDifficulty, setGenDifficulty] = useState<"mudah" | "sedang" | "sulit">("sedang");
-  const [genCount, setGenCount] = useState(5);
+  const [genCount, setGenCount] = useState<number | "">(5);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [genError, setGenError] = useState<string | null>(null);
   const [generatedPreview, setGeneratedPreview] = useState<{
     packTitle: string;
     indicator: string;
@@ -135,197 +147,184 @@ export function AdminDashboardView({
     });
   }, [users, userSearch, roleFilter]);
 
-  // Toggle publish status of a set
-  const handleTogglePublish = (id: string, e?: React.MouseEvent) => {
+  // Toggle publish status of a set with live Supabase persistence
+  const [togglingSetId, setTogglingSetId] = useState<string | null>(null);
+
+  const handleTogglePublish = async (id: string, e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
+    const targetSet = sets.find((s) => s.id === id);
+    if (!targetSet) return;
+    const nextPub = !targetSet.published;
+
+    setTogglingSetId(id);
+    // Optimistic UI update
     setSets((prev) =>
-      prev.map((s) => {
-        if (s.id === id) {
-          const nextPub = !s.published;
-          showToast(
-            nextPub
-              ? `Paket "${s.title}" berhasil diterbitkan ke siswa!`
-              : `Paket "${s.title}" dikembalikan menjadi draf.`
-          );
-          return { ...s, published: nextPub };
-        }
-        return s;
-      })
+      prev.map((s) => (s.id === id ? { ...s, published: nextPub } : s))
+    );
+
+    const res = await togglePublishSetAction({ setId: id, published: nextPub });
+    setTogglingSetId(null);
+
+    if (!res.success) {
+      // Revert on failure
+      setSets((prev) =>
+        prev.map((s) => (s.id === id ? { ...s, published: !nextPub } : s))
+      );
+      showToast(res.error || "Gagal mengubah status publikasi.");
+      return;
+    }
+
+    showToast(
+      nextPub
+        ? `Paket "${targetSet.title}" berhasil diterbitkan ke siswa!`
+        : `Paket "${targetSet.title}" dikembalikan menjadi draf.`
     );
   };
 
-  // Reset user password simulation
-  const handleResetPassword = (userId: string, userName: string) => {
+  // Reset user password with live Supabase auth update
+  const handleResetPassword = async (userId: string, userName: string) => {
     setResetFeedbackId(userId);
+    const res = await resetUserPasswordAction({ userId, newPassword: "password123" });
+    if (!res.success) {
+      showToast(res.error || `Gagal mereset kata sandi untuk ${userName}.`);
+      setResetFeedbackId(null);
+      return;
+    }
     showToast(`Kata sandi untuk ${userName} berhasil direset ke "password123".`);
     setTimeout(() => {
       setResetFeedbackId(null);
     }, 2500);
   };
 
-  // Add new user
-  const handleAddUser = (e: React.FormEvent) => {
+  // Delete user (students and teachers only)
+  const handleDeleteUser = async (userId: string, userName: string) => {
+    setIsDeletingUserId(userId);
+    const res = await deleteUserAction({ userId });
+    setIsDeletingUserId(null);
+    setConfirmDeleteId(null);
+
+    if (!res.success) {
+      showToast(res.error || `Gagal menghapus akun ${userName}.`);
+      return;
+    }
+
+    setUsers((prev) => prev.filter((u) => u.id !== userId));
+    showToast(`Akun "${userName}" berhasil dihapus dari sistem!`);
+  };
+
+  const [isSubmittingUser, setIsSubmittingUser] = useState(false);
+
+  // Add new user with live Supabase provisioning
+  const handleAddUser = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newUserName.trim() || !newUserEmail.trim()) return;
+    if (!newUserName.trim() || !newUserEmail.trim()) {
+      showToast("Nama lengkap dan email wajib diisi.");
+      return;
+    }
 
-    const parts = newUserName.trim().split(" ");
-    const initials =
-      parts.length > 1
-        ? `${parts[0][0]}${parts[1][0]}`.toUpperCase()
-        : newUserName.trim().slice(0, 2).toUpperCase();
-
-    const newUser: AdminUser = {
-      id: `usr-${Date.now()}`,
+    setIsSubmittingUser(true);
+    const res = await createUserAction({
       fullName: newUserName.trim(),
       email: newUserEmail.trim(),
       role: newUserRole,
       grade: newUserRole === "student" ? newUserGrade : undefined,
-      initials,
-      createdAt: "Hari ini",
-    };
+      password: newUserPassword || "password123",
+    });
+    setIsSubmittingUser(false);
 
-    setUsers([newUser, ...users]);
+    if (!res.success || !res.user) {
+      showToast(res.error || "Gagal menambahkan pengguna baru.");
+      return;
+    }
+
+    setUsers([res.user, ...users]);
     setNewUserName("");
     setNewUserEmail("");
     setIsAddingUser(false);
-    showToast(`Pengguna "${newUser.fullName}" berhasil ditambahkan!`);
+    showToast(`Pengguna "${res.user.fullName}" berhasil ditambahkan ke database!`);
   };
 
-  // AI Question Generator (Pure 100% Mock Mode for UI/UX Review)
-  const handleGenerateAI = (e: React.FormEvent) => {
+  // AI Question Generator (Calls real AI via Server Action, Session-Only)
+  const handleGenerateAI = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!genIndicator.trim() || !genTitle.trim()) return;
+    if (!genIndicator.trim() || !genTitle.trim()) {
+      const errorMsg = "Judul dan indikator pembelajaran wajib diisi.";
+      setGenError(errorMsg);
+      showToast(errorMsg);
+      return;
+    }
 
+    const countNum = typeof genCount === "number" ? genCount : parseInt(String(genCount), 10);
+    if (genCount === "" || isNaN(countNum) || countNum <= 0) {
+      const errorMsg = "Jumlah soal tidak boleh kosong atau 0. Silakan isi minimal 1 butir soal.";
+      setGenError(errorMsg);
+      showToast(errorMsg);
+      return;
+    }
+
+    setGenError(null);
     setIsGenerating(true);
 
-    setTimeout(() => {
-      setIsGenerating(false);
-
-      const title = genTitle.trim();
-      const subject = genSubject.trim() || "Fisika";
-      const sampleCount = Math.min(Math.max(genCount || 3, 1), 6);
-
-      const mockTemplates: AdminQuestion[] = [
-        {
-          id: `ai-q1-${Date.now()}`,
-          position: 1,
-          stem: `Pada materi ${subject} mengenai "${title}", bagaimana pengaruh perubahan variabel utama terhadap kondisi kesetimbangan benda saat diberikan perlakuan eksternal?`,
-          options: [
-            "Nilai variabel berbanding lurus dan melipatgandakan respons sistem secara proporsional",
-            "Sistem tetap mempertahankan kondisi inersia tanpa respons tambahan",
-            "Respons sistem berkurang drastis menjadi setengah dari semula",
-            "Tidak dapat ditentukan tanpa adanya konstanta empiris awal",
-          ],
-          correctOption: 0,
-          reasons: [
-            "Berdasarkan prinsip fundamental ilmiah, perubahan gaya berbanding lurus dengan percepatan pada kondisi batas ideal",
-            "Inersia benda selalu meniadakan gaya luar dalam segala kondisi",
-            "Gaya luar membutuhkan waktu penyesuaian fasa sebelum menggerakkan benda",
-            "Massa benda berubah secara spontan seiring bertambahnya percepatan",
-          ],
-          correctReason: 0,
-        },
-        {
-          id: `ai-q2-${Date.now()}`,
-          position: 2,
-          stem: `Dua sampel materi pada topik "${title}" dengan rasio besaran 1 : 2 menerima perlakuan yang identik. Manakah analisis perbandingan laju percepatan yang tepat?`,
-          options: [
-            "Sampel pertama mengalami laju percepatan dua kali lebih besar dari sampel kedua",
-            "Kedua sampel memiliki laju percepatan yang identik karena gaya sama",
-            "Sampel kedua bergerak lebih cepat karena memiliki inersia lebih tinggi",
-            "Kedua sampel langsung berhenti seketika akibat gaya gesek",
-          ],
-          correctOption: 0,
-          reasons: [
-            "Percepatan berbanding terbalik dengan massa (a = F / m), sehingga massa yang lebih kecil mengalami percepatan lebih besar",
-            "Gaya yang sama akan menghasilkan percepatan yang identik tanpa memandang massa",
-            "Massa yang lebih besar menyimpan energi kinetik potensial lebih banyak",
-            "Gaya luar langsung diserap oleh permukaan lantai tanpa menghasilkan gerak",
-          ],
-          correctReason: 0,
-        },
-        {
-          id: `ai-q3-${Date.now()}`,
-          position: 3,
-          stem: `Berdasarkan indikator pembelajaran "${genIndicator.trim()}", manakah pernyataan yang paling tepat mengenai pasangan aksi-reaksi timbal balik?`,
-          options: [
-            "Gaya tekan kontak benda ke lantai dan gaya normal reaksi lantai ke benda",
-            "Gaya berat benda dan gaya normal yang saling meniadakan dalam satu materi",
-            "Gaya gravitasi bumi dan gaya gesek statis lantai",
-            "Gaya dorong eksternal dan resultan gaya percepatan materi",
-          ],
-          correctOption: 0,
-          reasons: [
-            "Pasangan gaya aksi-reaksi selalu bekerja pada dua entitas berbeda dengan besar sama dan arah berlawanan",
-            "Gaya normal dan gaya berat berada pada benda yang sama sehingga merupakan pasangan aksi-reaksi",
-            "Hukum aksi-reaksi hanya berlaku saat benda bergerak dengan kecepatan konstan",
-            "Gaya reaksi muncul lebih lambat daripada gaya aksi yang mengenainya",
-          ],
-          correctReason: 0,
-        },
-        {
-          id: `ai-q4-${Date.now()}`,
-          position: 4,
-          stem: `Ketika parameter kontrol pada "${title}" ditingkatkan secara bertahap, bagaimanakah kurva dinamika respons sistem yang diobservasi?`,
-          options: [
-            "Kurva meningkat secara linear mengikuti gradien karakteristik sebelum mencapai saturasi",
-            "Kurva tetap mendatar sempurna karena sistem memiliki mekanisme kompensasi otomatis",
-            "Kurva langsung melonjak diskontinu tanpa melalui fase transisi",
-            "Kurva berfluktuasi secara acak tanpa pola keteraturan matematis",
-          ],
-          correctOption: 0,
-          reasons: [
-            "Respons sistem berakar pada hukum fisis linear hingga mencapai batas kapasitas kerja",
-            "Mekanisme kompensasi selalu mampu menahan segala jenis peningkatan input",
-            "Fluktuasi acak merupakan ciri utama seluruh sistem ilmiah dalam keadaan dinamis",
-            "Titik jenuh suatu sistem tidak dipengaruhi oleh parameter kontrol eksternal",
-          ],
-          correctReason: 0,
-        },
-        {
-          id: `ai-q5-${Date.now()}`,
-          position: 5,
-          stem: `Seorang siswa berpendapat bahwa pada "${title}", gaya/efek yang bekerja akan hilang seketika saat sumber perlakuan dihentikan. Bagaimanakah tinjauan konsep yang benar?`,
-          options: [
-            "Pendapat tersebut keliru; sistem tetap memiliki momentum/energi yang membutuhkan disipasi untuk berhenti",
-            "Pendapat tersebut tepat; tanpa adanya sumber luar maka kondisi sistem langsung kembali nol detik itu juga",
-            "Pendapat tersebut hanya benar untuk benda cair, sedangkan benda padat selalu bergerak selamanya",
-            "Semua sistem ilmiah tidak mematuhi hukum kekekalan saat perlakuan eksternal dihentikan",
-          ],
-          correctOption: 0,
-          reasons: [
-            "Kekekalan momentum dan energi mengharuskan adanya kerja/gaya disipatif untuk mereduksi energi kinetik sistem",
-            "Gaya selalu sebanding dengan kecepatan sesaat partikel materi dalam segala medium",
-            "Benda padat memiliki resistensi nol terhadap gaya gesek lingkungan",
-            "Energi kinetik dapat lenyap secara spontan tanpa perpindahan kalor atau kerja luar",
-          ],
-          correctReason: 0,
-        },
-      ];
-
-      const questionsToUse = mockTemplates.slice(0, sampleCount).map((q, idx) => ({
-        ...q,
-        position: idx + 1,
-      }));
-
-      setGeneratedPreview({
-        packTitle: title,
+    try {
+      const res = await generateAIQuestionsAction({
         indicator: genIndicator.trim(),
-        subject,
+        title: genTitle.trim(),
+        subject: genSubject.trim() || "Fisika",
         grade: genGrade,
-        questions: questionsToUse,
+        count: countNum,
+        difficulty: genDifficulty,
       });
 
-      showToast(`Berhasil menghasilkan ${questionsToUse.length} butir soal 3-tier!`);
-    }, 1200);
+      if (res.success && res.questions && res.questions.length > 0) {
+        setGeneratedPreview({
+          packTitle: genTitle.trim(),
+          indicator: genIndicator.trim(),
+          subject: genSubject.trim() || "Fisika",
+          grade: genGrade,
+          questions: res.questions,
+        });
+        showToast(`Berhasil menghasilkan ${res.questions.length} butir soal 3-tier!`);
+      } else {
+        const errorMsg = res.error || "Gagal membuat soal. Silakan coba beberapa saat lagi.";
+        setGenError(errorMsg);
+        showToast(errorMsg);
+      }
+    } catch {
+      const errorMsg = "Terjadi kendala koneksi ke layanan AI. Pastikan internet Anda aktif lalu coba kembali.";
+      setGenError(errorMsg);
+      showToast(errorMsg);
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
-  // Save generated preview as Draft or Published
-  const handleSaveGeneratedPack = (publishDirectly: boolean) => {
+  const [savingAction, setSavingAction] = useState<"draft" | "publish" | null>(null);
+  const isSavingSet = Boolean(savingAction);
+
+  // Save generated preview as Draft or Published with live Supabase persistence
+  const handleSaveGeneratedPack = async (publishDirectly: boolean) => {
     if (!generatedPreview) return;
 
+    setSavingAction(publishDirectly ? "publish" : "draft");
+    const res = await saveQuestionSetAction({
+      title: generatedPreview.packTitle,
+      indicator: generatedPreview.indicator,
+      subject: generatedPreview.subject,
+      grade: generatedPreview.grade,
+      difficulty: genDifficulty,
+      published: publishDirectly,
+      questions: generatedPreview.questions,
+    });
+    setSavingAction(null);
+
+    if (!res.success) {
+      showToast(res.error || "Gagal menyimpan paket soal ke database.");
+      return;
+    }
+
+    const savedId = res.setId || `pack-${Date.now()}`;
     const newSet: AdminQuestionSet = {
-      id: `pack-${Date.now()}`,
+      id: savedId,
       title: generatedPreview.packTitle,
       indicator: generatedPreview.indicator,
       subject: generatedPreview.subject,
@@ -337,14 +336,14 @@ export function AdminDashboardView({
       questions: generatedPreview.questions,
     };
 
-    setSets([newSet, ...sets]);
+    setSets((prev) => [newSet, ...prev]);
     setGeneratedPreview(null);
     setTabDirection("forward");
     setActiveTab("sets");
     showToast(
       publishDirectly
-        ? `Paket "${newSet.title}" berhasil diterbitkan dan masuk ke daftar!`
-        : `Paket "${newSet.title}" disimpan sebagai draf!`
+        ? `Paket "${newSet.title}" berhasil disimpan & diterbitkan ke database!`
+        : `Paket "${newSet.title}" berhasil disimpan sebagai draf di database!`
     );
   };
 
@@ -538,7 +537,7 @@ export function AdminDashboardView({
                 fontWeight: 800,
                 letterSpacing: "0.04em",
                 padding: "4px 8px",
-                backgroundColor: "rgba(255, 40, 0, 0.1)",
+                backgroundColor: "var(--color-accent-dim)",
                 borderColor: "var(--color-accent)",
                 color: "var(--color-accent)",
                 flexShrink: 0,
@@ -592,7 +591,7 @@ export function AdminDashboardView({
               </span>
             </div>
 
-            {/* Box 2: Diterbitkan (Ferrari Red Highlight) */}
+            {/* Box 2: Diterbitkan (Accent Highlight) */}
             <div
               style={{
                 border: "1.5px solid var(--color-border)",
@@ -1024,10 +1023,47 @@ export function AdminDashboardView({
                       min={1}
                       max={20}
                       value={genCount}
-                      onChange={(e) => setGenCount(Number(e.target.value))}
+                      placeholder="Contoh: 5"
+                      onKeyDown={(e) => {
+                        if (e.key === "e" || e.key === "E" || e.key === "+" || e.key === "-") {
+                          e.preventDefault();
+                        }
+                      }}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        if (val === "") {
+                          setGenCount("");
+                        } else {
+                          const parsed = parseInt(val, 10);
+                          setGenCount(isNaN(parsed) ? "" : parsed);
+                        }
+                      }}
                       className="boxy-input"
-                      style={{ fontSize: "13px" }}
+                      style={{
+                        fontSize: "13px",
+                        borderColor:
+                          genCount === "" || genCount <= 0 || genCount > 20
+                            ? "#E11D48"
+                            : undefined,
+                      }}
                     />
+                    {(genCount === "" || genCount <= 0 || genCount > 20) && (
+                      <span
+                        className="font-mono"
+                        style={{
+                          fontSize: "10.5px",
+                          fontWeight: 700,
+                          color: "#E11D48",
+                          marginTop: "2px",
+                        }}
+                      >
+                        {genCount === ""
+                          ? "⚠ Jumlah soal wajib diisi (min. 1 butir)."
+                          : genCount <= 0
+                          ? "⚠ Jumlah soal minimal 1 butir."
+                          : "⚠ Maksimal 20 butir soal."}
+                      </span>
+                    )}
                   </div>
                 </div>
 
@@ -1051,22 +1087,57 @@ export function AdminDashboardView({
                   </span>
                 </div>
 
+                {/* Error Feedback for Non-Power Users */}
+                {genError && (
+                  <div
+                    style={{
+                      padding: "10px 12px",
+                      border: "1.5px solid #E11D48",
+                      backgroundColor: "rgba(225, 29, 72, 0.08)",
+                      color: "#E11D48",
+                      fontSize: "12px",
+                      fontWeight: 600,
+                      lineHeight: 1.45,
+                      display: "flex",
+                      alignItems: "flex-start",
+                      gap: "8px",
+                    }}
+                  >
+                    <span style={{ fontWeight: 800 }}>⚠</span>
+                    <span>{genError}</span>
+                  </div>
+                )}
+
                 {/* Submit Button */}
                 <button
                   type="submit"
-                  disabled={isGenerating}
+                  disabled={isGenerating || genCount === "" || genCount <= 0 || genCount > 20}
                   className="boxy-pressable-md"
                   style={{
-                    backgroundColor: "var(--color-accent)",
-                    color: "var(--color-accent-contrast)",
+                    position: "relative",
+                    overflow: "hidden",
+                    backgroundColor:
+                      isGenerating || genCount === "" || genCount <= 0 || genCount > 20
+                        ? "var(--color-surface-dim)"
+                        : "var(--color-accent)",
+                    color:
+                      isGenerating || genCount === "" || genCount <= 0 || genCount > 20
+                        ? "var(--color-text-muted)"
+                        : "var(--color-accent-contrast)",
                     border: "2px solid var(--color-border)",
-                    boxShadow: "var(--shadow-boxy)",
+                    boxShadow:
+                      isGenerating || genCount === "" || genCount <= 0 || genCount > 20
+                        ? "none"
+                        : "var(--shadow-boxy)",
                     padding: "12px 18px",
                     fontSize: "13px",
                     fontWeight: 800,
                     fontFamily: "var(--font-mono), monospace",
                     letterSpacing: "0.04em",
-                    cursor: isGenerating ? "not-allowed" : "pointer",
+                    cursor:
+                      isGenerating || genCount === "" || genCount <= 0 || genCount > 20
+                        ? "not-allowed"
+                        : "pointer",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
@@ -1075,9 +1146,12 @@ export function AdminDashboardView({
                   }}
                 >
                   {isGenerating ? (
-                    <span className="font-mono" style={{ animation: "pulse 1s infinite" }}>
-                      [ MEMPROSES... ]
-                    </span>
+                    <>
+                      <span className="font-mono" style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>
+                        <span>✦ MEMPROSES SOAL DENGAN AI...</span>
+                      </span>
+                      <ButtonLoadingBar variant="contrast" height={4} />
+                    </>
                   ) : (
                     <>
                       <span>✦ BUAT SOAL DENGAN AI</span>
@@ -1266,6 +1340,44 @@ export function AdminDashboardView({
                           })}
                         </div>
                       </div>
+
+                      {/* Tier 1 & 2 Concept Explanation */}
+                      {q.explanation && (
+                        <div
+                          style={{
+                            padding: "8px 10px",
+                            backgroundColor: "var(--color-surface-dim)",
+                            border: "1.5px dashed var(--color-border)",
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: "3px",
+                          }}
+                        >
+                          <span
+                            className="font-mono"
+                            style={{
+                              fontSize: "10px",
+                              fontWeight: 800,
+                              color: "var(--color-accent)",
+                              display: "flex",
+                              alignItems: "center",
+                              gap: "4px",
+                            }}
+                          >
+                            💡 PENJELASAN KONSEP & ALASAN BENAR
+                          </span>
+                          <p
+                            style={{
+                              margin: 0,
+                              fontSize: "12px",
+                              lineHeight: 1.45,
+                              color: "var(--color-text)",
+                            }}
+                          >
+                            {q.explanation}
+                          </p>
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -1284,9 +1396,12 @@ export function AdminDashboardView({
                 >
                   <button
                     type="button"
+                    disabled={isSavingSet}
                     onClick={() => handleSaveGeneratedPack(false)}
                     className="boxy-pressable-sm"
                     style={{
+                      position: "relative",
+                      overflow: "hidden",
                       padding: "10px 16px",
                       border: "1.5px solid var(--color-border)",
                       backgroundColor: "var(--color-surface)",
@@ -1294,33 +1409,52 @@ export function AdminDashboardView({
                       fontWeight: 700,
                       fontSize: "12px",
                       fontFamily: "var(--font-mono), monospace",
-                      cursor: "pointer",
+                      cursor: isSavingSet ? "not-allowed" : "pointer",
+                      opacity: isSavingSet && savingAction !== "draft" ? 0.6 : 1,
                     }}
                   >
-                    SIMPAN SEBAGAI DRAF
+                    <span>
+                      {savingAction === "draft"
+                        ? "MENYIMPAN DRAF..."
+                        : "SIMPAN SEBAGAI DRAF"}
+                    </span>
+                    {savingAction === "draft" && (
+                      <ButtonLoadingBar variant="surface" height={3.5} />
+                    )}
                   </button>
 
                   <button
                     type="button"
+                    disabled={isSavingSet}
                     onClick={() => handleSaveGeneratedPack(true)}
                     className="boxy-pressable-md"
                     style={{
+                      position: "relative",
+                      overflow: "hidden",
                       padding: "10px 18px",
                       border: "2px solid var(--color-border)",
                       backgroundColor: "var(--color-accent)",
                       color: "var(--color-accent-contrast)",
-                      boxShadow: "var(--shadow-boxy-accent)",
+                      boxShadow: isSavingSet ? "none" : "var(--shadow-boxy-accent)",
                       fontWeight: 800,
                       fontSize: "12px",
                       fontFamily: "var(--font-mono), monospace",
-                      cursor: "pointer",
+                      cursor: isSavingSet ? "not-allowed" : "pointer",
+                      opacity: isSavingSet && savingAction !== "publish" ? 0.6 : 1,
                       display: "flex",
                       alignItems: "center",
                       gap: "6px",
                     }}
                   >
-                    <span>TERBITKAN KE SISWA</span>
-                    <span>➔</span>
+                    <span>
+                      {savingAction === "publish"
+                        ? "MENERBITKAN KE SISWA..."
+                        : "TERBITKAN KE SISWA"}
+                    </span>
+                    {savingAction !== "publish" && <span>➔</span>}
+                    {savingAction === "publish" && (
+                      <ButtonLoadingBar variant="contrast" height={3.5} />
+                    )}
                   </button>
                 </div>
               </section>
@@ -1531,9 +1665,12 @@ export function AdminDashboardView({
                         {/* 2. Publish/Draft Toggle Action */}
                         <button
                           type="button"
+                          disabled={togglingSetId === set.id}
                           onClick={(e) => handleTogglePublish(set.id, e)}
                           className="boxy-pressable-sm font-mono"
                           style={{
+                            position: "relative",
+                            overflow: "hidden",
                             padding: "7px 4px",
                             fontSize: "10.5px",
                             fontWeight: 700,
@@ -1544,7 +1681,7 @@ export function AdminDashboardView({
                             color: set.published
                               ? "var(--color-text)"
                               : "var(--color-accent-contrast)",
-                            cursor: "pointer",
+                            cursor: togglingSetId === set.id ? "not-allowed" : "pointer",
                             display: "flex",
                             alignItems: "center",
                             justifyContent: "center",
@@ -1553,7 +1690,19 @@ export function AdminDashboardView({
                             width: "100%",
                           }}
                         >
-                          {set.published ? "JADIKAN DRAF" : "TERBITKAN"}
+                          {togglingSetId === set.id ? (
+                            <>
+                              <span>{set.published ? "MENARIK..." : "MENERBITKAN..."}</span>
+                              <ButtonLoadingBar
+                                variant={set.published ? "surface" : "contrast"}
+                                height={3}
+                              />
+                            </>
+                          ) : set.published ? (
+                            "JADIKAN DRAF"
+                          ) : (
+                            "TERBITKAN"
+                          )}
                         </button>
 
                         {/* 3. Direct Link to Editor */}
@@ -1634,6 +1783,12 @@ export function AdminDashboardView({
                                 <span>
                                   <strong>Kunci Alasan:</strong> {String.fromCharCode(65 + q.correctReason)}. {q.reasons[q.correctReason]}
                                 </span>
+                                {q.explanation && (
+                                  <span style={{ marginTop: "3px", color: "var(--color-text)" }}>
+                                    <strong style={{ color: "var(--color-accent)" }}>💡 Konsep:</strong>{" "}
+                                    {q.explanation}
+                                  </span>
+                                )}
                               </div>
                             </div>
                           ))}
@@ -1969,7 +2124,7 @@ export function AdminDashboardView({
                                 : "var(--color-border)",
                             backgroundColor:
                               user.role === "admin"
-                                ? "rgba(255, 40, 0, 0.1)"
+                                ? "var(--color-accent-dim)"
                                 : "var(--color-bg)",
                             color:
                               user.role === "admin"
@@ -1984,28 +2139,97 @@ export function AdminDashboardView({
                             : "SISWA"}
                         </span>
 
-                        {/* Reset Password Action Button */}
-                        <button
-                          type="button"
-                          onClick={() => handleResetPassword(user.id, user.fullName)}
-                          className="boxy-pressable-sm font-mono"
-                          style={{
-                            padding: "5px 10px",
-                            fontSize: "10.5px",
-                            fontWeight: 700,
-                            border: isResetSuccess
-                              ? "1.5px solid #16A34A"
-                              : "1.5px solid var(--color-border)",
-                            backgroundColor: isResetSuccess
-                              ? "rgba(22, 163, 74, 0.15)"
-                              : "var(--color-surface)",
-                            color: isResetSuccess ? "#16A34A" : "var(--color-text)",
-                            cursor: "pointer",
-                            whiteSpace: "nowrap",
-                          }}
-                        >
-                          {isResetSuccess ? "✓ DIRESET" : "RESET KATA SANDI ↺"}
-                        </button>
+                        {/* Actions for student & teacher (admin cannot be reset or deleted) */}
+                        {user.role !== "admin" && (
+                          <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                            {confirmDeleteId === user.id ? (
+                              <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+                                <span className="font-mono" style={{ fontSize: "10px", fontWeight: 700, color: "#DC2626" }}>
+                                  HAPUS?
+                                </span>
+                                <button
+                                  type="button"
+                                  disabled={isDeletingUserId === user.id}
+                                  onClick={() => handleDeleteUser(user.id, user.fullName)}
+                                  className="boxy-pressable-sm font-mono"
+                                  style={{
+                                    padding: "4px 8px",
+                                    fontSize: "10px",
+                                    fontWeight: 800,
+                                    border: "1.5px solid #DC2626",
+                                    backgroundColor: "#DC2626",
+                                    color: "#FFFFFF",
+                                    cursor: isDeletingUserId === user.id ? "wait" : "pointer",
+                                    whiteSpace: "nowrap",
+                                  }}
+                                >
+                                  {isDeletingUserId === user.id ? "MENGHAPUS..." : "YA, HAPUS"}
+                                </button>
+                                <button
+                                  type="button"
+                                  disabled={isDeletingUserId === user.id}
+                                  onClick={() => setConfirmDeleteId(null)}
+                                  className="boxy-pressable-sm font-mono"
+                                  style={{
+                                    padding: "4px 8px",
+                                    fontSize: "10px",
+                                    fontWeight: 700,
+                                    border: "1.5px solid var(--color-border)",
+                                    backgroundColor: "var(--color-surface)",
+                                    color: "var(--color-text)",
+                                    cursor: "pointer",
+                                    whiteSpace: "nowrap",
+                                  }}
+                                >
+                                  BATAL
+                                </button>
+                              </div>
+                            ) : (
+                              <>
+                                <button
+                                  type="button"
+                                  onClick={() => handleResetPassword(user.id, user.fullName)}
+                                  className="boxy-pressable-sm font-mono"
+                                  style={{
+                                    padding: "5px 10px",
+                                    fontSize: "10.5px",
+                                    fontWeight: 700,
+                                    border: isResetSuccess
+                                      ? "1.5px solid #16A34A"
+                                      : "1.5px solid var(--color-border)",
+                                    backgroundColor: isResetSuccess
+                                      ? "rgba(22, 163, 74, 0.15)"
+                                      : "var(--color-surface)",
+                                    color: isResetSuccess ? "#16A34A" : "var(--color-text)",
+                                    cursor: "pointer",
+                                    whiteSpace: "nowrap",
+                                  }}
+                                >
+                                  {isResetSuccess ? "✓ DIRESET" : "RESET KATA SANDI ↺"}
+                                </button>
+
+                                <button
+                                  type="button"
+                                  onClick={() => setConfirmDeleteId(user.id)}
+                                  className="boxy-pressable-sm font-mono"
+                                  title={`Hapus akun ${user.fullName}`}
+                                  style={{
+                                    padding: "5px 8px",
+                                    fontSize: "10.5px",
+                                    fontWeight: 700,
+                                    border: "1.5px solid rgba(220, 38, 38, 0.4)",
+                                    backgroundColor: "var(--color-surface)",
+                                    color: "#DC2626",
+                                    cursor: "pointer",
+                                    whiteSpace: "nowrap",
+                                  }}
+                                >
+                                  HAPUS ✕
+                                </button>
+                              </>
+                            )}
+                          </div>
+                        )}
                       </div>
                     </article>
                   );

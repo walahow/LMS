@@ -2,6 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 import { requireRole } from "@/lib/auth";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { isSupabaseConfigured } from "@/lib/supabase/server";
 
 export type UpdateQuestionState = { error?: string; success?: boolean };
 
@@ -9,11 +11,10 @@ export async function updateQuestion(
   _prevState: UpdateQuestionState,
   formData: FormData,
 ): Promise<UpdateQuestionState> {
-  const { supabase } = await requireRole("admin");
-
   const questionId = String(formData.get("question_id") ?? "");
   const setId = String(formData.get("set_id") ?? "");
   const stem = String(formData.get("stem") ?? "").trim();
+  const explanation = String(formData.get("explanation") ?? "").trim();
   const options = [0, 1, 2, 3].map((i) => String(formData.get(`option_${i}`) ?? "").trim());
   const reasons = [0, 1, 2, 3].map((i) => String(formData.get(`reason_${i}`) ?? "").trim());
   const correctOption = Number(formData.get("correct_option"));
@@ -29,33 +30,59 @@ export async function updateQuestion(
     return { error: "Pilih opsi alasan yang benar." };
   }
 
-  const { error } = await supabase
-    .from("questions")
-    .update({
-      stem,
-      options,
-      reasons,
-      correct_option: correctOption,
-      correct_reason: correctReason,
-    })
-    .eq("id", questionId);
-
-  if (error) {
-    return { error: `Gagal menyimpan: ${error.message}` };
+  if (!isSupabaseConfigured()) {
+    return { success: true };
   }
 
-  revalidatePath(`/admin/sets/${setId}`);
-  return { success: true };
+  try {
+    await requireRole("admin");
+    const admin = createAdminClient();
+
+    const { error } = await admin
+      .from("questions")
+      .update({
+        stem,
+        options,
+        reasons,
+        correct_option: correctOption,
+        correct_reason: correctReason,
+        explanation: explanation || null,
+      })
+      .eq("id", questionId);
+
+    if (error) {
+      return { error: `Gagal menyimpan: ${error.message}` };
+    }
+
+    revalidatePath(`/admin/sets/${setId}`);
+    revalidatePath("/admin/dashboard");
+    return { success: true };
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err);
+    return { error: `Gagal menyimpan: ${msg}` };
+  }
 }
 
 export async function togglePublish(formData: FormData) {
-  const { supabase } = await requireRole("admin");
-
   const setId = String(formData.get("set_id") ?? "");
   const next = formData.get("next") === "true";
 
-  await supabase.from("question_sets").update({ published: next }).eq("id", setId);
+  if (!isSupabaseConfigured()) {
+    return;
+  }
 
-  revalidatePath(`/admin/sets/${setId}`);
-  revalidatePath("/admin/sets");
+  try {
+    await requireRole("admin");
+    const admin = createAdminClient();
+
+    await admin.from("question_sets").update({ published: next }).eq("id", setId);
+
+    revalidatePath(`/admin/sets/${setId}`);
+    revalidatePath("/admin/sets");
+    revalidatePath("/admin/dashboard");
+    revalidatePath("/dashboard");
+    revalidatePath("/teacher/dashboard");
+  } catch (err) {
+    console.error("[togglePublish] error:", err);
+  }
 }

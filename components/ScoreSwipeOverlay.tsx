@@ -17,6 +17,7 @@ export type ScoreSwipeOverlayProps = {
   totalQuestions: number;
   onClose: () => void;
   onReview?: () => void;
+  submitError?: string | null;
 };
 
 export function ScoreSwipeOverlay({
@@ -26,6 +27,7 @@ export function ScoreSwipeOverlay({
   totalQuestions,
   onClose,
   onReview,
+  submitError,
 }: ScoreSwipeOverlayProps) {
   const [isRendered, setIsRendered] = useState(isOpen);
   const [swipedIn, setSwipedIn] = useState(false);
@@ -218,6 +220,25 @@ export function ScoreSwipeOverlay({
           >
             BERDASARKAN TES 3-TIER (JAWABAN + ALASAN + KEYAKINAN)
           </span>
+
+          {submitError && (
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", marginTop: "8px" }}>
+              <span
+                className="font-mono"
+                style={{
+                  fontSize: "11px",
+                  padding: "4px 10px",
+                  backgroundColor: "var(--color-accent-dim)",
+                  color: "var(--color-accent)",
+                  border: "1px solid var(--color-accent)",
+                  fontWeight: 800,
+                  letterSpacing: "0.02em",
+                }}
+              >
+                ⚠ {submitError}
+              </span>
+            </div>
+          )}
         </div>
 
         {/* Diagnostic Breakdown Matrix */}

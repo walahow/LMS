@@ -1,4 +1,5 @@
 import { cookies } from "next/headers";
+import { isSupabaseConfigured } from "@/lib/supabase/server";
 // lib/admin-data.ts - Mock and server data helpers for Admin Unified Hub
 
 export type AdminProfile = {
@@ -22,6 +23,7 @@ export type AdminQuestion = {
   correctOption: number;
   reasons: string[];
   correctReason: number;
+  explanation?: string;
 };
 
 export type AdminQuestionSet = {
@@ -67,7 +69,7 @@ export const MOCK_ADMIN_PROFILE: AdminProfile = {
   fullName: "Pak Andi Kurniawan",
   email: "admin@lms.local",
   role: "admin",
-  initials: "AK",
+  initials: "AD",
 };
 
 export const MOCK_ADMIN_SETS: AdminQuestionSet[] = [
@@ -469,13 +471,13 @@ export const MOCK_ADMIN_SETS: AdminQuestionSet[] = [
 
 export const MOCK_ADMIN_USERS: AdminUser[] = [
   // Admin
-  { id: "adm-01", fullName: "Pak Andi Kurniawan", email: "admin@lms.local", role: "admin", initials: "AK", createdAt: "01 Sep 2026" },
+  { id: "adm-01", fullName: "Albus Dumbledore", email: "admin@lms.local", role: "admin", initials: "AD", createdAt: "01 Sep 2026" },
   // Teachers (3)
-  { id: "tch-01", fullName: "Bu Sari Wulandari, M.Pd.", email: "teacher@lms.local", role: "teacher", initials: "SW", createdAt: "02 Sep 2026" },
+  { id: "tch-01", fullName: "Severus Snape", email: "teacher@lms.local", role: "teacher", initials: "SS", createdAt: "02 Sep 2026" },
   { id: "tch-02", fullName: "Drs. Bambang Sudiro", email: "bambang@lms.local", role: "teacher", initials: "BS", createdAt: "03 Sep 2026" },
   { id: "tch-03", fullName: "Dewi Lestari, S.Pd.", email: "dewi@lms.local", role: "teacher", initials: "DL", createdAt: "05 Sep 2026" },
   // Students (28)
-  { id: "std-01", fullName: "Rani Putri", email: "rani@lms.local", role: "student", grade: "Kelas X-A", initials: "RP", createdAt: "10 Sep 2026" },
+  { id: "std-01", fullName: "Hermione Granger", email: "student@lms.local", role: "student", grade: "Kelas X-A", initials: "HG", createdAt: "10 Sep 2026" },
   { id: "std-02", fullName: "Budi Santoso", email: "budi@lms.local", role: "student", grade: "Kelas X-A", initials: "BS", createdAt: "10 Sep 2026" },
   { id: "std-03", fullName: "Siti Rahma", email: "siti@lms.local", role: "student", grade: "Kelas X-B", initials: "SR", createdAt: "10 Sep 2026" },
   { id: "std-04", fullName: "Dimas Pratama", email: "dimas@lms.local", role: "student", grade: "Kelas X-B", initials: "DP", createdAt: "10 Sep 2026" },
@@ -535,65 +537,106 @@ export async function fetchAdminData(): Promise<{
   questionSets: AdminQuestionSet[];
   users: AdminUser[];
 }> {
-  const stats = calculateAdminStats(MOCK_ADMIN_SETS, MOCK_ADMIN_USERS);
-  return {
-    profile: MOCK_ADMIN_PROFILE,
-    stats,
-    questionSets: MOCK_ADMIN_SETS,
-    users: MOCK_ADMIN_USERS,
-  };
+  if (!isSupabaseConfigured()) {
+    const stats = calculateAdminStats(MOCK_ADMIN_SETS, MOCK_ADMIN_USERS);
+    return {
+      profile: MOCK_ADMIN_PROFILE,
+      stats,
+      questionSets: MOCK_ADMIN_SETS,
+      users: MOCK_ADMIN_USERS,
+    };
+  }
 
   try {
     const { requireRole } = await import("@/lib/auth");
     const { createAdminClient } = await import("@/lib/supabase/admin");
-    const { profile } = await requireRole("admin");
+    const { profile, user } = await requireRole("admin");
     const admin = createAdminClient();
 
-    const [{ data: dbSets }, { data: dbProfiles }, { data: authUsers }] = await Promise.all([
+    const [setsRes, profilesRes, authUsersRes] = await Promise.all([
       admin
         .from("question_sets")
-        .select("id, title, indicator, subject, grade, published, created_at")
+        .select("id, title, indicator, subject, grade, published, created_at, questions(id, position, stem, options, reasons, correct_option, correct_reason, explanation)")
         .order("created_at", { ascending: false }),
       admin.from("profiles").select("id, role, full_name, created_at").order("full_name"),
-      admin.auth.admin.listUsers({ perPage: 200 }),
+      admin.auth.admin.listUsers({ perPage: 1000 }),
     ]);
 
-    const emailById = new Map(authUsers?.users.map((u) => [u.id, u.email ?? ""]));
+    const dbSets: any[] = setsRes.data ?? [];
+    const dbProfiles: any[] = profilesRes.data ?? [];
+    const authUsers = authUsersRes.data;
 
-    const sets: AdminQuestionSet[] = (dbSets ?? []).map((s) => ({
-      id: s.id,
-      title: s.title,
-      indicator: s.indicator,
-      subject: s.subject || "Umum",
-      grade: s.grade || "Semua",
-      difficulty: "sedang",
-      published: Boolean(s.published),
-      questionCount: 0,
-      createdAt: s.created_at ? new Date(s.created_at).toLocaleDateString("id-ID") : "Baru saja",
-    }));
+    const emailById = new Map((authUsers?.users || []).map((u) => [u.id, u.email ?? ""]));
+    const metaById = new Map((authUsers?.users || []).map((u) => [u.id, u.user_metadata || {}]));
 
-    const users: AdminUser[] = (dbProfiles ?? []).map((p) => {
+    const sets: AdminQuestionSet[] = dbSets.map((s: any) => {
+      const rawQs = ((s.questions as any[]) || []).sort((a: any, b: any) => a.position - b.position);
+      const questions: AdminQuestion[] = rawQs.map((q: any) => ({
+        id: q.id,
+        position: q.position,
+        stem: q.stem,
+        options: q.options as string[],
+        correctOption: q.correct_option,
+        reasons: q.reasons as string[],
+        correctReason: q.correct_reason,
+        explanation: q.explanation || "",
+      }));
+
+      return {
+        id: s.id,
+        title: s.title,
+        indicator: s.indicator,
+        subject: s.subject || "Fisika",
+        grade: s.grade || "Kelas 10",
+        difficulty: "sedang",
+        published: Boolean(s.published),
+        questionCount: questions.length,
+        createdAt: s.created_at
+          ? new Date(s.created_at).toLocaleDateString("id-ID", {
+              day: "numeric",
+              month: "short",
+              year: "numeric",
+            })
+          : "Baru saja",
+        questions,
+      };
+    });
+
+    const users: AdminUser[] = dbProfiles.map((p: any) => {
       const parts = (p.full_name || "Pengguna").split(" ");
       const initials = parts.length > 1
         ? `${parts[0][0]}${parts[1][0]}`.toUpperCase()
         : (parts[0].slice(0, 2) || "US").toUpperCase();
+      const meta = metaById.get(p.id) || {};
 
       return {
         id: p.id,
         fullName: p.full_name,
         email: emailById.get(p.id) || "user@lms.local",
         role: p.role,
+        grade: meta.grade || (p.role === "student" ? "Kelas X-A" : undefined),
         initials,
-        createdAt: p.created_at ? new Date(p.created_at).toLocaleDateString("id-ID") : "10 Sep 2026",
+        createdAt: p.created_at
+          ? new Date(p.created_at).toLocaleDateString("id-ID", {
+              day: "numeric",
+              month: "short",
+              year: "numeric",
+            })
+          : "10 Sep 2026",
       };
     });
+
+    const adminParts = (profile.full_name || "Admin").split(" ");
+    const adminInitials = adminParts.length > 1
+      ? `${adminParts[0][0]}${adminParts[1][0]}`.toUpperCase()
+      : (adminParts[0].slice(0, 2) || "AD").toUpperCase();
 
     const adminProfile: AdminProfile = {
       id: profile.id,
       fullName: profile.full_name,
-      email: "admin@lms.local",
+      email: user.email || "admin@lms.local",
       role: "admin",
-      initials: "AK",
+      initials: adminInitials,
     };
 
     return {
@@ -615,6 +658,60 @@ export async function fetchAdminData(): Promise<{
 }
 
 export async function fetchAdminSetDetail(id: string): Promise<AdminQuestionSet | null> {
-  const mock = MOCK_ADMIN_SETS.find((s) => s.id === id);
-  return mock || MOCK_ADMIN_SETS[0];
+  if (!isSupabaseConfigured()) {
+    const mock = MOCK_ADMIN_SETS.find((s) => s.id === id);
+    return mock || MOCK_ADMIN_SETS[0];
+  }
+
+  try {
+    const { createAdminClient } = await import("@/lib/supabase/admin");
+    const admin = createAdminClient();
+
+    const res = await admin
+      .from("question_sets")
+      .select("id, title, indicator, subject, grade, published, created_at, questions(id, position, stem, options, reasons, correct_option, correct_reason, explanation)")
+      .eq("id", id)
+      .single();
+
+    const s: any = res.data;
+    if (res.error || !s) {
+      const mock = MOCK_ADMIN_SETS.find((set) => set.id === id);
+      return mock || null;
+    }
+
+    const rawQuestions = ((s.questions as any[]) || []).sort((a: any, b: any) => a.position - b.position);
+    const questions: AdminQuestion[] = rawQuestions.map((q: any) => ({
+      id: q.id,
+      position: q.position,
+      stem: q.stem,
+      options: q.options as string[],
+      correctOption: q.correct_option,
+      reasons: q.reasons as string[],
+      correctReason: q.correct_reason,
+      explanation: q.explanation || "",
+    }));
+
+    return {
+      id: s.id,
+      title: s.title,
+      indicator: s.indicator,
+      subject: s.subject || "Fisika",
+      grade: s.grade || "Kelas 10",
+      difficulty: "sedang",
+      published: Boolean(s.published),
+      questionCount: questions.length,
+      createdAt: s.created_at
+        ? new Date(s.created_at).toLocaleDateString("id-ID", {
+            day: "numeric",
+            month: "short",
+            year: "numeric",
+          })
+        : "Baru saja",
+      questions,
+    };
+  } catch (error) {
+    console.warn("fetchAdminSetDetail falling back to mock:", error);
+    const mock = MOCK_ADMIN_SETS.find((set) => set.id === id);
+    return mock || MOCK_ADMIN_SETS[0];
+  }
 }

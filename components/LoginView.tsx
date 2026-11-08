@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useState, useActionState } from "react";
-import Link from "next/link";
 import { signIn, type LoginState } from "@/app/(auth)/login/actions";
+import { ButtonLoadingBar } from "@/components/ButtonLoadingBar";
 
 const initialState: LoginState = {};
 
@@ -11,22 +11,6 @@ export function LoginView() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [selectedDemoRole, setSelectedDemoRole] = useState<string | null>(null);
-
-  // Quick fill demo credentials
-  const fillDemoAccount = (role: "student" | "teacher" | "admin") => {
-    setSelectedDemoRole(role);
-    if (role === "student") {
-      setEmail("rani@lms.local");
-      setPassword("password123");
-    } else if (role === "teacher") {
-      setEmail("teacher@lms.local");
-      setPassword("password123");
-    } else if (role === "admin") {
-      setEmail("admin@lms.local");
-      setPassword("password123");
-    }
-  };
 
   return (
     <div
@@ -158,8 +142,7 @@ export function LoginView() {
             </p>
           </div>
 
-          <form action={formAction} style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-            <input type="hidden" name="demoRole" value={selectedDemoRole ?? ""} />
+          <form action={formAction} style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
             {/* Email Field */}
             <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
               <label
@@ -176,58 +159,91 @@ export function LoginView() {
                 required
                 autoComplete="username"
                 value={email}
-                onChange={(e) => {
-                  setEmail(e.target.value);
-                  setSelectedDemoRole(null);
-                }}
+                onChange={(e) => setEmail(e.target.value)}
                 placeholder="nama@sekolah.sch.id"
                 className="boxy-input"
                 style={{ fontSize: "13px" }}
               />
             </div>
 
-            {/* Password Field */}
+            {/* Password Field with Integrated Addon Group */}
             <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                <label
-                  htmlFor="password"
-                  className="font-mono"
-                  style={{ fontSize: "11px", fontWeight: 700, color: "var(--color-text)" }}
-                >
-                  KATA SANDI *
-                </label>
+              <label
+                htmlFor="password"
+                className="font-mono"
+                style={{ fontSize: "11px", fontWeight: 700, color: "var(--color-text)" }}
+              >
+                KATA SANDI *
+              </label>
+
+              {/* Integrated Input Group */}
+              <div className="boxy-input-group">
+                <input
+                  id="password"
+                  name="password"
+                  type={showPassword ? "text" : "password"}
+                  required
+                  autoComplete="current-password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder={showPassword ? "Masukkan password..." : "••••••••"}
+                  style={{
+                    flex: 1,
+                    minWidth: 0,
+                    padding: "10px 12px",
+                    fontSize: "13px",
+                    background: "transparent",
+                    border: "none",
+                    outline: "none",
+                    color: "var(--color-text)",
+                    fontFamily: "inherit",
+                    letterSpacing: showPassword ? "normal" : "0.18em",
+                  }}
+                />
+
+                {/* Clean Eye Icon Toggle with Animated Top-Left to Bottom-Right Slash */}
                 <button
                   type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="font-mono"
-                  style={{
-                    background: "none",
-                    border: "none",
-                    fontSize: "10.5px",
-                    fontWeight: 700,
-                    color: "var(--color-text-muted)",
-                    cursor: "pointer",
-                    padding: 0,
-                  }}
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  className={`password-toggle-btn ${showPassword ? "is-active" : ""}`}
+                  title={showPassword ? "Sembunyikan kata sandi" : "Tampilkan kata sandi"}
+                  aria-label={showPassword ? "Sembunyikan kata sandi" : "Tampilkan kata sandi"}
                 >
-                  {showPassword ? "SEMBUNYIKAN 👁" : "LIHAT 👁"}
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="eye-icon"
+                    aria-hidden="true"
+                  >
+                    {/* Eye Contour */}
+                    <path
+                      d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"
+                      className="eye-contour"
+                    />
+                    {/* Inner Eye (Pupil) - always visible */}
+                    <circle
+                      cx="12"
+                      cy="12"
+                      r="3"
+                      className="eye-pupil"
+                    />
+                    {/* Diagonal slash: draws from top-left (3, 3) to bottom-right (21, 21) */}
+                    <line
+                      x1="3"
+                      y1="3"
+                      x2="21"
+                      y2="21"
+                      className={`eye-slash ${showPassword ? "is-retracted" : ""}`}
+                    />
+                  </svg>
                 </button>
               </div>
-              <input
-                id="password"
-                name="password"
-                type={showPassword ? "text" : "password"}
-                required
-                autoComplete="current-password"
-                value={password}
-                onChange={(e) => {
-                  setPassword(e.target.value);
-                  setSelectedDemoRole(null);
-                }}
-                placeholder="••••••••"
-                className="boxy-input"
-                style={{ fontSize: "13px" }}
-              />
             </div>
 
             {/* Error Banner */}
@@ -236,7 +252,7 @@ export function LoginView() {
                 style={{
                   padding: "8px 12px",
                   border: "1.5px solid var(--color-accent)",
-                  backgroundColor: "rgba(255, 40, 0, 0.08)",
+                  backgroundColor: "var(--color-accent-dim)",
                   color: "var(--color-accent)",
                   fontSize: "12px",
                   fontWeight: 600,
@@ -246,18 +262,14 @@ export function LoginView() {
               </div>
             )}
 
-            {/* Submit Button */}
+            {/* Submit Button with Blue Dither Pattern */}
             <button
               type="submit"
               disabled={pending}
-              className="boxy-pressable-md font-mono"
+              className="boxy-btn-dither-accent font-mono"
               style={{
-                marginTop: "6px",
+                marginTop: "4px",
                 padding: "13px 18px",
-                backgroundColor: "var(--color-accent)",
-                color: "var(--color-accent-contrast)",
-                border: "2px solid var(--color-border)",
-                boxShadow: "var(--shadow-boxy)",
                 fontWeight: 800,
                 fontSize: "13px",
                 cursor: pending ? "not-allowed" : "pointer",
@@ -268,121 +280,27 @@ export function LoginView() {
                 opacity: pending ? 0.75 : 1,
               }}
             >
-              <span>{pending ? "MEMPROSES MASUK..." : "MASUK KE SISTEM"}</span>
-              <span>➔</span>
+              {/* Gradual Right-to-Left Fading Blue Dither Pattern (HYDE style) */}
+              <div
+                className="dither-fade-right-accent"
+                style={{
+                  width: "85%",
+                  opacity: 0.72,
+                  transition: "opacity 0.15s ease",
+                }}
+                aria-hidden="true"
+              />
+
+              <span style={{ position: "relative", zIndex: 1, letterSpacing: "0.06em" }}>
+                {pending ? "LOGGING IN..." : "LOG IN"}
+              </span>
+              <span style={{ position: "relative", zIndex: 1 }}>➔</span>
+              {pending && <ButtonLoadingBar variant="contrast" height={3.5} />}
             </button>
           </form>
         </section>
 
-        {/* 3. Quick 1-Click Demo Account Shortcuts */}
-        <section
-          className="boxy-card-flat"
-          style={{
-            padding: "14px 16px",
-            display: "flex",
-            flexDirection: "column",
-            gap: "8px",
-          }}
-        >
-          <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-            <span
-              style={{
-                width: "6px",
-                height: "6px",
-                backgroundColor: "var(--color-accent)",
-                display: "inline-block",
-              }}
-            />
-            <span
-              className="font-mono"
-              style={{
-                fontSize: "10.5px",
-                fontWeight: 800,
-                letterSpacing: "0.06em",
-                color: "var(--color-text-muted)",
-                textTransform: "uppercase",
-              }}
-            >
-              AKUN DEMO CEPAT (1-KLIK)
-            </span>
-          </div>
-
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(3, 1fr)",
-              gap: "6px",
-            }}
-          >
-            {/* Student Shortcut */}
-            <Link
-              href="/dashboard"
-              className="boxy-pressable-sm font-mono"
-              style={{
-                padding: "10px 4px",
-                fontSize: "11px",
-                fontWeight: 800,
-                border: "1.5px solid var(--color-border)",
-                backgroundColor: "var(--color-surface)",
-                color: "var(--color-text)",
-                textDecoration: "none",
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                gap: "3px",
-              }}
-            >
-              <span style={{ fontSize: "16px" }}>🎓</span>
-              <span>SISWA ➔</span>
-            </Link>
-
-            {/* Teacher Shortcut */}
-            <Link
-              href="/teacher/dashboard"
-              className="boxy-pressable-sm font-mono"
-              style={{
-                padding: "10px 4px",
-                fontSize: "11px",
-                fontWeight: 800,
-                border: "1.5px solid var(--color-border)",
-                backgroundColor: "var(--color-surface)",
-                color: "var(--color-text)",
-                textDecoration: "none",
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                gap: "3px",
-              }}
-            >
-              <span style={{ fontSize: "16px" }}>👩‍🏫</span>
-              <span>GURU ➔</span>
-            </Link>
-
-            {/* Admin Shortcut */}
-            <Link
-              href="/admin/dashboard"
-              className="boxy-pressable-sm font-mono"
-              style={{
-                padding: "10px 4px",
-                fontSize: "11px",
-                fontWeight: 800,
-                border: "1.5px solid var(--color-border)",
-                backgroundColor: "var(--color-surface)",
-                color: "var(--color-text)",
-                textDecoration: "none",
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                gap: "3px",
-              }}
-            >
-              <span style={{ fontSize: "16px" }}>⚙</span>
-              <span>ADMIN ➔</span>
-            </Link>
-          </div>
-        </section>
-
-        {/* 4. Policy Callout */}
+        {/* 3. Policy Callout */}
         <div
           style={{
             padding: "10px 14px",
@@ -402,7 +320,7 @@ export function LoginView() {
           </span>
         </div>
 
-        {/* 5. Footer */}
+        {/* 4. Footer */}
         <p
           className="font-mono"
           style={{

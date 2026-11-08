@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useActionState } from "react";
+import React, { useActionState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { ThemeToggler } from "@/components/ThemeToggler";
 import { changePassword, signOut, type ChangePasswordState } from "@/lib/auth-actions";
+import { BoxyPasswordInput } from "@/components/BoxyPasswordInput";
 
 export type AdminProfileData = {
   fullName: string;
@@ -16,6 +17,14 @@ const initialPasswordState: ChangePasswordState = {};
 
 export function AdminProfileView({ profile }: { profile: AdminProfileData }) {
   const [state, formAction, pending] = useActionState(changePassword, initialPasswordState);
+  const formRef = useRef<HTMLFormElement>(null);
+
+  // Bersihkan form input secara otomatis saat kata sandi berhasil diperbarui
+  useEffect(() => {
+    if (state.success) {
+      formRef.current?.reset();
+    }
+  }, [state.success]);
 
   return (
     <div
@@ -162,7 +171,7 @@ export function AdminProfileView({ profile }: { profile: AdminProfileData }) {
                 style={{
                   fontSize: "10.5px",
                   borderColor: "var(--color-accent)",
-                  backgroundColor: "rgba(255, 40, 0, 0.1)",
+                  backgroundColor: "var(--color-accent-dim)",
                   color: "var(--color-accent)",
                 }}
               >
@@ -228,79 +237,77 @@ export function AdminProfileView({ profile }: { profile: AdminProfileData }) {
           </div>
 
           {/* Form */}
-          <form action={formAction} style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-            <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
-              <label
-                htmlFor="password"
-                className="font-mono"
-                style={{
-                  fontSize: "11px",
-                  fontWeight: 700,
-                  letterSpacing: "0.04em",
-                  color: "var(--color-text)",
-                }}
-              >
-                KATA SANDI BARU
-              </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                required
-                minLength={8}
-                placeholder="Minimal 8 karakter"
-                className="boxy-input"
-                style={{
-                  fontSize: "13px",
-                  padding: "10px 12px",
-                }}
-              />
-            </div>
-
-            {/* Error & Success Feedback */}
+          <form ref={formRef} action={formAction} style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+            {/* Error Feedback */}
             {state?.error && (
               <div
+                className="font-mono"
                 style={{
-                  padding: "8px 12px",
+                  padding: "9px 12px",
                   border: "1.5px solid var(--color-accent)",
-                  backgroundColor: "rgba(255, 40, 0, 0.08)",
+                  backgroundColor: "var(--color-accent-dim)",
                   color: "var(--color-accent)",
                   fontSize: "12px",
-                  fontWeight: 600,
+                  fontWeight: 700,
+                  lineHeight: 1.45,
                 }}
               >
-                {state.error}
+                ⚠ {state.error}
               </div>
             )}
 
+            {/* Success Feedback */}
             {state?.success && (
               <div
+                className="font-mono"
                 style={{
-                  padding: "8px 12px",
+                  padding: "9px 12px",
                   border: "1.5px solid #16A34A",
                   backgroundColor: "rgba(22, 163, 74, 0.08)",
                   color: "#16A34A",
                   fontSize: "12px",
                   fontWeight: 700,
+                  lineHeight: 1.45,
                 }}
               >
-                ✓ Kata sandi berhasil diperbarui!
+                ✓ {state.message || "Kata sandi berhasil diperbarui!"}
               </div>
             )}
+
+            {/* New Password with Show Password Toggle */}
+            <BoxyPasswordInput
+              id="adminNewPassword"
+              name="password"
+              label="KATA SANDI BARU"
+              autoComplete="new-password"
+              minLength={8}
+              required
+              placeholder="Minimal 8 karakter"
+            />
+
+            {/* Confirm Password with Show Password Toggle */}
+            <BoxyPasswordInput
+              id="adminConfirmPassword"
+              name="confirm"
+              label="KONFIRMASI KATA SANDI"
+              autoComplete="new-password"
+              minLength={8}
+              required
+              placeholder="Ulangi kata sandi baru"
+            />
 
             <button
               type="submit"
               disabled={pending}
-              className="boxy-pressable-sm font-mono"
+              className="boxy-pressable-sm font-mono boxy-btn boxy-btn-accent"
               style={{
                 marginTop: "4px",
-                padding: "11px 16px",
-                backgroundColor: "var(--color-surface)",
-                color: "var(--color-text)",
-                border: "1.5px solid var(--color-border)",
-                fontWeight: 800,
-                fontSize: "12px",
-                cursor: pending ? "not-allowed" : "pointer",
+                width: "100%",
+                height: "44px",
+                fontWeight: 900,
+                fontSize: "12.5px",
+                letterSpacing: "0.04em",
+                cursor: pending ? "wait" : "pointer",
                 display: "inline-flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -346,7 +353,7 @@ export function AdminProfileView({ profile }: { profile: AdminProfileData }) {
               style={{
                 padding: "8px 14px",
                 border: "1.5px solid var(--color-accent)",
-                backgroundColor: "rgba(255, 40, 0, 0.08)",
+                backgroundColor: "var(--color-accent-dim)",
                 color: "var(--color-accent)",
                 fontSize: "11.5px",
                 fontWeight: 800,

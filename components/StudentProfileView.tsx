@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useActionState } from "react";
+import React, { useActionState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { ThemeToggler } from "@/components/ThemeToggler";
 import { changePassword, signOut, type ChangePasswordState } from "@/lib/auth-actions";
+import { BoxyPasswordInput } from "@/components/BoxyPasswordInput";
 
 export type StudentProfileData = {
   fullName: string;
@@ -16,6 +17,14 @@ const initialPasswordState: ChangePasswordState = {};
 
 export function StudentProfileView({ profile }: { profile: StudentProfileData }) {
   const [state, formAction, pending] = useActionState(changePassword, initialPasswordState);
+  const formRef = useRef<HTMLFormElement>(null);
+
+  // Bersihkan form input secara otomatis saat kata sandi berhasil diperbarui
+  useEffect(() => {
+    if (state.success) {
+      formRef.current?.reset();
+    }
+  }, [state.success]);
 
   return (
     <div
@@ -214,87 +223,61 @@ export function StudentProfileView({ profile }: { profile: StudentProfileData })
             </h2>
           </div>
 
-          <form action={formAction} style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
-            {/* New Password */}
-            <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-              <label
-                htmlFor="password"
-                className="font-mono"
-                style={{
-                  fontSize: "11px",
-                  fontWeight: 800,
-                  letterSpacing: "0.03em",
-                  color: "var(--color-text)",
-                }}
-              >
-                KATA SANDI BARU
-              </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="new-password"
-                minLength={8}
-                required
-                placeholder="Minimal 8 karakter"
-                className="boxy-input"
-              />
-            </div>
+          <form ref={formRef} action={formAction} style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+            {/* New Password with Show Password Toggle */}
+            <BoxyPasswordInput
+              id="password"
+              name="password"
+              label="KATA SANDI BARU"
+              autoComplete="new-password"
+              minLength={8}
+              required
+              placeholder="Minimal 8 karakter"
+            />
 
-            {/* Confirm Password */}
-            <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-              <label
-                htmlFor="confirm"
-                className="font-mono"
-                style={{
-                  fontSize: "11px",
-                  fontWeight: 800,
-                  letterSpacing: "0.03em",
-                  color: "var(--color-text)",
-                }}
-              >
-                KONFIRMASI KATA SANDI
-              </label>
-              <input
-                id="confirm"
-                name="confirm"
-                type="password"
-                autoComplete="new-password"
-                minLength={8}
-                required
-                placeholder="Ulangi kata sandi baru"
-                className="boxy-input"
-              />
-            </div>
+            {/* Confirm Password with Show Password Toggle */}
+            <BoxyPasswordInput
+              id="confirm"
+              name="confirm"
+              label="KONFIRMASI KATA SANDI"
+              autoComplete="new-password"
+              minLength={8}
+              required
+              placeholder="Ulangi kata sandi baru"
+            />
 
             {/* Status alerts */}
             {state.error && (
               <div
+                className="font-mono"
                 style={{
-                  padding: "8px 12px",
-                  backgroundColor: "rgba(255, 40, 0, 0.08)",
+                  padding: "9px 12px",
+                  backgroundColor: "var(--color-accent-dim)",
                   border: "1.5px solid var(--color-accent)",
                   fontSize: "12px",
                   color: "var(--color-accent)",
-                  fontWeight: 600,
+                  fontWeight: 700,
+                  lineHeight: 1.45,
                 }}
               >
-                {state.error}
+                ⚠ {state.error}
               </div>
             )}
 
             {state.success && (
               <div
+                className="font-mono"
                 style={{
-                  padding: "8px 12px",
+                  padding: "9px 12px",
                   backgroundColor: "rgba(14, 164, 122, 0.10)",
                   border: "1.5px solid #0EA47A",
                   fontSize: "12px",
                   color: "#0EA47A",
-                  fontWeight: 600,
+                  fontWeight: 700,
+                  lineHeight: 1.45,
                 }}
               >
-                ✓ Kata sandi berhasil diperbarui.
+                ✓ {state.message || "Kata sandi berhasil diperbarui!"}
               </div>
             )}
 
@@ -324,27 +307,17 @@ export function StudentProfileView({ profile }: { profile: StudentProfileData })
           <form action={signOut}>
             <button
               type="submit"
-              onClick={() => {
-                try {
-                  document.cookie = "lms-demo-role=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-                } catch {}
-              }}
-              className="boxy-btn font-mono boxy-pressable-md"
+              className="font-mono boxy-btn boxy-pressable-md"
               style={{
                 width: "100%",
-                height: "46px",
-                backgroundColor: "var(--color-surface)",
-                color: "var(--color-accent)",
-                border: "2px solid var(--color-accent)",
-                boxShadow: "var(--shadow-boxy-accent)",
-                fontSize: "13px",
+                height: "44px",
+                border: "1.5px solid #E11D48",
+                backgroundColor: "rgba(225, 29, 72, 0.08)",
+                color: "#E11D48",
+                fontSize: "12.5px",
                 fontWeight: 900,
                 letterSpacing: "0.04em",
                 cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: "8px",
               }}
             >
               KELUAR DARI AKUN ➔

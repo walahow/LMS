@@ -37,7 +37,7 @@ begin
      jsonb_build_object('sub', student_id::text, 'email', 'student@lms.local'), 'email', now(), now(), now());
 
   insert into public.profiles (id, role, full_name) values
-    (admin_id, 'admin', 'Admin Utama'),
-    (teacher_id, 'teacher', 'Guru Contoh'),
-    (student_id, 'student', 'Siswa Contoh');
+    (admin_id, 'admin', 'Albus Dumbledore'),
+    (teacher_id, 'teacher', 'Severus Snape'),
+    (student_id, 'student', 'Hermione Granger');
 end $$;
