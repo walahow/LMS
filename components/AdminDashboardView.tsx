@@ -1563,6 +1563,8 @@ export function AdminDashboardView({
                           justifyContent: "space-between",
                           flexWrap: "wrap",
                           gap: "8px",
+                          position: "relative",
+                          zIndex: 2,
                         }}
                       >
                         <div style={{ display: "flex", alignItems: "center", gap: "6px", flexWrap: "wrap" }}>
@@ -1588,13 +1590,18 @@ export function AdminDashboardView({
                         <span
                           className="badge-mono"
                           style={{
+                            position: "relative",
+                            zIndex: 2,
+                            isolation: "isolate",
                             fontSize: "10px",
+                            fontWeight: 800,
                             border: "1.5px solid",
-                            borderColor: set.published ? "#16A34A" : "var(--color-border)",
+                            borderColor: set.published ? "var(--color-accent)" : "var(--color-border)",
                             backgroundColor: set.published
-                              ? "rgba(22, 163, 74, 0.12)"
+                              ? "var(--color-surface)"
                               : "var(--color-bg)",
-                            color: set.published ? "#16A34A" : "var(--color-text-muted)",
+                            color: set.published ? "var(--color-accent)" : "var(--color-text-muted)",
+                            boxShadow: set.published ? "0 1px 3px rgba(17, 106, 248, 0.18)" : "none",
                           }}
                         >
                           {set.published ? "✓ DITERBITKAN" : "✎ DRAF"}

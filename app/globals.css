@@ -258,11 +258,18 @@ body {
   box-shadow: 0px 0px 0px 0px var(--color-shadow) !important;
 }
 
-/* Ensure all card content and buttons sit cleanly ON TOP of the background dither */
+/* Ensure all card content, badges, and buttons sit cleanly ON TOP of the background dither */
 .boxy-card-flat > :not(.dither-fade-right):not(.dither-fade-right-accent),
 .boxy-card-active > :not(.dither-fade-right):not(.dither-fade-right-accent) {
   position: relative;
   z-index: 1;
+}
+
+.boxy-card-flat .badge-mono,
+.boxy-card-active .badge-mono {
+  position: relative;
+  z-index: 2;
+  isolation: isolate;
 }
 
 /* Interactive Boxy Buttons */

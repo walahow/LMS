@@ -136,10 +136,16 @@ export default async function AdminSetDetailPage({
               <span
                 className="badge-mono"
                 style={{
+                  position: "relative",
+                  zIndex: 2,
+                  isolation: "isolate",
                   fontSize: "10.5px",
-                  borderColor: set.published ? "#16A34A" : "var(--color-border)",
-                  backgroundColor: set.published ? "rgba(22, 163, 74, 0.1)" : "var(--color-bg)",
-                  color: set.published ? "#16A34A" : "var(--color-text-muted)",
+                  fontWeight: 800,
+                  border: "1.5px solid",
+                  borderColor: set.published ? "var(--color-accent)" : "var(--color-border)",
+                  backgroundColor: set.published ? "var(--color-surface)" : "var(--color-bg)",
+                  color: set.published ? "var(--color-accent)" : "var(--color-text-muted)",
+                  boxShadow: set.published ? "0 1px 3px rgba(17, 106, 248, 0.18)" : "none",
                 }}
               >
                 {set.published ? "✓ DITERBITKAN" : "✎ DRAF"}
