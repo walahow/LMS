@@ -28,11 +28,11 @@ if (fs.existsSync(envPath)) {
   }
 }
 
-const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const url = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 if (!url || !serviceRoleKey) {
-  console.error("❌ Error: NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY must be set in .env.local.");
+  console.error("❌ Error: NEXT_PUBLIC_SUPABASE_URL (or SUPABASE_URL) and SUPABASE_SERVICE_ROLE_KEY must be set in .env.local.");
   process.exit(1);
 }
 
@@ -203,6 +203,7 @@ async function seed() {
         email: user.email,
         password: PASSWORD,
         email_confirm: true,
+        user_metadata: user.role === "student" ? { grade: "Kelas X-A" } : {},
       });
 
       if (error) {

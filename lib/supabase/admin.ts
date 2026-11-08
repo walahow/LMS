@@ -1,6 +1,7 @@
 import "server-only";
 import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/lib/database.types";
+import { getSupabaseUrl } from "./server";
 
 /**
  * Service-role client. Bypasses RLS entirely — only for admin user
@@ -8,8 +9,9 @@ import type { Database } from "@/lib/database.types";
  * app/admin server actions, and never expose it to the client.
  */
 export function createAdminClient() {
+  const url = getSupabaseUrl()!;
   return createSupabaseClient<Database>(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    url,
     process.env.SUPABASE_SERVICE_ROLE_KEY!,
     { auth: { autoRefreshToken: false, persistSession: false } },
   );

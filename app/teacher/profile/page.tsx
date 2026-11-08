@@ -1,4 +1,5 @@
 import { requireRole } from "@/lib/auth";
+import { isSupabaseConfigured } from "@/lib/supabase/server";
 import { TeacherProfileView, type TeacherProfileData } from "@/components/TeacherProfileView";
 
 export const dynamic = "force-dynamic";
@@ -11,11 +12,7 @@ const MOCK_TEACHER: TeacherProfileData = {
 };
 
 async function getTeacherProfileData(): Promise<TeacherProfileData> {
-  const isSupabaseConfigured = Boolean(
-    process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-  );
-
-  if (!isSupabaseConfigured) {
+  if (!isSupabaseConfigured()) {
     return MOCK_TEACHER;
   }
 
@@ -30,17 +27,17 @@ async function getTeacherProfileData(): Promise<TeacherProfileData> {
 
     return {
       fullName: profile.full_name,
-      initials: initials || "GR",
+      initials: initials || "SS",
       email: user.email || "teacher@lms.local",
       roleTitle: "GURU PENGAMPU",
     };
-  } catch {
+  } catch (error) {
+    console.warn("getTeacherProfileData error, fallback to mock:", error);
     return MOCK_TEACHER;
   }
 }
 
 export default async function TeacherProfilePage() {
   const profile = await getTeacherProfileData();
-
   return <TeacherProfileView profile={profile} />;
 }

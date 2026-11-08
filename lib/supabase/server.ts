@@ -4,22 +4,33 @@ import type { Database } from "@/lib/database.types";
 
 type CookieToSet = { name: string; value: string; options: CookieOptions };
 
-export function isSupabaseConfigured(): boolean {
-  return Boolean(
-    process.env.NEXT_PUBLIC_SUPABASE_URL &&
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY &&
-      process.env.NEXT_PUBLIC_SUPABASE_URL.trim() !== "" &&
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY.trim() !== "",
+export function getSupabaseUrl(): string | undefined {
+  return process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
+}
+
+export function getSupabaseKey(): string | undefined {
+  return (
+    process.env.SUPABASE_KEY ||
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
+    process.env.SUPABASE_ANON_KEY
   );
+}
+
+export function isSupabaseConfigured(): boolean {
+  const url = getSupabaseUrl();
+  const key = getSupabaseKey();
+  return Boolean(url && key && url.trim() !== "" && key.trim() !== "");
 }
 
 /** Supabase client for Server Components and Server Actions. Runs RLS as the signed-in user. */
 export async function createClient() {
   const cookieStore = await cookies();
+  const url = getSupabaseUrl();
+  const key = getSupabaseKey();
 
   return createServerClient<Database>(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    url!,
+    key!,
     {
       cookies: {
         getAll() {

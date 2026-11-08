@@ -1,4 +1,5 @@
 import { requireRole } from "@/lib/auth";
+import { isSupabaseConfigured } from "@/lib/supabase/server";
 import { StudentProfileView, type StudentProfileData } from "@/components/StudentProfileView";
 
 export const dynamic = "force-dynamic";
@@ -11,11 +12,7 @@ const MOCK_PROFILE: StudentProfileData = {
 };
 
 async function getProfileData(): Promise<StudentProfileData> {
-  const isSupabaseConfigured = Boolean(
-    process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-  );
-
-  if (!isSupabaseConfigured) {
+  if (!isSupabaseConfigured()) {
     return MOCK_PROFILE;
   }
 
@@ -30,17 +27,17 @@ async function getProfileData(): Promise<StudentProfileData> {
 
     return {
       fullName: profile.full_name,
-      initials: initials || "ST",
+      initials: initials || "HG",
       email: user.email || "student@lms.local",
       grade: "KELAS X-A",
     };
-  } catch {
+  } catch (error) {
+    console.warn("getProfileData error, fallback to mock:", error);
     return MOCK_PROFILE;
   }
 }
 
 export default async function StudentProfilePage() {
   const profile = await getProfileData();
-
   return <StudentProfileView profile={profile} />;
 }
