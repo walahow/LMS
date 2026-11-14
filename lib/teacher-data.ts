@@ -1,7 +1,9 @@
 import { cookies } from "next/headers";
 import { requireRole } from "@/lib/auth";
+import { isMissingColumnError } from "@/lib/auth-utils";
 import { isSupabaseConfigured } from "@/lib/supabase/server";
-import { diagnose, type Diagnosis } from "@/lib/diagnose";
+import { calculateTier1Score, diagnose, type Diagnosis } from "@/lib/diagnose";
+import type { ExportQuestionMeta } from "@/lib/export-spreadsheet";
 
 export type DiagnosticCount = {
   paham: number;
@@ -23,6 +25,9 @@ export type StudentQuestionDetail = {
   confident: boolean;
   diagnosis: Diagnosis;
   explanation?: string;
+  indicator?: string;
+  subtopic?: string;
+  cognitiveLevel?: string;
 };
 
 export type StudentPackResult = {
@@ -83,7 +88,6 @@ function buildStudentResult(
   questions: Array<Omit<StudentQuestionDetail, "diagnosis">>
 ): StudentPackResult {
   const diagnosticsCount: DiagnosticCount = { paham: 0, miskonsepsi: 0, lucky_guess: 0, tidak_paham: 0 };
-  let correctCount = 0;
 
   const fullQuestions: StudentQuestionDetail[] = questions.map((q) => {
     const d = diagnose(
@@ -91,9 +95,6 @@ function buildStudentResult(
       { correct_option: q.correctOption, correct_reason: q.correctReason }
     );
     diagnosticsCount[d] += 1;
-    if (q.studentAnswer === q.correctOption && q.studentReason === q.correctReason) {
-      correctCount += 1;
-    }
     return { ...q, diagnosis: d };
   });
 
@@ -106,7 +107,10 @@ function buildStudentResult(
     dominant = "lucky_guess";
   }
 
-  const score = Math.round((correctCount / fullQuestions.length) * 100);
+  const score = calculateTier1Score(
+    fullQuestions.map((q) => ({ answer: q.studentAnswer, correctOption: q.correctOption })),
+    fullQuestions.length,
+  );
 
   const initials = student.fullName
     .split(" ")
@@ -753,6 +757,128 @@ function calculateCohortStats(packs: TeacherTestPack[], totalCohortStudents: num
 
 export const MOCK_TEACHER_STATS: TeacherStats = calculateCohortStats(MOCK_TEST_PACKS);
 
+function buildTeacherPackFromDb(
+  s: any,
+  dbStudents: any[],
+  setAttempts: any[],
+): {
+  pack: TeacherTestPack;
+  questionsMeta: ExportQuestionMeta[];
+  scores: number[];
+  participatingIds: string[];
+} {
+  const totalCohortStudents = Math.max(dbStudents.length, 1);
+  const questions = (((s.questions as any[]) || []).slice()).sort((a: any, b: any) => a.position - b.position);
+  const questionsMeta: ExportQuestionMeta[] = questions.map((q: any) => ({
+    position: q.position,
+    indicator: q.indicator || undefined,
+    subtopic: q.subtopic || undefined,
+    cognitiveLevel: q.cognitive_level || undefined,
+    stem: q.stem,
+    correctOption: q.correct_option,
+    correctReason: q.correct_reason,
+  }));
+
+  const packDiagnostics: DiagnosticCount = { paham: 0, miskonsepsi: 0, lucky_guess: 0, tidak_paham: 0 };
+  const students: StudentPackResult[] = [];
+  const processedStudentIds = new Set<string>();
+  const scores: number[] = [];
+  const participatingIds: string[] = [];
+
+  for (const att of setAttempts) {
+    const studentProf = dbStudents.find((st: any) => st.id === att.student_id);
+    if (!studentProf || processedStudentIds.has(studentProf.id)) continue;
+    processedStudentIds.add(studentProf.id);
+    participatingIds.push(studentProf.id);
+
+    const studentDiagnostics: DiagnosticCount = { paham: 0, miskonsepsi: 0, lucky_guess: 0, tidak_paham: 0 };
+    const studentQuestions: StudentQuestionDetail[] = [];
+
+    for (const q of questions) {
+      const resp = ((att.responses as any[]) || []).find((r: any) => r.question_id === q.id);
+      const ans = resp?.answer ?? -1;
+      const rsn = resp?.reason ?? -1;
+      const conf = Boolean(resp?.confident);
+
+      const d = diagnose(
+        { answer: ans, reason: rsn, confident: conf },
+        { correct_option: q.correct_option, correct_reason: q.correct_reason },
+      );
+      studentDiagnostics[d]++;
+      packDiagnostics[d]++;
+
+      studentQuestions.push({
+        questionId: q.id,
+        position: q.position,
+        stem: q.stem,
+        options: q.options as string[],
+        reasons: q.reasons as string[],
+        studentAnswer: ans,
+        correctOption: q.correct_option,
+        studentReason: rsn,
+        correctReason: q.correct_reason,
+        confident: conf,
+        diagnosis: d,
+        explanation: q.explanation || "",
+        indicator: q.indicator || undefined,
+        subtopic: q.subtopic || undefined,
+        cognitiveLevel: q.cognitive_level || undefined,
+      });
+    }
+
+    const score = calculateTier1Score(
+      studentQuestions.map((q) => ({ answer: q.studentAnswer, correctOption: q.correctOption })),
+      questions.length,
+    );
+    scores.push(score);
+
+    const dominant = (Object.entries(studentDiagnostics).reduce((a, b) => (b[1] > a[1] ? b : a))[0]) as Diagnosis;
+
+    students.push({
+      studentId: studentProf.id,
+      fullName: studentProf.full_name,
+      initials: studentProf.full_name
+        .split(" ")
+        .map((w: string) => w[0])
+        .join("")
+        .slice(0, 2)
+        .toUpperCase(),
+      grade: studentProf.grade || s.grade || "Kelas 10",
+      attemptId: att.id,
+      submittedAt: new Date(att.submitted_at).toLocaleDateString("id-ID", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      }),
+      score,
+      diagnosticsCount: studentDiagnostics,
+      dominantDiagnosis: dominant,
+      questions: studentQuestions,
+    });
+  }
+
+  return {
+    pack: {
+      id: s.id,
+      title: s.title,
+      indicator: s.indicator,
+      subject: s.subject || "Fisika",
+      grade: s.grade || "Kelas 10",
+      published: s.published ?? true,
+      questionCount: questions.length,
+      studentAttemptCount: students.length,
+      totalStudents: totalCohortStudents,
+      diagnosticsCount: packDiagnostics,
+      students,
+    },
+    questionsMeta,
+    scores,
+    participatingIds,
+  };
+}
+
 export async function fetchTeacherData(): Promise<{
   profile: TeacherProfileInfo;
   stats: TeacherStats;
@@ -781,20 +907,35 @@ export async function fetchTeacherData(): Promise<{
     title: "GURU FISIKA",
   };
 
-  // Fetch real question sets (published only)
-  const setsRes = await supabase
+  // Fetch real question sets (published only, fallback if 0005 question_indicator columns are pending)
+  let setsRes: any = await supabase
     .from("question_sets")
-    .select("id, title, indicator, subject, grade, published, created_at, questions(id, position, stem, options, reasons, correct_option, correct_reason, explanation)")
+    .select("id, title, indicator, subject, grade, published, created_at, questions(id, position, stem, options, reasons, correct_option, correct_reason, explanation, indicator, subtopic, cognitive_level)")
     .eq("published", true)
     .order("created_at", { ascending: false });
 
+  if (setsRes.error && isMissingColumnError(setsRes.error)) {
+    setsRes = await supabase
+      .from("question_sets")
+      .select("id, title, indicator, subject, grade, published, created_at, questions(id, position, stem, options, reasons, correct_option, correct_reason, explanation)")
+      .eq("published", true)
+      .order("created_at", { ascending: false });
+  }
+
   const dbSets: any[] = setsRes.data ?? [];
 
-  // Fetch student profiles
-  const studentsRes = await supabase
+  // Fetch student profiles (fallback to base columns if 0004 migration is pending)
+  let studentsRes: { data: any[] | null; error: any } = await supabase
     .from("profiles")
-    .select("id, full_name, role")
+    .select("id, full_name, role, grade")
     .eq("role", "student");
+
+  if (studentsRes.error && isMissingColumnError(studentsRes.error)) {
+    studentsRes = await supabase
+      .from("profiles")
+      .select("id, full_name, role")
+      .eq("role", "student");
+  }
 
   const dbStudents: any[] = studentsRes.data ?? [];
   const totalCohortStudents = Math.max(dbStudents.length, 1);
@@ -813,100 +954,11 @@ export async function fetchTeacherData(): Promise<{
   const participatingStudents = new Set<string>();
 
   for (const s of dbSets) {
-    const questions = (((s.questions as any[]) || []).slice()).sort((a: any, b: any) => a.position - b.position);
     const setAttempts = dbAttempts.filter((a: any) => a.set_id === s.id);
-
-    const packDiagnostics: DiagnosticCount = { paham: 0, miskonsepsi: 0, lucky_guess: 0, tidak_paham: 0 };
-    const students: StudentPackResult[] = [];
-    const processedStudentIds = new Set<string>();
-
-    for (const att of setAttempts) {
-      const studentProf = dbStudents.find((st: any) => st.id === att.student_id);
-      if (!studentProf || processedStudentIds.has(studentProf.id)) continue;
-      processedStudentIds.add(studentProf.id);
-
-      participatingStudents.add(studentProf.id);
-
-      const studentDiagnostics: DiagnosticCount = { paham: 0, miskonsepsi: 0, lucky_guess: 0, tidak_paham: 0 };
-      const studentQuestions: StudentQuestionDetail[] = [];
-      let correctCount = 0;
-
-      for (const q of questions) {
-        const resp = ((att.responses as any[]) || []).find((r: any) => r.question_id === q.id);
-        const ans = resp?.answer ?? -1;
-        const rsn = resp?.reason ?? -1;
-        const conf = Boolean(resp?.confident);
-
-        const d = diagnose(
-          { answer: ans, reason: rsn, confident: conf },
-          { correct_option: q.correct_option, correct_reason: q.correct_reason }
-        );
-        studentDiagnostics[d]++;
-        packDiagnostics[d]++;
-
-        if (ans === q.correct_option && rsn === q.correct_reason) {
-          correctCount++;
-        }
-
-        studentQuestions.push({
-          questionId: q.id,
-          position: q.position,
-          stem: q.stem,
-          options: q.options as string[],
-          reasons: q.reasons as string[],
-          studentAnswer: ans,
-          correctOption: q.correct_option,
-          studentReason: rsn,
-          correctReason: q.correct_reason,
-          confident: conf,
-          diagnosis: d,
-          explanation: q.explanation || "",
-        });
-      }
-
-      const score = questions.length > 0 ? Math.round((correctCount / questions.length) * 100) : 0;
-      allScores.push(score);
-
-      const dominant = (Object.entries(studentDiagnostics).reduce((a, b) => (b[1] > a[1] ? b : a))[0]) as Diagnosis;
-
-      students.push({
-        studentId: studentProf.id,
-        fullName: studentProf.full_name,
-        initials: studentProf.full_name
-          .split(" ")
-          .map((w: string) => w[0])
-          .join("")
-          .slice(0, 2)
-          .toUpperCase(),
-        grade: s.grade || "Kelas 10",
-        attemptId: att.id,
-        submittedAt: new Date(att.submitted_at).toLocaleDateString("id-ID", {
-          day: "numeric",
-          month: "short",
-          year: "numeric",
-          hour: "2-digit",
-          minute: "2-digit",
-        }),
-        score,
-        diagnosticsCount: studentDiagnostics,
-        dominantDiagnosis: dominant,
-        questions: studentQuestions,
-      });
-    }
-
-    testPacks.push({
-      id: s.id,
-      title: s.title,
-      indicator: s.indicator,
-      subject: s.subject || "Fisika",
-      grade: s.grade || "Kelas 10",
-      published: s.published ?? true,
-      questionCount: questions.length,
-      studentAttemptCount: students.length,
-      totalStudents: totalCohortStudents,
-      diagnosticsCount: packDiagnostics,
-      students,
-    });
+    const built = buildTeacherPackFromDb(s, dbStudents, setAttempts);
+    built.scores.forEach((sc) => allScores.push(sc));
+    built.participatingIds.forEach((id) => participatingStudents.add(id));
+    testPacks.push(built.pack);
   }
 
   const averageScore = allScores.length > 0 ? Math.round(allScores.reduce((a, b) => a + b, 0) / allScores.length) : 0;
@@ -924,5 +976,80 @@ export async function fetchTeacherData(): Promise<{
     profile: teacherProfile,
     stats,
     testPacks,
+  };
+}
+
+export async function fetchTeacherPackById(
+  setId: string,
+  options?: { includeDrafts?: boolean; supabaseClient?: any },
+): Promise<{ pack: TeacherTestPack; questionsMeta: ExportQuestionMeta[] } | null> {
+  const includeDrafts = options?.includeDrafts ?? false;
+
+  if (!isSupabaseConfigured()) {
+    const pack = MOCK_TEST_PACKS.find((p) => p.id === setId && (includeDrafts || p.published !== false));
+    if (!pack) return null;
+    const sampleQs = pack.students[0]?.questions ?? [];
+    return {
+      pack,
+      questionsMeta: sampleQs.map((q) => ({
+        position: q.position,
+        indicator: q.indicator,
+        subtopic: q.subtopic,
+        cognitiveLevel: q.cognitiveLevel,
+        stem: q.stem,
+        correctOption: q.correctOption,
+        correctReason: q.correctReason,
+      })),
+    };
+  }
+
+  const client = options?.supabaseClient ?? (await requireRole("teacher")).supabase;
+
+  const runSetQuery = (questionCols: string) => {
+    let q = client
+      .from("question_sets")
+      .select(`id, title, indicator, subject, grade, published, created_at, questions(${questionCols})`)
+      .eq("id", setId);
+    if (!includeDrafts) q = q.eq("published", true);
+    return q.maybeSingle();
+  };
+
+  let setRes: any = await runSetQuery(
+    "id, position, stem, options, reasons, correct_option, correct_reason, explanation, indicator, subtopic, cognitive_level",
+  );
+  if (setRes.error && isMissingColumnError(setRes.error)) {
+    setRes = await runSetQuery(
+      "id, position, stem, options, reasons, correct_option, correct_reason, explanation",
+    );
+  }
+  const setRow = setRes.data;
+  if (!setRow) return null;
+
+  let [studentsRes, attemptsRes]: [{ data: any[] | null; error: any }, { data: any[] | null; error: any }] = await Promise.all([
+    client.from("profiles").select("id, full_name, role, grade").eq("role", "student"),
+    client
+      .from("attempts")
+      .select("id, set_id, student_id, submitted_at, started_at, responses(question_id, answer, reason, confident)")
+      .eq("set_id", setId)
+      .not("submitted_at", "is", null)
+      .order("submitted_at", { ascending: false }),
+  ]);
+
+  if (studentsRes.error && isMissingColumnError(studentsRes.error)) {
+    studentsRes = await client
+      .from("profiles")
+      .select("id, full_name, role")
+      .eq("role", "student");
+  }
+
+  const built = buildTeacherPackFromDb(
+    setRow,
+    studentsRes.data ?? [],
+    attemptsRes.data ?? [],
+  );
+
+  return {
+    pack: built.pack,
+    questionsMeta: built.questionsMeta,
   };
 }

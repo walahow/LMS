@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { diagnose } from "./diagnose";
+import { calculateTier1Score, DIAGNOSIS_LABEL, diagnose } from "./diagnose";
 
 const q = { correct_option: 1, correct_reason: 2 };
 
@@ -34,5 +34,31 @@ describe("diagnose", () => {
 
   it("jawaban salah, alasan salah, tidak yakin -> tidak_paham", () => {
     expect(diagnose({ answer: 0, reason: 0, confident: false }, q)).toBe("tidak_paham");
+  });
+
+  it("uses rubric category labels", () => {
+    expect(DIAGNOSIS_LABEL).toEqual({
+      paham: "Memahami konsep",
+      lucky_guess: "Menebak konsep",
+      miskonsepsi: "Miskonsepsi",
+      tidak_paham: "Tidak memahami konsep",
+    });
+  });
+
+  it("calculateTier1Score counts only Tier 1 answers regardless of Tier 2/3", () => {
+    expect(
+      calculateTier1Score([
+        { answer: 1, correctOption: 1 },
+        { answer: 1, correctOption: 1 },
+        { answer: 0, correctOption: 1 },
+        { answer: -1, correctOption: 1 },
+      ]),
+    ).toBe(50);
+
+    expect(
+      calculateTier1Score([{ answer: 1, correctOption: 1 }], 4),
+    ).toBe(25);
+
+    expect(calculateTier1Score([])).toBe(0);
   });
 });

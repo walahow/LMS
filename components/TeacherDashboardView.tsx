@@ -4,6 +4,7 @@ import React, { useState, useMemo } from "react";
 import Link from "next/link";
 import { ThemeToggler } from "@/components/ThemeToggler";
 import { ProfileDropdown } from "@/components/ProfileDropdown";
+import { ExportExcelButton } from "@/components/ExportExcelButton";
 import {
   type TeacherTestPack,
   type TeacherProfileInfo,
@@ -541,6 +542,8 @@ export function TeacherDashboardView({
                         </span>
                       )}
                     </div>
+
+                    <ExportExcelButton setId={pack.id} scope="teacher" variant="secondary" label="⬇ UNDUH EXCEL (.XLSX)" />
 
                     {/* Bottom CTA Button: Navigates to Test Pack Detail */}
                     <Link

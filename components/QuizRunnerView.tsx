@@ -5,11 +5,15 @@ import { useRouter } from "next/navigation";
 import { BoxyProgressBar } from "@/components/BoxyProgressBar";
 import { ScoreSwipeOverlay } from "@/components/ScoreSwipeOverlay";
 import { Spinner } from "@/components/Spinner";
+import { calculateTier1Score, DIAGNOSIS_LABEL, diagnose } from "@/lib/diagnose";
 
 export type QuestionData = {
   id: number;
   subject: string;
   topic: string;
+  indicator?: string;
+  subtopic?: string;
+  cognitiveLevel?: string;
   stem: string;
   correctAnswer: string;
   correctReason: string;
@@ -282,32 +286,40 @@ export function QuizRunnerView({
     .filter(([, resp]) => resp.answerKey && resp.reasonKey && resp.confident !== undefined)
     .map(([num]) => Number(num));
 
-  // Compute 3-tier diagnostic results across questions
+  // Compute 3-tier diagnostic results and unified Tier-1 score across questions
   const computeDiagnosis = () => {
     let paham = 0;
     let miskonsepsi = 0;
     let luckyGuess = 0;
     let tidakPaham = 0;
+    const scoreItems: Array<{ answer: number; correctOption: number }> = [];
+    const letterIndex: Record<string, number> = { A: 0, B: 1, C: 2, D: 3, E: 4 };
 
     questions.forEach((q) => {
       const resp = answers[q.id];
+      const ansIdx = resp?.answerKey ? (letterIndex[resp.answerKey] ?? -1) : -1;
+      const rsnIdx = resp?.reasonKey ? (letterIndex[resp.reasonKey] ?? -1) : -1;
+      const correctOpt = letterIndex[q.correctAnswer] ?? 0;
+      const correctRsn = letterIndex[q.correctReason] ?? 0;
+
+      scoreItems.push({ answer: ansIdx, correctOption: correctOpt });
+
       if (!resp || !resp.answerKey || !resp.reasonKey || resp.confident === undefined) {
         tidakPaham++;
         return;
       }
-      const okAns = resp.answerKey === q.correctAnswer;
-      const okRsn = resp.reasonKey === q.correctReason;
 
-      if (!resp.confident) {
-        if (okAns && okRsn) luckyGuess++;
-        else tidakPaham++;
-      } else {
-        if (okAns && okRsn) paham++;
-        else miskonsepsi++;
-      }
+      const d = diagnose(
+        { answer: ansIdx, reason: rsnIdx, confident: resp.confident },
+        { correct_option: correctOpt, correct_reason: correctRsn },
+      );
+      if (d === "paham") paham++;
+      else if (d === "miskonsepsi") miskonsepsi++;
+      else if (d === "lucky_guess") luckyGuess++;
+      else tidakPaham++;
     });
 
-    const score = Math.round((paham / total) * 100);
+    const score = calculateTier1Score(scoreItems, total);
 
     return {
       score,
@@ -978,6 +990,36 @@ export function QuizRunnerView({
           )}
 
           {/* Review Mode Diagnostic Banner */}
+          {isReviewMode && (question.indicator || question.cognitiveLevel) && (
+            <div
+              className="boxy-card-flat"
+              style={{
+                padding: "10px 14px",
+                backgroundColor: "var(--color-bg)",
+                border: "1px dashed var(--color-border)",
+                display: "flex",
+                flexDirection: "column",
+                gap: "4px",
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: "6px", flexWrap: "wrap" }}>
+                <span className="font-mono" style={{ fontSize: "10px", fontWeight: 800, color: "var(--color-text-muted)" }}>
+                  INDIKATOR SOAL #{qNum}
+                </span>
+                {question.cognitiveLevel && (
+                  <span className="badge-mono" style={{ fontSize: "9.5px" }}>
+                    {question.cognitiveLevel}
+                  </span>
+                )}
+              </div>
+              {question.indicator && (
+                <span style={{ fontSize: "12px", color: "var(--color-text)", lineHeight: 1.45 }}>
+                  {question.indicator}
+                </span>
+              )}
+            </div>
+          )}
+
           {isReviewMode && (
             <div
               className="boxy-card-flat font-mono"
@@ -998,28 +1040,38 @@ export function QuizRunnerView({
               {(() => {
                 const ansOk = selectedAnswer === question.correctAnswer;
                 const rsnOk = selectedReason === question.correctReason;
-                const conf = selectedConfidence;
-                if (conf) {
-                  return ansOk && rsnOk ? (
+                const conf = Boolean(selectedConfidence);
+                const d = diagnose(
+                  { answer: ansOk ? 1 : 0, reason: rsnOk ? 1 : 0, confident: conf },
+                  { correct_option: 1, correct_reason: 1 },
+                );
+                const upper = DIAGNOSIS_LABEL[d].toUpperCase();
+                if (d === "paham") {
+                  return (
                     <span style={{ fontSize: "11px", fontWeight: 900, color: "#0EA47A" }}>
-                      ✓ PAHAM KONSEP
-                    </span>
-                  ) : (
-                    <span style={{ fontSize: "11px", fontWeight: 900, color: "#E11D48" }}>
-                      ⚠ MISKONSEPSI
-                    </span>
-                  );
-                } else {
-                  return ansOk && rsnOk ? (
-                    <span style={{ fontSize: "11px", fontWeight: 900, color: "#F5A524" }}>
-                      ✦ LUCKY GUESS
-                    </span>
-                  ) : (
-                    <span style={{ fontSize: "11px", fontWeight: 900, color: "var(--color-text-muted)" }}>
-                      ✗ TIDAK PAHAM
+                      ✓ {upper}
                     </span>
                   );
                 }
+                if (d === "miskonsepsi") {
+                  return (
+                    <span style={{ fontSize: "11px", fontWeight: 900, color: "#E11D48" }}>
+                      ⚠ {upper}
+                    </span>
+                  );
+                }
+                if (d === "lucky_guess") {
+                  return (
+                    <span style={{ fontSize: "11px", fontWeight: 900, color: "#F5A524" }}>
+                      ✦ {upper}
+                    </span>
+                  );
+                }
+                return (
+                  <span style={{ fontSize: "11px", fontWeight: 900, color: "var(--color-text-muted)" }}>
+                    ✗ {upper}
+                  </span>
+                );
               })()}
             </div>
           )}

@@ -18,10 +18,17 @@ export function diagnose(
 }
 
 export const DIAGNOSIS_LABEL: Record<Diagnosis, string> = {
-  paham: "Paham Konsep",
-  lucky_guess: "Lucky Guess",
+  paham: "Memahami konsep",
+  lucky_guess: "Menebak konsep",
   miskonsepsi: "Miskonsepsi",
-  tidak_paham: "Tidak Paham Konsep",
+  tidak_paham: "Tidak memahami konsep",
+};
+
+export const DIAGNOSIS_SHORT_LABEL: Record<Diagnosis, string> = {
+  paham: "MEMAHAMI",
+  lucky_guess: "MENEBAK",
+  miskonsepsi: "MISK",
+  tidak_paham: "TDK PAHAM",
 };
 
 export const DIAGNOSIS_BADGE_CLASS: Record<Diagnosis, string> = {
@@ -30,3 +37,18 @@ export const DIAGNOSIS_BADGE_CLASS: Record<Diagnosis, string> = {
   miskonsepsi: "badge-danger",
   tidak_paham: "badge-warning",
 };
+
+/**
+ * Unified 0–100 numeric score: calculated strictly from Tier-1 answer accuracy.
+ * Tier 2 (reason) and Tier 3 (confidence) drive the diagnostic category without
+ * altering the numeric score.
+ */
+export function calculateTier1Score(
+  items: ReadonlyArray<{ answer: number | null | undefined; correctOption: number }>,
+  totalQuestions?: number,
+): number {
+  const denom = totalQuestions ?? items.length;
+  if (denom <= 0) return 0;
+  const correctTier1 = items.filter((item) => item.answer === item.correctOption).length;
+  return Math.round((correctTier1 / denom) * 100);
+}

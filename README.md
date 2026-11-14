@@ -105,12 +105,22 @@ The user interface follows a high-contrast, tactile neo-brutalist aesthetic insp
 - **Admin Profile (`/admin/profile`)**:
   - Administrator profile with identity card, password change form, and session sign-out.
 
-### 4. Authentication (`/login`)
-- Mobile-first neo-brutalist authentication screen with 3-tier visual mark.
-- Tactile `.boxy-input` for email and password.
-- Interactive show/hide password toggle embedded inside input with animated diagonal stroke SVG eye icon (pupil permanently visible, line draws/retracts smoothly) and bullet placeholder masking (`••••••••`).
-- Accent submit button `[ LOG IN ➔ ]` with right-to-left fading blue dither.
-- Live Supabase Auth with automatic role-based redirect (`/dashboard`, `/teacher/dashboard`, `/admin/dashboard`) and standalone mock fallback.
+### 4. Authentication & Student Registration (`/login`, `/register`)
+- **Dual Username / Email Login (`/login`)**:
+  - Mobile-first neo-brutalist authentication screen with 3-tier visual mark.
+  - Supports both **Username** and **Email** in the identifier field (`USERNAME / EMAIL`).
+  - Automatic normalization: inputs without an `@` symbol automatically resolve to synthetic domain `@lms.local` (e.g. typing `hermione` resolves to `hermione@lms.local`).
+  - Built-in role shortcuts: `guru` or `teacher` maps to `teacher@lms.local`; `admin` maps to `admin@lms.local`; `student` or `siswa` maps to `student@lms.local`.
+  - **Multi-Device Concurrent Teacher Access**: Because authentication utilizes stateless JWT session cookies, multiple teachers or teaching staff can be logged into the teacher account on different laptops or mobile devices simultaneously without session conflicts or kicking each other out.
+  - Interactive show/hide password toggle embedded inside input with animated diagonal stroke SVG eye icon (pupil permanently visible, line draws/retracts smoothly) and bullet placeholder masking (`••••••••`).
+  - Accent submit button `[ LOG IN ➔ ]` with right-to-left fading blue dither (`.dither-fade-right-accent`).
+  - Direct student onboarding callout card: `Belum punya akun siswa? [ DAFTAR SISWA ➔ ]` linking to `/register`.
+- **Student Self-Registration (`/register`)**:
+  - Dedicated public registration screen tailored for secondary school students who often lack dependable personal email inboxes.
+  - **Username-First Form**: Student inputs `Nama Lengkap`, `Username` (3–20 alphanumeric chars), `Kelas / Rombel` (freeform string e.g. `Kelas X-A`, `10 MIPA 1`), and password confirmation with `BoxyPasswordInput`.
+  - **Strict Role Lock**: Self-registration is strictly hardcoded to the `'student'` role on the server; external role injection is blocked. Teachers and administrators remain provisioned exclusively by administrators.
+  - **Instant Activation & Login**: Automatically provisions the Supabase auth record and `profiles` entry, creates the session, and redirects immediately to `/dashboard`.
+  - Standalone preview fallback: works offline without Supabase configured.
 
 ---
 
@@ -119,7 +129,8 @@ The user interface follows a high-contrast, tactile neo-brutalist aesthetic insp
 | Route | Access / Role | Description |
 |---|---|---|
 | `/` | Public | Automatic redirect to `/login` |
-| `/login` | Public | Neo-brutalist authentication screen with role-based routing |
+| `/login` | Public | Neo-brutalist authentication screen with dual username/email support |
+| `/register` | Public | Neo-brutalist student self-registration screen (strictly locked to student role) |
 | `/dashboard` | Student | Student home: stats, resume card, test pack directory |
 | `/quiz/[setId]` | Student | Live 3-tier sequential test runner with completeness check |
 | `/history` | Student | Student test history directory |
@@ -174,6 +185,8 @@ AI_MODEL=gemini-1.5-flash
 Apply migrations against your Supabase project in order:
 1. `supabase/migrations/0001_schema.sql` (initial schema, enums, tables, and RLS policies)
 2. `supabase/migrations/0002_question_explanation.sql` (adds `explanation` column to `questions`)
+3. `supabase/migrations/0003_teacher_published_only.sql` (teacher visibility policies for published sets)
+4. `supabase/migrations/0004_profile_grade_username.sql` (adds `grade` and `username` columns to `profiles`)
 
 Run the automated seeder script:
 ```bash
@@ -181,11 +194,11 @@ node scripts/seed.mjs
 ```
 
 This provisions three Hogwarts test accounts with password `password123`:
-| Role | Name | Email | Password |
-|---|---|---|---|
-| Admin | Albus Dumbledore | `admin@lms.local` | `password123` |
-| Teacher | Severus Snape | `teacher@lms.local` | `password123` |
-| Student | Hermione Granger | `student@lms.local` | `password123` |
+| Role | Name | Identifier (Username / Email) | Password | Notes |
+|---|---|---|---|---|
+| Admin | Albus Dumbledore | `admin` or `admin@lms.local` | `password123` | Full supervisory & management access |
+| Teacher | Severus Snape | `guru`, `teacher`, or `teacher@lms.local` | `password123` | Shared across teaching staff (multi-device) |
+| Student | Hermione Granger | `student` or `student@lms.local` | `password123` | Students can also self-register at `/register` |
 
 It also provisions an active 6-question 3-tier Physics test pack:
 - **Title**: *Hukum Newton tentang Gerak dan Gaya* (`5e4aa618-e064-45ef-8cda-2fb58e8d6c93`)
@@ -199,7 +212,7 @@ npm run dev
 # Run TypeScript type check (0 errors)
 npm run typecheck
 
-# Run Vitest test suite (30 passed tests)
+# Run Vitest test suite (42 passed tests)
 npm run test
 
 # Production build check
@@ -210,8 +223,9 @@ npm run build
 
 ## Testing & Quality Assurance
 
-The test suite covers pure business logic, database actions, AI resilience, authentication, and dataset consistency:
+The test suite covers pure business logic, database actions, AI resilience, authentication, student self-registration, and dataset consistency:
 
+- `app/(auth)/register/actions.test.ts`: Student registration validation (full name, username formatting, grade string, password confirmation, and strict role lock).
 - `lib/diagnose.test.ts`: Pure diagnostic classification matrix tests (8 tests asserting Paham Konsep, Miskonsepsi, Lucky Guess, and Tidak Paham permutations).
 - `app/(student)/quiz/[setId]/actions.test.ts`: Server action validation for attempt creation, response insertion, and cache invalidation.
 - `lib/ai.test.ts`: Structured output schema validation and answer/reason shuffling verification.

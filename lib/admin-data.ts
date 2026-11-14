@@ -1,11 +1,13 @@
 import { cookies } from "next/headers";
 import { isSupabaseConfigured } from "@/lib/supabase/server";
+import { isMissingColumnError } from "@/lib/auth-utils";
 // lib/admin-data.ts - Mock and server data helpers for Admin Unified Hub
 
 export type AdminProfile = {
   id: string;
   fullName: string;
   email: string;
+  username?: string;
   role: "admin";
   initials: string;
 };
@@ -24,6 +26,9 @@ export type AdminQuestion = {
   reasons: string[];
   correctReason: number;
   explanation?: string;
+  indicator?: string;
+  subtopic?: string;
+  cognitiveLevel?: string;
 };
 
 export type AdminQuestionSet = {
@@ -37,12 +42,14 @@ export type AdminQuestionSet = {
   questionCount: number;
   createdAt: string;
   questions?: AdminQuestion[];
+  missingQuestionMetadataColumns?: boolean;
 };
 
 export type AdminUser = {
   id: string;
   fullName: string;
   email: string;
+  username?: string;
   role: "student" | "teacher" | "admin";
   grade?: string;
   initials: string;
@@ -553,17 +560,29 @@ export async function fetchAdminData(): Promise<{
     const { profile, user } = await requireRole("admin");
     const admin = createAdminClient();
 
-    const [setsRes, profilesRes, authUsersRes] = await Promise.all([
+    const [setsPrimaryRes, profilesRes, authUsersRes] = await Promise.all([
       admin
         .from("question_sets")
-        .select("id, title, indicator, subject, grade, published, created_at, questions(id, position, stem, options, reasons, correct_option, correct_reason, explanation)")
+        .select("id, title, indicator, subject, grade, published, created_at, questions(id, position, stem, options, reasons, correct_option, correct_reason, explanation, indicator, subtopic, cognitive_level)")
         .order("created_at", { ascending: false }),
-      admin.from("profiles").select("id, role, full_name, created_at").order("full_name"),
+      admin.from("profiles").select("id, role, full_name, grade, username, created_at").order("full_name"),
       admin.auth.admin.listUsers({ perPage: 1000 }),
     ]);
 
+    let setsRes: any = setsPrimaryRes;
+    if (setsPrimaryRes.error && isMissingColumnError(setsPrimaryRes.error)) {
+      setsRes = await admin
+        .from("question_sets")
+        .select("id, title, indicator, subject, grade, published, created_at, questions(id, position, stem, options, reasons, correct_option, correct_reason, explanation)")
+        .order("created_at", { ascending: false });
+    }
+
     const dbSets: any[] = setsRes.data ?? [];
-    const dbProfiles: any[] = profilesRes.data ?? [];
+    let dbProfiles: any[] = profilesRes.data ?? [];
+    if (profilesRes.error && isMissingColumnError(profilesRes.error)) {
+      const fb = await admin.from("profiles").select("id, role, full_name, created_at").order("full_name");
+      dbProfiles = fb.data ?? [];
+    }
     const authUsers = authUsersRes.data;
 
     const emailById = new Map((authUsers?.users || []).map((u) => [u.id, u.email ?? ""]));
@@ -580,6 +599,9 @@ export async function fetchAdminData(): Promise<{
         reasons: q.reasons as string[],
         correctReason: q.correct_reason,
         explanation: q.explanation || "",
+        indicator: q.indicator || undefined,
+        subtopic: q.subtopic || undefined,
+        cognitiveLevel: q.cognitive_level || undefined,
       }));
 
       return {
@@ -614,7 +636,8 @@ export async function fetchAdminData(): Promise<{
         fullName: p.full_name,
         email: emailById.get(p.id) || "user@lms.local",
         role: p.role,
-        grade: meta.grade || (p.role === "student" ? "Kelas X-A" : undefined),
+        username: p.username || meta.username || undefined,
+        grade: p.grade || meta.grade || (p.role === "student" ? "Kelas X-A" : undefined),
         initials,
         createdAt: p.created_at
           ? new Date(p.created_at).toLocaleDateString("id-ID", {
@@ -667,11 +690,21 @@ export async function fetchAdminSetDetail(id: string): Promise<AdminQuestionSet 
     const { createAdminClient } = await import("@/lib/supabase/admin");
     const admin = createAdminClient();
 
-    const res = await admin
+    let missingQuestionMetadataColumns = false;
+    let res: any = await admin
       .from("question_sets")
-      .select("id, title, indicator, subject, grade, published, created_at, questions(id, position, stem, options, reasons, correct_option, correct_reason, explanation)")
+      .select("id, title, indicator, subject, grade, published, created_at, questions(id, position, stem, options, reasons, correct_option, correct_reason, explanation, indicator, subtopic, cognitive_level)")
       .eq("id", id)
       .single();
+
+    if (res.error && isMissingColumnError(res.error)) {
+      missingQuestionMetadataColumns = true;
+      res = await admin
+        .from("question_sets")
+        .select("id, title, indicator, subject, grade, published, created_at, questions(id, position, stem, options, reasons, correct_option, correct_reason, explanation)")
+        .eq("id", id)
+        .single();
+    }
 
     const s: any = res.data;
     if (res.error || !s) {
@@ -689,6 +722,9 @@ export async function fetchAdminSetDetail(id: string): Promise<AdminQuestionSet 
       reasons: q.reasons as string[],
       correctReason: q.correct_reason,
       explanation: q.explanation || "",
+      indicator: q.indicator || undefined,
+      subtopic: q.subtopic || undefined,
+      cognitiveLevel: q.cognitive_level || undefined,
     }));
 
     return {
@@ -708,6 +744,7 @@ export async function fetchAdminSetDetail(id: string): Promise<AdminQuestionSet 
           })
         : "Baru saja",
       questions,
+      missingQuestionMetadataColumns,
     };
   } catch (error) {
     console.warn("fetchAdminSetDetail falling back to mock:", error);

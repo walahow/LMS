@@ -40,7 +40,7 @@ export async function submitFullQuiz({
 
   // 3. Insert responses
   const responsesToInsert = [];
-  const keyToIdx: Record<string, number> = { A: 0, B: 1, C: 2, D: 3 };
+  const keyToIdx: Record<string, number> = { A: 0, B: 1, C: 2, D: 3, E: 4 };
 
   for (let i = 0; i < questions.length; i++) {
     const q = questions[i];

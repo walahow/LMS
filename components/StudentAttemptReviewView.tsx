@@ -18,6 +18,9 @@ export type ReviewQuestionItem = {
   confident: boolean;
   diagnosis: Diagnosis;
   explanation?: string;
+  indicator?: string;
+  subtopic?: string;
+  cognitiveLevel?: string;
 };
 
 export type StudentAttemptReviewProps = {
@@ -35,7 +38,7 @@ const DIAGNOSIS_STYLE: Record<
   { label: string; bg: string; text: string; border: string }
 > = {
   paham: {
-    label: "PAHAM KONSEP",
+    label: "MEMAHAMI KONSEP",
     bg: "rgba(14, 164, 122, 0.12)",
     text: "#0B6B50",
     border: "#0EA47A",
@@ -47,20 +50,20 @@ const DIAGNOSIS_STYLE: Record<
     border: "#E11D48",
   },
   lucky_guess: {
-    label: "LUCKY GUESS",
+    label: "MENEBAK KONSEP",
     bg: "var(--color-accent-dim)",
     text: "var(--color-accent)",
     border: "var(--color-accent)",
   },
   tidak_paham: {
-    label: "TIDAK PAHAM",
+    label: "TIDAK MEMAHAMI KONSEP",
     bg: "rgba(113, 113, 122, 0.12)",
     text: "var(--color-text-muted)",
     border: "var(--color-border)",
   },
 };
 
-const IDX_TO_LETTER = ["A", "B", "C", "D"];
+const IDX_TO_LETTER = ["A", "B", "C", "D", "E"];
 
 export function StudentAttemptReviewView({
   title,
@@ -72,6 +75,7 @@ export function StudentAttemptReviewView({
   questions,
 }: StudentAttemptReviewProps) {
   const total = questions.length;
+  const tier1Correct = questions.filter((q) => q.studentAnswer === q.correctOption).length;
   const counts = {
     paham: questions.filter((q) => q.diagnosis === "paham").length,
     miskonsepsi: questions.filter((q) => q.diagnosis === "miskonsepsi").length,
@@ -253,7 +257,7 @@ export function StudentAttemptReviewView({
                   letterSpacing: "0.04em",
                 }}
               >
-                SKOR PEMAHAMAN
+                SKOR JAWABAN (TIER 1)
               </span>
               <span
                 className="font-mono"
@@ -278,7 +282,7 @@ export function StudentAttemptReviewView({
                 fontWeight: 900,
               }}
             >
-              {counts.paham} / {total} SOAL PAHAM
+              {tier1Correct} / {total} TIER 1 BENAR
             </span>
           </div>
 
@@ -292,7 +296,7 @@ export function StudentAttemptReviewView({
               zIndex: 1,
             }}
           >
-            {/* Paham */}
+            {/* Memahami konsep */}
             <div
               style={{
                 padding: "10px",
@@ -304,7 +308,7 @@ export function StudentAttemptReviewView({
               }}
             >
               <span className="font-mono" style={{ fontSize: "10px", fontWeight: 800, color: DIAGNOSIS_STYLE.paham.text }}>
-                PAHAM KONSEP
+                MEMAHAMI KONSEP
               </span>
               <span className="font-mono" style={{ fontSize: "16px", fontWeight: 900, color: DIAGNOSIS_STYLE.paham.text }}>
                 {counts.paham} / {total}
@@ -330,7 +334,7 @@ export function StudentAttemptReviewView({
               </span>
             </div>
 
-            {/* Lucky Guess */}
+            {/* Menebak konsep */}
             <div
               style={{
                 padding: "10px",
@@ -342,14 +346,14 @@ export function StudentAttemptReviewView({
               }}
             >
               <span className="font-mono" style={{ fontSize: "10px", fontWeight: 800, color: DIAGNOSIS_STYLE.lucky_guess.text }}>
-                LUCKY GUESS
+                MENEBAK KONSEP
               </span>
               <span className="font-mono" style={{ fontSize: "16px", fontWeight: 900, color: DIAGNOSIS_STYLE.lucky_guess.text }}>
                 {counts.luckyGuess} / {total}
               </span>
             </div>
 
-            {/* Tidak Paham */}
+            {/* Tidak memahami konsep */}
             <div
               style={{
                 padding: "10px",
@@ -361,7 +365,7 @@ export function StudentAttemptReviewView({
               }}
             >
               <span className="font-mono" style={{ fontSize: "10px", fontWeight: 800, color: DIAGNOSIS_STYLE.tidak_paham.text }}>
-                TIDAK PAHAM
+                TIDAK MEMAHAMI KONSEP
               </span>
               <span className="font-mono" style={{ fontSize: "16px", fontWeight: 900, color: "var(--color-text)" }}>
                 {counts.tidakPaham} / {total}
@@ -436,6 +440,37 @@ export function StudentAttemptReviewView({
                     {diag.label}
                   </span>
                 </div>
+
+                {(q.indicator || q.subtopic || q.cognitiveLevel) && (
+                  <div
+                    style={{
+                      padding: "8px 10px",
+                      border: "1px dashed var(--color-border)",
+                      backgroundColor: "var(--color-bg)",
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "4px",
+                    }}
+                  >
+                    <div style={{ display: "flex", gap: "6px", flexWrap: "wrap", alignItems: "center" }}>
+                      {q.subtopic && (
+                        <span className="badge-mono" style={{ fontSize: "9.5px" }}>
+                          {q.subtopic}
+                        </span>
+                      )}
+                      {q.cognitiveLevel && (
+                        <span className="badge-mono" style={{ fontSize: "9.5px" }}>
+                          {q.cognitiveLevel}
+                        </span>
+                      )}
+                    </div>
+                    {q.indicator && (
+                      <span style={{ fontSize: "11.5px", color: "var(--color-text-muted)", lineHeight: 1.4 }}>
+                        <strong>Indikator:</strong> {q.indicator}
+                      </span>
+                    )}
+                  </div>
+                )}
 
                 {/* Question Stem */}
                 <p

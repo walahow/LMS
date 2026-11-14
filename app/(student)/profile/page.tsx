@@ -25,11 +25,16 @@ async function getProfileData(): Promise<StudentProfileData> {
       .slice(0, 2)
       .toUpperCase();
 
+    const displayContact =
+      profile.username && (!user.email || user.email.endsWith("@lms.local"))
+        ? `@${profile.username}`
+        : user.email || "student@lms.local";
+
     return {
       fullName: profile.full_name,
       initials: initials || "HG",
-      email: user.email || "student@lms.local",
-      grade: "KELAS X-A",
+      email: displayContact,
+      grade: profile.grade || "KELAS X-A",
     };
   } catch (error) {
     console.warn("getProfileData error, fallback to mock:", error);

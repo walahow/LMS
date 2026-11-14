@@ -2,7 +2,8 @@ export const dynamic = "force-dynamic";
 
 import { notFound } from "next/navigation";
 import { requireRole } from "@/lib/auth";
-import { diagnose } from "@/lib/diagnose";
+import { isMissingColumnError } from "@/lib/auth-utils";
+import { calculateTier1Score, diagnose } from "@/lib/diagnose";
 import {
   StudentAttemptReviewView,
   type ReviewQuestionItem,
@@ -43,12 +44,20 @@ export default async function StudentHistoryAttemptPage({
     .eq("attempt_id", attemptId);
 
   const questionIds = (responses ?? []).map((r) => r.question_id);
-  const { data: questions } = await supabase
+  let qRes: { data: any[] | null; error: any } = await supabase
     .from("questions")
     .select(
-      "id, position, stem, options, reasons, correct_option, correct_reason, explanation"
+      "id, position, stem, options, reasons, correct_option, correct_reason, explanation, indicator, subtopic, cognitive_level"
     )
     .in("id", questionIds.length ? questionIds : [NIL_ID]);
+
+  if (qRes.error && isMissingColumnError(qRes.error)) {
+    qRes = await supabase
+      .from("questions")
+      .select("id, position, stem, options, reasons, correct_option, correct_reason, explanation")
+      .in("id", questionIds.length ? questionIds : [NIL_ID]);
+  }
+  const questions = qRes.data;
 
   const questionById = new Map((questions ?? []).map((q) => [q.id, q]));
 
@@ -75,13 +84,20 @@ export default async function StudentHistoryAttemptPage({
         confident: Boolean(response.confident),
         diagnosis,
         explanation: (q as any).explanation || "",
+        indicator: (q as any).indicator || undefined,
+        subtopic: (q as any).subtopic || undefined,
+        cognitiveLevel: (q as any).cognitive_level || undefined,
       };
     }
   );
 
-  const pahamCount = reviewQuestions.filter((q) => q.diagnosis === "paham").length;
-  const total = reviewQuestions.length || 1;
-  const score = Math.round((pahamCount / total) * 100);
+  const score = calculateTier1Score(
+    reviewQuestions.map((q) => ({
+      answer: q.studentAnswer,
+      correctOption: q.correctOption,
+    })),
+    reviewQuestions.length,
+  );
 
   return (
     <StudentAttemptReviewView

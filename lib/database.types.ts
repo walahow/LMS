@@ -17,18 +17,24 @@ export interface Database {
           id: string;
           role: UserRole;
           full_name: string;
+          grade: string | null;
+          username: string | null;
           created_at: string;
         };
         Insert: {
           id: string;
           role?: UserRole;
           full_name: string;
+          grade?: string | null;
+          username?: string | null;
           created_at?: string;
         };
         Update: {
           id?: string;
           role?: UserRole;
           full_name?: string;
+          grade?: string | null;
+          username?: string | null;
           created_at?: string;
         };
         Relationships: [];
@@ -77,17 +83,23 @@ export interface Database {
           reasons: string[];
           correct_reason: number;
           explanation: string | null;
+          indicator: string | null;
+          subtopic: string | null;
+          cognitive_level: string | null;
         };
         Insert: {
           id?: string;
           set_id: string;
-          position: number;
+          position?: number;
           stem: string;
           options: string[];
           correct_option: number;
           reasons: string[];
           correct_reason: number;
           explanation?: string | null;
+          indicator?: string | null;
+          subtopic?: string | null;
+          cognitive_level?: string | null;
         };
         Update: {
           id?: string;
@@ -99,6 +111,9 @@ export interface Database {
           reasons?: string[];
           correct_reason?: number;
           explanation?: string | null;
+          indicator?: string | null;
+          subtopic?: string | null;
+          cognitive_level?: string | null;
         };
         Relationships: [];
       };
@@ -165,3 +180,5 @@ export type QuestionForStudent = Pick<
   Database["public"]["Tables"]["questions"]["Row"],
   "id" | "set_id" | "position" | "stem" | "options" | "reasons"
 >;
+
+

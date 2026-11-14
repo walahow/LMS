@@ -3,10 +3,17 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { requireRole } from "@/lib/auth";
-import { generateSet, type GeneratedQuestion } from "@/lib/ai";
+import {
+  generateSet,
+  type GenerateMode,
+  type GeneratedQuestion,
+  type KisiKisiInputItem,
+  type Tier1InputItem,
+} from "@/lib/ai";
 import type { AdminQuestion, AdminUser } from "@/lib/admin-data";
 import { isSupabaseConfigured } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { isMissingColumnError } from "@/lib/auth-utils";
 
 export type GenerateSetState = { error?: string };
 
@@ -41,34 +48,91 @@ export type GenerateAIResult = {
  * Does not write to any database; returns structured questions for in-session review.
  */
 export async function generateAIQuestionsAction(params: {
+  mode?: GenerateMode;
   indicator: string;
   title: string;
   subject?: string;
   grade?: string;
   count: number;
-  difficulty: "mudah" | "sedang" | "sulit";
+  difficulty?: "mudah" | "sedang" | "sulit";
+  tier1OptionCount?: 4 | 5;
+  kisiKisiItems?: KisiKisiInputItem[];
+  tier1Questions?: Tier1InputItem[];
 }): Promise<GenerateAIResult> {
   try {
-    if (!params.indicator?.trim()) {
-      return {
-        success: false,
-        error: "Indikator pembelajaran wajib diisi sebelum membuat soal.",
-      };
-    }
+    const mode: GenerateMode = params.mode === "tier2_only" ? "tier2_only" : "full";
+    const resolvedTitle = params.title?.trim() || "";
+    const resolvedIndicator = params.indicator?.trim() || "";
+    const cleanedKisiKisi = (params.kisiKisiItems ?? [])
+      .map((item) => ({
+        indicator: item.indicator?.trim() || "",
+        subtopic: item.subtopic?.trim() || undefined,
+        cognitive_level: item.cognitive_level?.trim() || undefined,
+      }))
+      .filter((item) => item.indicator.length > 0);
+    const hasPerQuestionKisi = mode === "full" && cleanedKisiKisi.length > 0;
 
-    if (params.indicator.trim().length < 10) {
-      return {
-        success: false,
-        error: "Indikator pembelajaran terlalu singkat. Tuliskan capaian materi yang lebih spesifik.",
-      };
+    if (mode === "full") {
+      if (params.kisiKisiItems && params.kisiKisiItems.length > 0) {
+        const emptyIdx = params.kisiKisiItems.findIndex((item) => !item.indicator?.trim());
+        if (emptyIdx !== -1) {
+          return {
+            success: false,
+            error: `Indikator soal nomor ${emptyIdx + 1} wajib diisi sebelum membuat soal.`,
+          };
+        }
+      } else {
+        if (!resolvedIndicator) {
+          return {
+            success: false,
+            error: "Indikator atau topik pembelajaran wajib diisi sebelum membuat soal.",
+          };
+        }
+        if (resolvedIndicator.length < 10) {
+          return {
+            success: false,
+            error: "Topik/indikator terlalu singkat. Tuliskan capaian materi yang lebih spesifik.",
+          };
+        }
+      }
+    } else {
+      const tier1List = params.tier1Questions ?? [];
+      if (tier1List.length === 0) {
+        return {
+          success: false,
+          error: "Masukkan minimal 1 soal Tier 1 lengkap dengan pilihan jawaban.",
+        };
+      }
+      for (let i = 0; i < tier1List.length; i++) {
+        const item = tier1List[i];
+        const optLen = item.options?.length ?? 0;
+        if (!item.stem?.trim() || optLen < 4 || item.options?.some((o) => !o?.trim())) {
+          return {
+            success: false,
+            error: `Soal Tier 1 nomor ${i + 1} belum lengkap. Pastikan pertanyaan dan seluruh opsi A–${optLen >= 5 ? "E" : "D"} sudah terisi.`,
+          };
+        }
+      }
     }
 
     const rawQuestions: GeneratedQuestion[] = await generateSet({
-      indicator: params.indicator.trim(),
+      mode,
+      indicator:
+        resolvedIndicator ||
+        resolvedTitle ||
+        (hasPerQuestionKisi ? cleanedKisiKisi[0].indicator : ""),
       subject: params.subject?.trim() || "Umum",
       grade: params.grade || "Kelas 10",
-      count: Math.min(Math.max(params.count || 3, 1), 10),
+      count:
+        mode === "tier2_only"
+          ? Math.min(Math.max(params.tier1Questions?.length || 1, 1), 20)
+          : hasPerQuestionKisi
+            ? Math.min(Math.max(cleanedKisiKisi.length, 1), 20)
+            : Math.min(Math.max(params.count || 3, 1), 20),
       difficulty: params.difficulty || "sedang",
+      tier1OptionCount: params.tier1OptionCount === 5 ? 5 : 4,
+      kisiKisiItems: hasPerQuestionKisi ? cleanedKisiKisi : undefined,
+      tier1Questions: mode === "tier2_only" ? params.tier1Questions : undefined,
     });
 
     const timestamp = Date.now();
@@ -81,6 +145,9 @@ export async function generateAIQuestionsAction(params: {
       reasons: q.reasons,
       correctReason: q.correct_reason,
       explanation: q.explanation,
+      ...(q.indicator ? { indicator: q.indicator } : {}),
+      ...(q.subtopic ? { subtopic: q.subtopic } : {}),
+      ...(q.cognitive_level ? { cognitiveLevel: q.cognitive_level } : {}),
     }));
 
     return {
@@ -173,11 +240,21 @@ export async function createUserAction(params: {
       return { success: false, error: authErr?.message || "Gagal membuat akun pada auth server." };
     }
 
-    const { error: profErr } = await admin.from("profiles").upsert({
+    let { error: profErr } = await admin.from("profiles").upsert({
       id: authData.user.id,
       full_name: fullName,
       role,
+      grade: grade ?? null,
     });
+
+    if (profErr && isMissingColumnError(profErr)) {
+      const fallbackRes = await admin.from("profiles").upsert({
+        id: authData.user.id,
+        full_name: fullName,
+        role,
+      });
+      profErr = fallbackRes.error;
+    }
 
     if (profErr) {
       return { success: false, error: profErr.message };
@@ -373,7 +450,9 @@ export async function saveQuestionSetAction(params: {
 }): Promise<{ success: boolean; setId?: string; error?: string }> {
   try {
     const title = params.title.trim();
-    const indicator = params.indicator.trim();
+    const rawIndicator = params.indicator.trim();
+    const firstQuestionIndicator = params.questions?.[0]?.indicator?.trim() || "";
+    const indicator = rawIndicator || firstQuestionIndicator || title;
     const subject = params.subject?.trim() || "Fisika";
     const grade = params.grade?.trim() || "Kelas 10";
 
@@ -409,7 +488,7 @@ export async function saveQuestionSetAction(params: {
       return { success: false, error: setErr?.message || "Gagal menyimpan paket soal ke database." };
     }
 
-    const questionRows = params.questions.map((q, idx) => ({
+    const baseQuestionRows = params.questions.map((q, idx) => ({
       set_id: newSet.id,
       position: idx + 1,
       stem: q.stem,
@@ -420,7 +499,18 @@ export async function saveQuestionSetAction(params: {
       explanation: q.explanation || null,
     }));
 
-    const { error: qErr } = await admin.from("questions").insert(questionRows);
+    const fullQuestionRows = params.questions.map((q, idx) => ({
+      ...baseQuestionRows[idx],
+      indicator: q.indicator || null,
+      subtopic: q.subtopic || null,
+      cognitive_level: q.cognitiveLevel || null,
+    }));
+
+    let { error: qErr } = await admin.from("questions").insert(fullQuestionRows);
+    if (qErr && isMissingColumnError(qErr)) {
+      const fallbackInsert = await admin.from("questions").insert(baseQuestionRows);
+      qErr = fallbackInsert.error;
+    }
     if (qErr) {
       // Clean up set if questions insertion failed
       await admin.from("question_sets").delete().eq("id", newSet.id);

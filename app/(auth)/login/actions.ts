@@ -12,30 +12,45 @@ function roleHome(role: UserRole) {
   return "/dashboard";
 }
 
-function detectRole(email: string): UserRole {
-  const lower = email.toLowerCase().trim();
-  if (lower.includes("teacher")) return "teacher";
+function detectRole(identifier: string): UserRole {
+  const lower = identifier.toLowerCase().trim();
+  if (lower.includes("teacher") || lower.includes("guru")) return "teacher";
   if (lower.includes("admin")) return "admin";
   return "student";
 }
 
+function normalizeIdentifier(raw: string): string {
+  const clean = raw.trim().toLowerCase();
+  if (clean.includes("@")) return clean;
+  if (clean === "guru" || clean === "teacher") return "teacher@lms.local";
+  if (clean === "admin") return "admin@lms.local";
+  if (clean === "siswa" || clean === "student") return "student@lms.local";
+  return `${clean}@lms.local`;
+}
+
 export async function signIn(_prevState: LoginState, formData: FormData): Promise<LoginState> {
-  const email = String(formData.get("email") ?? "").trim();
+  const identifier = String(formData.get("email") ?? "").trim();
   const password = String(formData.get("password") ?? "");
   const demoRoleParam = String(formData.get("demoRole") ?? "").trim() as UserRole | "";
 
   // 1. Live Supabase Authentication
   if (isSupabaseConfigured()) {
-    if (!email || !password) {
-      return { error: "Email dan kata sandi wajib diisi." };
+    if (!identifier || !password) {
+      return { error: "Username/Email dan kata sandi wajib diisi." };
     }
+
+    // Auto-normalize username to synthetic email if no '@' is present (supports 'teacher', 'guru', etc.)
+    const normalizedEmail = normalizeIdentifier(identifier);
 
     try {
       const supabase = await createClient();
-      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: normalizedEmail,
+        password,
+      });
 
       if (error || !data?.user) {
-        return { error: "Email atau kata sandi salah." };
+        return { error: "Username/Email atau kata sandi salah." };
       }
 
       const { data: profile } = await supabase
@@ -56,6 +71,6 @@ export async function signIn(_prevState: LoginState, formData: FormData): Promis
   }
 
   // 2. Standalone Demo Mode Fallback (when Supabase credentials are not yet set)
-  const role = demoRoleParam || detectRole(email);
+  const role = demoRoleParam || detectRole(identifier);
   redirect(roleHome(role));
 }

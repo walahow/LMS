@@ -173,7 +173,7 @@ export function ScoreSwipeOverlay({
               letterSpacing: "0.05em",
             }}
           >
-            SKOR PEMAHAMAN KONSEP
+            SKOR JAWABAN (TIER 1)
           </span>
 
           <div
@@ -218,7 +218,7 @@ export function ScoreSwipeOverlay({
               marginTop: "4px",
             }}
           >
-            BERDASARKAN TES 3-TIER (JAWABAN + ALASAN + KEYAKINAN)
+            NILAI DARI JAWABAN TIER 1 · PROFIL DIAGNOSIS 3-TIER DI BAWAH
           </span>
 
           {submitError && (
@@ -272,7 +272,7 @@ export function ScoreSwipeOverlay({
                 color: "var(--color-accent)",
               }}
             >
-              PAHAM KONSEP
+              MEMAHAMI KONSEP
             </span>
             <span
               className="font-mono"
@@ -316,7 +316,7 @@ export function ScoreSwipeOverlay({
             </span>
           </div>
 
-          {/* Lucky Guess */}
+          {/* Menebak konsep */}
           <div
             style={{
               padding: "12px",
@@ -336,7 +336,7 @@ export function ScoreSwipeOverlay({
                 color: "var(--color-text-muted)",
               }}
             >
-              LUCKY GUESS
+              MENEBAK KONSEP
             </span>
             <span
               className="font-mono"
@@ -346,7 +346,7 @@ export function ScoreSwipeOverlay({
             </span>
           </div>
 
-          {/* Tidak Paham */}
+          {/* Tidak memahami konsep */}
           <div
             style={{
               padding: "12px",
@@ -366,7 +366,7 @@ export function ScoreSwipeOverlay({
                 color: "var(--color-text-muted)",
               }}
             >
-              TIDAK PAHAM
+              TIDAK MEMAHAMI KONSEP
             </span>
             <span
               className="font-mono"

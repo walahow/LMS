@@ -1,5 +1,6 @@
 import { notFound, redirect } from "next/navigation";
 import { requireRole } from "@/lib/auth";
+import { isMissingColumnError } from "@/lib/auth-utils";
 import { isSupabaseConfigured } from "@/lib/supabase/server";
 import { QuizRunnerView, type QuestionData } from "@/components/QuizRunnerView";
 import { submitFullQuiz } from "./actions";
@@ -30,18 +31,27 @@ export default async function StudentQuizSetPage({
     notFound();
   }
 
-  // Fetch real questions for this set
-  const { data: dbQuestions } = await supabase
+  // Fetch real questions for this set (with schema-cache fallback if 0005 is pending)
+  let qRes: { data: any[] | null; error: any } = await supabase
     .from("questions")
-    .select("id, position, stem, options, correct_option, reasons, correct_reason, explanation")
+    .select("id, position, stem, options, correct_option, reasons, correct_reason, explanation, indicator, subtopic, cognitive_level")
     .eq("set_id", setId)
     .order("position", { ascending: true });
+
+  if (qRes.error && isMissingColumnError(qRes.error)) {
+    qRes = await supabase
+      .from("questions")
+      .select("id, position, stem, options, correct_option, reasons, correct_reason, explanation")
+      .eq("set_id", setId)
+      .order("position", { ascending: true });
+  }
+  const dbQuestions = qRes.data;
 
   if (!dbQuestions || dbQuestions.length === 0) {
     notFound();
   }
 
-  const idxToKey = ["A", "B", "C", "D"];
+  const idxToKey = ["A", "B", "C", "D", "E"];
 
   const questions: QuestionData[] = dbQuestions.map((q) => {
     const rawOptions = (q.options as string[]) || [];
@@ -50,7 +60,10 @@ export default async function StudentQuizSetPage({
     return {
       id: q.position,
       subject: set.subject || "FISIKA",
-      topic: set.title.toUpperCase(),
+      topic: q.subtopic || set.title.toUpperCase(),
+      indicator: q.indicator || undefined,
+      subtopic: q.subtopic || undefined,
+      cognitiveLevel: q.cognitive_level || undefined,
       stem: q.stem,
       correctAnswer: idxToKey[q.correct_option] || "A",
       correctReason: idxToKey[q.correct_reason] || "A",

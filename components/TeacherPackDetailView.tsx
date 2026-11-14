@@ -4,7 +4,8 @@ import React, { useState, useMemo } from "react";
 import Link from "next/link";
 import { ThemeToggler } from "@/components/ThemeToggler";
 import { ProfileDropdown } from "@/components/ProfileDropdown";
-import { type Diagnosis } from "@/lib/diagnose";
+import { ExportExcelButton } from "@/components/ExportExcelButton";
+import { DIAGNOSIS_LABEL, DIAGNOSIS_SHORT_LABEL, type Diagnosis } from "@/lib/diagnose";
 import {
   type TeacherTestPack,
   type TeacherProfileInfo,
@@ -15,8 +16,8 @@ const DIAGNOSIS_THEME: Record<
   { label: string; short: string; bg: string; text: string; border: string; dot: string }
 > = {
   paham: {
-    label: "Paham Konsep",
-    short: "PAHAM",
+    label: DIAGNOSIS_LABEL.paham,
+    short: DIAGNOSIS_SHORT_LABEL.paham,
     bg: "rgba(14, 164, 122, 0.12)",
     text: "#0B6B50",
     border: "#0EA47A",
@@ -31,16 +32,16 @@ const DIAGNOSIS_THEME: Record<
     dot: "#E11D48",
   },
   lucky_guess: {
-    label: "Lucky Guess",
-    short: "TEBAK",
+    label: DIAGNOSIS_LABEL.lucky_guess,
+    short: DIAGNOSIS_SHORT_LABEL.lucky_guess,
     bg: "rgba(245, 165, 36, 0.15)",
     text: "#8A5200",
     border: "#F5A524",
     dot: "#F5A524",
   },
   tidak_paham: {
-    label: "Tidak Paham Konsep",
-    short: "TIDAK",
+    label: DIAGNOSIS_LABEL.tidak_paham,
+    short: DIAGNOSIS_SHORT_LABEL.tidak_paham,
     bg: "rgba(113, 113, 122, 0.12)",
     text: "var(--color-text-muted)",
     border: "var(--color-text-muted)",
@@ -236,6 +237,10 @@ export function TeacherPackDetailView({
             </p>
           </div>
 
+          <div style={{ position: "relative", zIndex: 2 }}>
+            <ExportExcelButton setId={pack.id} scope="teacher" variant="secondary" />
+          </div>
+
           {/* Aggregate Diagnostic Proportion Bar */}
           {packTotalResponses > 0 && (
             <div style={{ display: "flex", flexDirection: "column", gap: "6px", marginTop: "2px" }}>
@@ -267,7 +272,7 @@ export function TeacherPackDetailView({
               >
                 {pack.diagnosticsCount.paham > 0 && (
                   <div
-                    title={`Paham: ${pack.diagnosticsCount.paham}`}
+                    title={`${DIAGNOSIS_LABEL.paham}: ${pack.diagnosticsCount.paham}`}
                     style={{
                       width: `${(pack.diagnosticsCount.paham / packTotalResponses) * 100}%`,
                       backgroundColor: DIAGNOSIS_THEME.paham.border,
@@ -285,7 +290,7 @@ export function TeacherPackDetailView({
                 )}
                 {pack.diagnosticsCount.lucky_guess > 0 && (
                   <div
-                    title={`Lucky Guess: ${pack.diagnosticsCount.lucky_guess}`}
+                    title={`${DIAGNOSIS_LABEL.lucky_guess}: ${pack.diagnosticsCount.lucky_guess}`}
                     style={{
                       width: `${(pack.diagnosticsCount.lucky_guess / packTotalResponses) * 100}%`,
                       backgroundColor: DIAGNOSIS_THEME.lucky_guess.border,
@@ -294,7 +299,7 @@ export function TeacherPackDetailView({
                 )}
                 {pack.diagnosticsCount.tidak_paham > 0 && (
                   <div
-                    title={`Tidak Paham: ${pack.diagnosticsCount.tidak_paham}`}
+                    title={`${DIAGNOSIS_LABEL.tidak_paham}: ${pack.diagnosticsCount.tidak_paham}`}
                     style={{
                       width: `${(pack.diagnosticsCount.tidak_paham / packTotalResponses) * 100}%`,
                       backgroundColor: DIAGNOSIS_THEME.tidak_paham.border,
@@ -316,7 +321,7 @@ export function TeacherPackDetailView({
               >
                 <span style={{ display: "flex", alignItems: "center", gap: "4px", color: DIAGNOSIS_THEME.paham.text }}>
                   <span style={{ width: "7px", height: "7px", backgroundColor: DIAGNOSIS_THEME.paham.border }} />
-                  Paham: <strong>{pack.diagnosticsCount.paham}</strong>
+                  Memahami: <strong>{pack.diagnosticsCount.paham}</strong>
                 </span>
                 <span
                   style={{
@@ -332,11 +337,11 @@ export function TeacherPackDetailView({
                 </span>
                 <span style={{ display: "flex", alignItems: "center", gap: "4px", color: DIAGNOSIS_THEME.lucky_guess.text }}>
                   <span style={{ width: "7px", height: "7px", backgroundColor: DIAGNOSIS_THEME.lucky_guess.border }} />
-                  Lucky: <strong>{pack.diagnosticsCount.lucky_guess}</strong>
+                  Menebak: <strong>{pack.diagnosticsCount.lucky_guess}</strong>
                 </span>
                 <span style={{ display: "flex", alignItems: "center", gap: "4px", color: DIAGNOSIS_THEME.tidak_paham.text }}>
                   <span style={{ width: "7px", height: "7px", backgroundColor: DIAGNOSIS_THEME.tidak_paham.border }} />
-                  Tidak: <strong>{pack.diagnosticsCount.tidak_paham}</strong>
+                  Tdk Memahami: <strong>{pack.diagnosticsCount.tidak_paham}</strong>
                 </span>
               </div>
             </div>
@@ -473,7 +478,7 @@ export function TeacherPackDetailView({
                 border: "1.5px solid var(--color-border)",
               }}
             >
-              ✓ PAHAM (
+              ✓ MEMAHAMI (
               {
                 pack.students.filter(
                   (s) => s.diagnosticsCount.paham > s.diagnosticsCount.miskonsepsi
@@ -500,7 +505,7 @@ export function TeacherPackDetailView({
                 border: "1.5px solid var(--color-border)",
               }}
             >
-              ✗ TIDAK PAHAM ({pack.students.filter((s) => s.diagnosticsCount.tidak_paham > 0).length})
+              ✗ TDK MEMAHAMI ({pack.students.filter((s) => s.diagnosticsCount.tidak_paham > 0).length})
             </button>
 
             <button
@@ -521,7 +526,7 @@ export function TeacherPackDetailView({
                 border: "1.5px solid var(--color-border)",
               }}
             >
-              ✦ LUCKY ({pack.students.filter((s) => s.diagnosticsCount.lucky_guess > 0).length})
+              ✦ MENEBAK ({pack.students.filter((s) => s.diagnosticsCount.lucky_guess > 0).length})
             </button>
           </div>
         </section>

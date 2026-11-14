@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { diagnose } from "./diagnose";
+import { calculateTier1Score, diagnose } from "./diagnose";
 import { MOCK_TEST_PACKS } from "./teacher-data";
 
 describe("MOCK_TEST_PACKS diagnostic consistency", () => {
@@ -10,7 +10,6 @@ describe("MOCK_TEST_PACKS diagnostic consistency", () => {
         let misk = 0;
         let lucky = 0;
         let tidak = 0;
-        let correctCount = 0;
 
         for (const q of student.questions) {
           const result = diagnose(
@@ -27,10 +26,6 @@ describe("MOCK_TEST_PACKS diagnostic consistency", () => {
           if (result === "miskonsepsi") misk++;
           if (result === "lucky_guess") lucky++;
           if (result === "tidak_paham") tidak++;
-
-          if (q.studentAnswer === q.correctOption && q.studentReason === q.correctReason) {
-            correctCount++;
-          }
         }
 
         // Verify student tally
@@ -39,8 +34,11 @@ describe("MOCK_TEST_PACKS diagnostic consistency", () => {
         expect(student.diagnosticsCount.lucky_guess).toBe(lucky);
         expect(student.diagnosticsCount.tidak_paham).toBe(tidak);
 
-        // Verify score formula: Math.round((correctCount / totalQuestions) * 100)
-        const expectedScore = Math.round((correctCount / student.questions.length) * 100);
+        // Verify unified Tier-1 score formula
+        const expectedScore = calculateTier1Score(
+          student.questions.map((q) => ({ answer: q.studentAnswer, correctOption: q.correctOption })),
+          student.questions.length,
+        );
         expect(
           student.score,
           `Score mismatch for ${student.fullName} in ${pack.title}: expected ${expectedScore}, got ${student.score}`

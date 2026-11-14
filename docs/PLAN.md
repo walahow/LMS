@@ -15,7 +15,7 @@ misconception diagnosis.
 | Database / Auth / Storage | Supabase (Postgres + Auth + RLS) |
 | AI | Gemini Flash free tier via OpenAI-compatible endpoint |
 | Hosting | Vercel |
-| Accounts | Admin provisions all users. Self-signup deferred. |
+| Accounts | Admin provisions teachers & admins. Students self-register at `/register` (username-first). |
 | Classes | None. Flat cohort; every teacher sees every student. |
 | AI input | Indicator + subject/grade/count/difficulty. No file upload. |
 | Quiz flow | Sequential, locked tiers |
@@ -197,6 +197,7 @@ required page.
 
 ```
 /(auth)/login
+/(auth)/register                 student self-registration
 /(student)/dashboard             pick a set
 /(student)/quiz/[setId]          three-tier flow
 /(student)/history               past attempts
@@ -324,12 +325,13 @@ AI_MODEL
 
 ---
 
-## 11. Implementation Status (Updated 2026-11-07)
+## 11. Implementation Status (Updated 2026-11-13)
 
 - **Phases 1–5 (Foundation, Generation, Student Flow, Diagnosis & Reporting, Neo-Brutalist HYDE Theme)**: **COMPLETE & VERIFIED**.
-  - All 30 unit tests passing (`vitest run`).
+  - All 42 unit tests passing (`vitest run`).
   - Strict TypeScript check passing with 0 errors (`tsc --noEmit`).
   - Production build passing cleanly (`next build`).
 - **Complete Feature Details & Active Design Specs**:
   - Refer to [README.md](../README.md) for full project architecture, features, routes, and environment configuration.
   - Refer to [GEMINI.md](../GEMINI.md) for master agent handoff and chronological implementation history.
+

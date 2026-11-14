@@ -63,6 +63,9 @@ const USERS = [
 const SEED_QUESTIONS = [
   {
     position: 1,
+    indicator: "Disajikan fenomena benda bergerak dengan kelajuan konstan di lintasan licin, peserta didik mampu menganalisis resultan gaya menggunakan Hukum I Newton.",
+    subtopic: "Hukum I Newton (Kelembaman)",
+    cognitive_level: "C4",
     stem: "Sebuah balok kayu meluncur di atas permukaan lantai es licin tanpa gesekan dengan kelajuan tetap v. Manakah pernyataan yang paling tepat mengenai gaya yang bekerja pada balok tersebut?",
     options: [
       "Balok tidak membutuhkan resultan gaya sama sekali untuk mempertahankan kelajuannya.",
@@ -82,6 +85,9 @@ const SEED_QUESTIONS = [
   },
   {
     position: 2,
+    indicator: "Disajikan kasus tumbukan antara dua kendaraan bermassa berbeda, peserta didik mampu membandingkan besar gaya aksi-reaksi berdasarkan Hukum III Newton.",
+    subtopic: "Hukum III Newton (Aksi-Reaksi)",
+    cognitive_level: "C4",
     stem: "Sebuah truk besar bermassa 5.000 kg menabrak sebuah mobil kecil bermassa 1.000 kg yang sedang berhenti di lampu merah. Bagaimanakah perbandingan besar gaya tumbukan yang dialami kedua kendaraan?",
     options: [
       "Besar gaya yang dialami mobil kecil sama persis dengan besar gaya yang dialami truk besar.",
@@ -101,6 +107,9 @@ const SEED_QUESTIONS = [
   },
   {
     position: 3,
+    indicator: "Peserta didik mampu menjelaskan prinsip dorongan roket di ruang hampa menggunakan konsep gaya aksi-reaksi Hukum III Newton.",
+    subtopic: "Hukum III Newton",
+    cognitive_level: "C3",
     stem: "Sebuah roket dapat meluncur ke atas di luar angkasa hampa udara. Prinsip fisis apa yang memungkinkan roket tersebut terdorong maju tanpa ada udara di sekitarnya?",
     options: [
       "Gas buang yang disemburkan roket ke bawah memberikan gaya reaksi dorong ke atas pada roket.",
@@ -120,6 +129,9 @@ const SEED_QUESTIONS = [
   },
   {
     position: 4,
+    indicator: "Disajikan situasi benda di dalam lift yang bergerak dipercepat ke atas, peserta didik mampu menentukan persamaan gaya normal menggunakan Hukum II Newton.",
+    subtopic: "Penerapan Hukum II Newton",
+    cognitive_level: "C3",
     stem: "Sebuah benda berada dalam lift yang bergerak ke atas dengan percepatan konstan a. Bagaimanakah pembacaan gaya normal (berat semu) pada timbangan di bawah kaki penumpang bermassa m?",
     options: [
       "Gaya normal lebih besar daripada berat gravitasi benda sebenarnya (N = m(g + a)).",
@@ -139,6 +151,9 @@ const SEED_QUESTIONS = [
   },
   {
     position: 5,
+    indicator: "Disajikan data dua benda dengan massa berbeda yang dikenai gaya sama besar, peserta didik mampu menentukan perbandingan percepatannya sesuai Hukum II Newton.",
+    subtopic: "Hukum II Newton",
+    cognitive_level: "C3",
     stem: "Dua benda A dan B masing-masing bermassa 2 kg dan 4 kg ditarik dengan resultan gaya yang sama besar F di atas lantai licin. Bagaimanakah perbandingan percepatan benda A terhadap benda B?",
     options: [
       "Percepatan benda A adalah dua kali percepatan benda B (a_A = 2 * a_B).",
@@ -158,6 +173,9 @@ const SEED_QUESTIONS = [
   },
   {
     position: 6,
+    indicator: "Disajikan peristiwa gerak benda dengan kecepatan konstan di lintasan kasar, peserta didik mampu menganalisis besar gaya gesek dan gaya tarik menggunakan ΣF = 0.",
+    subtopic: "Gaya Gesek & Hukum I Newton",
+    cognitive_level: "C4",
     stem: "Seorang anak menarik gerobak di atas tanah kasar dengan gaya horizontal F. Gerobak bergerak lurus dengan kecepatan konstan. Berapakah besar gaya gesek yang dialami gerobak?",
     options: [
       "Besar gaya gesek sama persis dengan besar gaya tarik horizontal F anak tersebut.",
@@ -271,8 +289,8 @@ async function seed() {
     await admin.from("questions").delete().eq("set_id", setId);
   }
 
-  // Insert questions
-  const questionsToInsert = SEED_QUESTIONS.map((q) => ({
+  // Insert questions (fallback cleanly if 0005 question_indicator columns aren't applied yet)
+  const baseQuestionsToInsert = SEED_QUESTIONS.map((q) => ({
     set_id: setId,
     position: q.position,
     stem: q.stem,
@@ -283,7 +301,21 @@ async function seed() {
     explanation: q.explanation,
   }));
 
-  const { error: questionsError } = await admin.from("questions").insert(questionsToInsert);
+  const fullQuestionsToInsert = SEED_QUESTIONS.map((q, i) => ({
+    ...baseQuestionsToInsert[i],
+    indicator: q.indicator,
+    subtopic: q.subtopic,
+    cognitive_level: q.cognitive_level,
+  }));
+
+  let { error: questionsError } = await admin.from("questions").insert(fullQuestionsToInsert);
+  if (
+    questionsError &&
+    /indicator|subtopic|cognitive_level|schema cache|42703/i.test(questionsError.message || "")
+  ) {
+    const fb = await admin.from("questions").insert(baseQuestionsToInsert);
+    questionsError = fb.error;
+  }
 
   if (questionsError) {
     console.error("❌ Failed to insert questions:", questionsError.message);

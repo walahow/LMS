@@ -7,7 +7,7 @@ options. For each question the student picks (1) an answer, (2) a reason, (3) **
 Roles and pages: student (dashboard, quiz, history, profile) · teacher (dashboard, student detail with
 diagnosis, profile) · admin (generate set, set history/edit, user management) · login.
 
-State as of 2026-11-07.
+State as of 2026-11-13.
 
 ## ⚠ Branch Structure & Code Location
 - **`fullstack` branch**:
@@ -260,6 +260,17 @@ State as of 2026-11-07.
     - Strictly prevents deleting administrator accounts (`role === "admin"`) and prevents self-deletion.
     - Added tactile Neo-Brutalist `[ HAPUS ✕ ]` button on student and teacher cards in `components/AdminDashboardView.tsx` with an inline 2-step confirmation prompt (`HAPUS? [ YA, HAPUS ] [ BATAL ]`), loading state (`[ MENGHAPUS... ]`), optimistic state filtering, and toast feedback.
     - Administrator cards strictly exclude both `[ RESET KATA SANDI ↺ ]` and `[ HAPUS ✕ ]`.
+
+38. **Student Self-Registration (Username-First) & Dual Login (`app/(auth)/register/`, `components/RegisterView.tsx`, `proxy.ts`, `0004_profile_grade_username.sql`)**:
+    - Enabled public student self-registration at `/register` adhering strictly to mobile-first Neo-Brutalist HYDE aesthetics.
+    - **Strict Role Lock**: Self-registration is strictly hardcoded to `'student'` — no role selection parameter is accepted or processed. Teachers and administrators remain provisioned exclusively by administrators.
+    - **Username-First Architecture**: Tailored for Indonesian high school students who often lack dependable personal email inboxes. Registration asks for `Nama Lengkap`, `Username` (3–20 alphanumeric chars), `Kelas / Rombel` (freeform string e.g. "Kelas X-A", "10 MIPA 1"), and password confirmation with animated SVG eye toggle (`BoxyPasswordInput`).
+    - **Synthetic Domain Mapping**: Username is mapped internally to `${username}@lms.local` in Supabase Auth, completely avoiding external SMTP bottlenecks while preserving full Supabase Auth functionality.
+    - **Instant Login**: Upon successful registration, the student session is established immediately and redirects straight to `/dashboard` without requiring manual re-login.
+    - **Unified Username / Email Login (`/login`)**: Login input updated to accept either `Username` or `Email`. If no `@` is detected, the action automatically maps it to `${username}@lms.local`. Teachers/Admins can continue using their standard emails.
+    - **Edge Proxy Route Allowlist (`proxy.ts`)**: Added `/register` to public area routing so unauthenticated students can access registration, while authenticated users navigating to `/register` are redirected to their role home.
+    - **Database Migration & Types**: Added `supabase/migrations/0004_profile_grade_username.sql` (`grade text`, `username text unique`) and synchronized `lib/database.types.ts`.
+    - **Verification**: 42/42 unit tests passing (`vitest run`), 0 TypeScript errors (`tsc --noEmit`), and production Turbopack build succeeding (`next build`).
 
 ## Remaining Next Steps
 - Both frontend and backend live Supabase integration, authentication, RBAC, test-taking, and diagnostic reporting are fully complete and verified with passing unit tests (`npm run test`) and zero TypeScript errors (`npm run typecheck`).

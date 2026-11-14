@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useActionState } from "react";
+import Link from "next/link";
 import { signIn, type LoginState } from "@/app/(auth)/login/actions";
 import { ButtonLoadingBar } from "@/components/ButtonLoadingBar";
 
@@ -143,24 +144,24 @@ export function LoginView() {
           </div>
 
           <form action={formAction} style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
-            {/* Email Field */}
+            {/* Username or Email Field */}
             <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
               <label
                 htmlFor="email"
                 className="font-mono"
                 style={{ fontSize: "11px", fontWeight: 700, color: "var(--color-text)" }}
               >
-                ALAMAT EMAIL *
+                USERNAME / EMAIL *
               </label>
               <input
                 id="email"
                 name="email"
-                type="email"
+                type="text"
                 required
                 autoComplete="username"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="nama@sekolah.sch.id"
+                placeholder="username atau email@sekolah.sch.id"
                 className="boxy-input"
                 style={{ fontSize: "13px" }}
               />
@@ -300,7 +301,39 @@ export function LoginView() {
           </form>
         </section>
 
-        {/* 3. Policy Callout */}
+        {/* 3. Register Student Account Callout */}
+        <section
+          className="boxy-card-flat"
+          style={{
+            padding: "14px 18px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: "12px",
+          }}
+        >
+          <div style={{ fontSize: "12px", color: "var(--color-text-muted)" }}>
+            Belum punya akun siswa?
+          </div>
+          <Link
+            href="/register"
+            className="boxy-btn-accent font-mono"
+            style={{
+              padding: "7px 12px",
+              fontSize: "11.5px",
+              fontWeight: 800,
+              textDecoration: "none",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "6px",
+            }}
+          >
+            <span>DAFTAR SISWA</span>
+            <span>➔</span>
+          </Link>
+        </section>
+
+        {/* 4. Policy Callout */}
         <div
           style={{
             padding: "10px 14px",
@@ -316,7 +349,7 @@ export function LoginView() {
         >
           <span style={{ color: "var(--color-accent)", fontWeight: 800 }}>ℹ</span>
           <span>
-            Akun dibuat dan dikelola oleh admin sekolah. Halaman ini sengaja tidak menyediakan tombol registrasi mandiri.
+            Pendaftaran mandiri tersedia untuk akun <strong>Siswa</strong>. Akun Guru dan Administrator dikelola langsung oleh pihak sekolah.
           </span>
         </div>
 

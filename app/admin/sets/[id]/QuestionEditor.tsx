@@ -2,6 +2,7 @@
 
 import React, { useActionState, useState } from "react";
 import { ButtonLoadingBar } from "@/components/ButtonLoadingBar";
+import { COGNITIVE_LEVEL_OPTIONS } from "@/lib/tier1-parser";
 import { updateQuestion, type UpdateQuestionState } from "./actions";
 
 type QuestionEditorProps = {
@@ -9,6 +10,9 @@ type QuestionEditorProps = {
   question: {
     id: string;
     position: number;
+    indicator?: string;
+    subtopic?: string;
+    cognitiveLevel?: string;
     stem: string;
     options: string[];
     correctOption: number;
@@ -23,9 +27,14 @@ const initialState: UpdateQuestionState = {};
 
 export function QuestionEditor({ setId, question, index }: QuestionEditorProps) {
   const [state, formAction, pending] = useActionState(updateQuestion, initialState);
-  const [correctOption, setCorrectOption] = useState(question.correctOption);
+  const [optionCount, setOptionCount] = useState<4 | 5>(question.options.length >= 5 ? 5 : 4);
+  const [correctOption, setCorrectOption] = useState(
+    question.correctOption < (question.options.length >= 5 ? 5 : 4) ? question.correctOption : 0,
+  );
   const [correctReason, setCorrectReason] = useState(question.correctReason);
   const [isSavedMock, setIsSavedMock] = useState(false);
+
+  const visibleOptions = Array.from({ length: optionCount }, (_, i) => question.options[i] ?? "");
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     // If running in standalone mock mode (setId starts with "mock-")
@@ -95,6 +104,82 @@ export function QuestionEditor({ setId, question, index }: QuestionEditorProps) 
         )}
       </div>
 
+      {/* Kisi-Kisi Per Soal */}
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: "8px",
+          padding: "10px 12px",
+          border: "1.5px solid var(--color-border)",
+          backgroundColor: "var(--color-bg)",
+        }}
+      >
+        <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+          <label
+            htmlFor={`indicator-${question.id}`}
+            className="font-mono"
+            style={{ fontSize: "11px", fontWeight: 700, color: "var(--color-text)" }}
+          >
+            INDIKATOR SOAL (BUTIR INI)
+          </label>
+          <input
+            id={`indicator-${question.id}`}
+            name="indicator"
+            defaultValue={question.indicator || ""}
+            placeholder="Contoh: Disajikan kasus gerak benda, siswa mampu menganalisis Hukum I Newton..."
+            className="boxy-input"
+            style={{ fontSize: "12.5px" }}
+          />
+        </div>
+
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 220px", gap: "8px" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+            <label
+              htmlFor={`subtopic-${question.id}`}
+              className="font-mono"
+              style={{ fontSize: "10.5px", fontWeight: 700, color: "var(--color-text-muted)" }}
+            >
+              SUBMATERI (OPSIONAL)
+            </label>
+            <input
+              id={`subtopic-${question.id}`}
+              name="subtopic"
+              defaultValue={question.subtopic || ""}
+              placeholder="Misal: Hukum I Newton"
+              className="boxy-input"
+              style={{ fontSize: "12px" }}
+            />
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+            <label
+              htmlFor={`cognitive-${question.id}`}
+              className="font-mono"
+              style={{ fontSize: "10.5px", fontWeight: 700, color: "var(--color-text-muted)" }}
+            >
+              LEVEL KOGNITIF (OPSIONAL)
+            </label>
+            <select
+              id={`cognitive-${question.id}`}
+              name="cognitive_level"
+              defaultValue={question.cognitiveLevel || ""}
+              className="boxy-input"
+              style={{ fontSize: "12px" }}
+            >
+              {COGNITIVE_LEVEL_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.value === "" ? "— Tidak ditentukan —" : opt.label}
+                </option>
+              ))}
+              {question.cognitiveLevel &&
+                !COGNITIVE_LEVEL_OPTIONS.some((o) => o.value === question.cognitiveLevel) && (
+                  <option value={question.cognitiveLevel}>{question.cognitiveLevel}</option>
+                )}
+            </select>
+          </div>
+        </div>
+      </div>
+
       {/* Question Stem */}
       <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
         <label
@@ -117,20 +202,43 @@ export function QuestionEditor({ setId, question, index }: QuestionEditorProps) 
 
       {/* Tier 1: Options */}
       <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "6px" }}>
           <span
             className="font-mono"
             style={{ fontSize: "11px", fontWeight: 800, color: "var(--color-text)" }}
           >
-            PILIHAN JAWABAN (TIER 1)
+            PILIHAN JAWABAN (TIER 1 · {optionCount} OPSI)
           </span>
-          <span style={{ fontSize: "11px", color: "var(--color-text-muted)" }}>
-            Pilih satu opsi sebagai kunci benar
-          </span>
+          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <span style={{ fontSize: "11px", color: "var(--color-text-muted)" }}>
+              Pilih satu opsi sebagai kunci benar
+            </span>
+            <button
+              type="button"
+              onClick={() => {
+                if (optionCount === 4) {
+                  setOptionCount(5);
+                } else {
+                  setOptionCount(4);
+                  if (correctOption > 3) setCorrectOption(0);
+                }
+              }}
+              className="badge-mono"
+              style={{
+                cursor: "pointer",
+                fontSize: "10px",
+                padding: "2px 7px",
+                backgroundColor: "var(--color-bg)",
+                color: "var(--color-text)",
+              }}
+            >
+              {optionCount === 4 ? "+ TAMBAH OPSI E" : "− HAPUS OPSI E"}
+            </button>
+          </div>
         </div>
 
         <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-          {question.options.map((opt, i) => {
+          {visibleOptions.map((opt, i) => {
             const isKey = correctOption === i;
             const letter = String.fromCharCode(65 + i);
 

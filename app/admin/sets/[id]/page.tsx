@@ -4,6 +4,7 @@ import { ThemeToggler } from "@/components/ThemeToggler";
 import { fetchAdminSetDetail } from "@/lib/admin-data";
 import { QuestionEditor } from "./QuestionEditor";
 import { PublishToggleButton } from "./PublishToggleButton";
+import { ExportExcelButton } from "@/components/ExportExcelButton";
 
 export const dynamic = "force-dynamic";
 
@@ -152,8 +153,11 @@ export default async function AdminSetDetailPage({
               </span>
             </div>
 
-            {/* Toggle Publish action */}
-            <PublishToggleButton setId={set.id} published={set.published} />
+            {/* Toggle Publish & Excel Export actions */}
+            <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
+              <ExportExcelButton setId={set.id} scope="admin" variant="compact" label="⬇ EXCEL (.XLSX)" />
+              <PublishToggleButton setId={set.id} published={set.published} />
+            </div>
           </div>
 
           {/* Title & Indicator */}
@@ -180,6 +184,32 @@ export default async function AdminSetDetailPage({
             </p>
           </div>
         </section>
+
+        {/* Database migration 0005 missing notice */}
+        {set.missingQuestionMetadataColumns && (
+          <section
+            style={{
+              padding: "14px 16px",
+              border: "1.5px solid #D97706",
+              backgroundColor: "rgba(217, 119, 6, 0.1)",
+              color: "var(--color-text)",
+              display: "flex",
+              flexDirection: "column",
+              gap: "8px",
+            }}
+          >
+            <span className="font-mono" style={{ fontSize: "11.5px", fontWeight: 800, color: "#B45309" }}>
+              ⚠ KOLOM INDIKATOR PER SOAL BELUM ADA DI DATABASE SUPABASE
+            </span>
+            <p style={{ fontSize: "12px", lineHeight: 1.5, margin: 0 }}>
+              Kolom <code>indicator</code>, <code>subtopic</code>, dan <code>cognitive_level</code> pada tabel{" "}
+              <code>questions</code> belum ditambahkan di Supabase, sehingga indikator per nomor belum bisa ditampilkan
+              atau disimpan. Jalankan SQL dari <code>supabase/migrations/0005_question_indicator.sql</code> (dan{" "}
+              <code>0004_profile_grade_username.sql</code>) di Supabase SQL Editor, lalu jalankan{" "}
+              <code>node scripts/import-customer-packs.mjs</code>.
+            </p>
+          </section>
+        )}
 
         {/* Question Editors List */}
         <section style={{ display: "flex", flexDirection: "column", gap: "16px" }}>

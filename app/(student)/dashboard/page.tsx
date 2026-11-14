@@ -1,4 +1,5 @@
 import { requireRole } from "@/lib/auth";
+import { calculateTier1Score } from "@/lib/diagnose";
 import { isSupabaseConfigured } from "@/lib/supabase/server";
 import {
   StudentDashboardView,
@@ -51,11 +52,16 @@ export default async function StudentDashboardPage({
     .slice(0, 2)
     .toUpperCase();
 
+  const displayContact =
+    profile.username && (!user.email || user.email.endsWith("@lms.local"))
+      ? `@${profile.username}`
+      : user.email || "student@lms.local";
+
   const studentProfile: StudentProfileInfo = {
     fullName: profile.full_name,
     initials,
-    email: user.email || "student@lms.local",
-    grade: "KELAS X-A",
+    email: displayContact,
+    grade: profile.grade || "KELAS X-A",
   };
 
   // Fetch real published question sets
@@ -102,14 +108,13 @@ export default async function StudentDashboardPage({
         .eq("attempt_id", attempt.id);
 
       const responses: any[] = responsesRes.data ?? [];
-      let correctCount = 0;
-      for (const r of responses) {
-        const q = r.questions as any;
-        if (q && r.answer === q.correct_option && r.reason === q.correct_reason) {
-          correctCount++;
-        }
-      }
-      const score = totalQuestions > 0 ? Math.round((correctCount / totalQuestions) * 100) : 0;
+      const score = calculateTier1Score(
+        responses.map((r) => ({
+          answer: r.answer,
+          correctOption: (r.questions as any)?.correct_option ?? -1,
+        })),
+        totalQuestions,
+      );
       completedCount++;
       totalScoreSum += score;
 

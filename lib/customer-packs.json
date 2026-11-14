@@ -1,0 +1,900 @@
+[
+  {
+    "key": "hukum-newton",
+    "title": "Hukum Newton",
+    "subject": "Fisika",
+    "grade": "Kelas 10 SMA",
+    "indicator": "Menganalisis Hukum I, II, dan III Newton tentang gerak, resultan gaya, keseimbangan, serta pasangan aksi–reaksi dalam berbagai sistem benda.",
+    "questions": [
+      {
+        "stem": "Sebuah benda dikenai dua gaya horizontal yang berlawanan arah. Gaya pertama sebesar 12 N ke kanan dan gaya kedua sebesar 7 N ke kiri. Agar benda berada dalam keadaan setimbang translasi, gaya ketiga yang harus diberikan adalah ....",
+        "options": [
+          "5 N ke kanan",
+          "5 N ke kiri",
+          "19 N ke kanan",
+          "19 N ke kiri",
+          "12 N ke kanan"
+        ],
+        "correctOption": 1,
+        "reasons": [
+          "Agar benda setimbang, resultan gaya harus bernilai nol sehingga diperlukan gaya tambahan sebesar 5 N ke kiri untuk mengimbangi selisih gaya ke kanan.",
+          "Keseimbangan tercapai jika semua gaya dijumlahkan tanpa memperhatikan arahnya.",
+          "Gaya ketiga harus dijumlahkan secara langsung dengan gaya yang lebih besar sehingga bernilai 19 N ke kiri.",
+          "Benda sudah bergerak ke kanan, maka gaya ketiga harus diberikan ke kanan sebesar selisih kedua gaya."
+        ],
+        "correctReason": 0,
+        "explanation": "Untuk mencapai keadaan setimbang translasi, syaratnya adalah resultan gaya harus bernilai nol (Sum F = 0). Diketahui gaya ke kanan 12 N dan gaya ke kiri 7 N, sehingga terdapat kelebihan gaya sebesar 12 - 7 = 5 N ke arah kanan. Agar resultan gaya menjadi nol, diperlukan gaya ketiga yang melawan arah kelebihan tersebut, yaitu sebesar 5 N ke kiri.",
+        "indicator": "Menganalisis hubungan antara resultan gaya nol dan keadaan gerak benda.",
+        "subtopic": "Resultan gaya dan keseimbangan",
+        "cognitiveLevel": "C4"
+      },
+      {
+        "stem": "Dua orang mendorong sebuah lemari pada lantai datar. Orang pertama memberikan gaya 100 N ke kanan, sedangkan orang kedua memberikan gaya 60 N ke kiri. Jika gesekan diabaikan, pernyataan yang tepat adalah ....",
+        "options": [
+          "Lemari mengalami resultan gaya 160 N ke kanan.",
+          "Lemari mengalami resultan gaya 40 N ke kanan.",
+          "Lemari mengalami resultan gaya 40 N ke kiri.",
+          "Lemari mengalami resultan gaya nol karena terdapat dua gaya yang berlawanan arah.",
+          "Lemari mengalami resultan gaya 60 N ke kanan."
+        ],
+        "correctOption": 1,
+        "reasons": [
+          "Lemari akan bergerak mengikuti arah gaya terkecil karena gaya tersebut bekerja lebih dulu.",
+          "Semua gaya yang bekerja pada benda harus dijumlahkan secara aljabar tanpa memperhatikan arahnya sehingga hasilnya 160 N.",
+          "Lemari bergerak ke kanan karena gaya pertama lebih besar, dan resultannya adalah selisih kedua gaya yaitu 100 N - 60 N = 40 N ke kanan.",
+          "Karena ada dua gaya yang berlawanan arah, keduanya saling meniadakan secara total sehingga resultan gaya selalu nol."
+        ],
+        "correctReason": 2,
+        "explanation": "Resultan gaya diperoleh dengan menjumlahkan vektor gaya yang bekerja pada benda. Dengan menganggap arah ke kanan bernilai positif dan ke kiri negatif, maka Sigma F = 100 N - 60 N = +40 N. Tanda positif menunjukkan arah ke kanan sebesar 40 N.",
+        "indicator": "Menganalisis resultan gaya yang bekerja pada benda dan menentukan kondisi keseimbangan.",
+        "subtopic": "Resultan gaya pada dua gaya berlawanan arah",
+        "cognitiveLevel": "C4"
+      },
+      {
+        "stem": "Sebuah troli bergerak lurus dengan kecepatan konstan sebesar 3 m/s di lantai horizontal. Jika gaya hambat diabaikan, resultan gaya horizontal pada troli adalah ....",
+        "options": [
+          "Sama dengan gaya yang mempertahankan gerak troli ke depan.",
+          "Lebih besar dari nol dan searah dengan gerak troli.",
+          "Nol.",
+          "Berlawanan arah dengan gerak troli dan besarnya sama dengan berat troli.",
+          "Resultan gaya horizontal sebesar 3 N searah gerak troli."
+        ],
+        "correctOption": 2,
+        "reasons": [
+          "Setiap benda yang bergerak pasti memiliki resultan gaya searah dengan arah geraknya.",
+          "Berdasarkan Hukum I Newton, benda yang bergerak dengan kecepatan konstan (GLB) memiliki percepatan nol, sehingga resultan gaya yang bekerja pada benda adalah nol.",
+          "Kecepatan konstan menunjukkan adanya gaya dorong konstan yang terus-menerus bekerja mengimbangi kecepatan benda.",
+          "Nilai resultan gaya selalu sama dengan besar kecepatan troli jika tidak ada gaya gesek."
+        ],
+        "correctReason": 1,
+        "explanation": "Menurut Hukum I Newton (Kelembaman), jika suatu benda bergerak dengan kecepatan konstan (percepatan a = 0), maka resultan gaya yang bekerja pada benda tersebut harus bernilai nol (Sigma F = m * a = 0). Oleh karena gaya hambat diabaikan dan kecepatan konstan, tidak diperlukan resultan gaya horizontal.",
+        "indicator": "Menganalisis hubungan antara kecepatan konstan dan resultan gaya berdasarkan Hukum I Newton.",
+        "subtopic": "Hukum I Newton dan kecepatan konstan",
+        "cognitiveLevel": "C4"
+      },
+      {
+        "stem": "Sebuah kotak meluncur menuruni bidang miring dengan kecepatan konstan. Gaya-gaya yang bekerja sejajar dengan bidang adalah komponen berat yang mengarah ke bawah bidang dan gaya gesek yang mengarah ke atas bidang. Pernyataan yang benar adalah ....",
+        "options": [
+          "Komponen berat lebih besar daripada gaya gesek sehingga kotak mengalami percepatan.",
+          "Gaya gesek lebih besar daripada komponen berat sehingga kotak mengalami perlambatan.",
+          "Komponen berat sejajar bidang sama besar dengan gaya gesek sehingga resultan gaya sejajar bidang nol.",
+          "Tidak ada gaya yang bekerja sejajar bidang karena kotak bergerak dengan kecepatan konstan.",
+          "Gaya gesek dan komponen berat sejajar bidang sama-sama mengarah ke bawah bidang."
+        ],
+        "correctOption": 2,
+        "reasons": [
+          "Benda yang meluncur ke bawah pasti memiliki gaya dorong tambahan selain komponen berat dan gaya gesek.",
+          "Kecepatan konstan pada bidang miring terjadi karena gaya gesek bernilai nol dan hanya dipengaruhi gravitasi.",
+          "Karena kecepatan konstan, percepatan bernilai nol, sehingga berdasarkan Hukum I Newton, komponen gaya berat sejajar bidang harus sama besar dengan gaya gesek agar resultan gaya nol.",
+          "Komponen berat selalu lebih kecil daripada gaya gesek pada setiap benda yang bergerak turun."
+        ],
+        "correctReason": 2,
+        "explanation": "Benda yang meluncur menuruni bidang miring dengan kecepatan konstan berarti percepatannya nol. Berdasarkan Hukum I Newton, resultan gaya sejajar bidang miring harus bernilai nol. Ini berarti komponen gaya berat yang sejajar bidang (W sin theta) harus sama besar dan berlawanan arah dengan gaya gesek kinetik.",
+        "indicator": "Mengevaluasi hubungan antara gaya gravitasi, gaya gesek, dan resultan gaya pada benda yang bergerak dengan kecepatan konstan di bidang miring.",
+        "subtopic": "Gaya gravitasi dan gaya gesek pada bidang miring",
+        "cognitiveLevel": "C5"
+      },
+      {
+        "stem": "Sebuah kereta cucian bermassa 4,50 kg dikenai resultan gaya eksternal sebesar 60,0 N. Besar percepatan kereta tersebut adalah ....",
+        "options": [
+          "0,075 m/s²",
+          "7,50 m/s²",
+          "13,33 m/s²",
+          "270 m/s²",
+          "10,0 m/s²."
+        ],
+        "correctOption": 2,
+        "reasons": [
+          "Berdasarkan Hukum II Newton, percepatan diperoleh dari pembagian resultan gaya dengan massa benda, yaitu a = F / m = 60,0 / 4,50 = 13,33 m/s².",
+          "Percepatan benda selalu bernilai tetap sebesar percepatan gravitasi bumi yaitu 10 m/s².",
+          "Percepatan dihitung dengan mengalikan massa dengan gaya, yaitu 4,50 kg dikali 60,0 N.",
+          "Massa dibagi dengan gaya eksternal untuk mendapatkan nilai percepatan benda."
+        ],
+        "correctReason": 0,
+        "explanation": "Hukum II Newton menyatakan bahwa percepatan sebuah benda berbanding lurus dengan resultan gaya dan berbanding terbalik dengan massanya (a = Sigma F / m). Dengan memasukkan nilai F = 60,0 N dan m = 4,50 kg, diperoleh a = 60,0 / 4,50 = 13,33 m/s².",
+        "indicator": "Menganalisis hubungan antara resultan gaya, massa, dan percepatan benda.",
+        "subtopic": "Hukum II Newton: gaya, massa, dan percepatan",
+        "cognitiveLevel": "C4"
+      },
+      {
+        "stem": "Sebuah mesin pemotong rumput bergerak mendatar. Seseorang mendorong mesin dengan gaya 75 N ke depan, sedangkan gaya gesek yang bekerja sebesar 24 N ke belakang. Jika massa mesin 24 kg, besar percepatannya adalah ....",
+        "options": [
+          "1,00 m/s²",
+          "2,13 m/s²",
+          "3,13 m/s²",
+          "4,13 m/s²",
+          "2,00 m/s²."
+        ],
+        "correctOption": 1,
+        "reasons": [
+          "Percepatan bernilai nol karena mesin pemotong rumput bergerak dengan kecepatan tetap.",
+          "Resultan gaya adalah selisih gaya dorong dan gaya gesek (75 - 24 = 51 N), lalu percepatan dihitung dengan a = Sigma F / m = 51 / 24 = 2,13 m/s².",
+          "Gaya dorong dan gaya gesek dijumlahkan karena bekerja pada sumbu horizontal yang sama.",
+          "Percepatan dihitung langsung dengan membagi gaya dorong dengan massa tanpa memperhitungkan gaya gesek."
+        ],
+        "correctReason": 1,
+        "explanation": "Pertama, tentukan resultan gaya horizontal: Sigma F = F_dorong - f_gesek = 75 N - 24 N = 51 N. Selanjutnya, gunakan Hukum II Newton untuk mencari percepatan: a = Sigma F / m = 51 N / 24 kg = 2,13 m/s².",
+        "indicator": "Menganalisis hubungan antara gaya dorong, gaya gesek, dan resultan gaya pada benda.",
+        "subtopic": "Gaya dorong, gaya gesek, dan percepatan",
+        "cognitiveLevel": "C4"
+      },
+      {
+        "stem": "Sebuah benda bermassa 5 kg dikenai dua gaya horizontal yang saling tegak lurus. Gaya pertama sebesar 12 N ke kanan, sedangkan gaya kedua sebesar 5 N ke atas. Besar percepatan benda adalah ....",
+        "options": [
+          "1,0 m/s²",
+          "2,6 m/s²",
+          "2,8 m/s²",
+          "3,4 m/s²",
+          "1,4 m/s²."
+        ],
+        "correctOption": 1,
+        "reasons": [
+          "Gaya tegak lurus tidak dapat menghasilkan resultan gaya karena arahnya berbeda.",
+          "Percepatan dihitung hanya dengan menggunakan gaya terbesar yang bekerja pada benda.",
+          "Resultan gaya dicari menggunakan teorema Pythagoras karena tegak lurus (R = sqrt(12² + 5²) = 13 N), lalu percepatannya a = 13 / 5 = 2,6 m/s².",
+          "Kedua gaya dijumlahkan secara aljabar langsung karena bekerja pada bidang datar yang sama."
+        ],
+        "correctReason": 2,
+        "explanation": "Karena kedua gaya saling tegak lurus, resultan gaya dicari dengan rumus Pythagoras: Sigma F = sqrt(12² + 5²) = sqrt(144 + 25) = sqrt(169) = 13 N. Percepatan benda dihitung dengan a = Sigma F / m = 13 N / 5 kg = 2,6 m/s².",
+        "indicator": "Menganalisis pengaruh resultan gaya pada arah tertentu terhadap percepatan benda.",
+        "subtopic": "Resultan gaya vektor dan percepatan",
+        "cognitiveLevel": "C4"
+      },
+      {
+        "stem": "Sebuah balok bermassa 4 kg berada di atas bidang horizontal licin. Balok ditarik dengan gaya horizontal sebesar 20 N. Besar percepatan balok adalah ....",
+        "options": [
+          "0 m/s²",
+          "4 m/s²",
+          "5 m/s²",
+          "80 m/s²",
+          "0,2 m/s²."
+        ],
+        "correctOption": 2,
+        "reasons": [
+          "Karena bidang licin tidak ada gaya gesek, percepatan dihitung langsung menggunakan Hukum II Newton: a = F / m = 20 / 4 = 5 m/s².",
+          "Percepatan balok dipengaruhi oleh berat balok yang dikalikan dengan gravitasi.",
+          "Massa dikalikan dengan gaya untuk mendapatkan nilai percepatan pada bidang licin.",
+          "Bidang licin menyebabkan percepatan benda bernilai nol karena tidak ada hambatan sama sekali."
+        ],
+        "correctReason": 0,
+        "explanation": "Pada bidang horizontal licin, gaya gesek diabaikan sehingga gaya tarikan 20 N bertindak sebagai resultan gaya tunggal. Berdasarkan Hukum II Newton, a = F / m = 20 N / 4 kg = 5 m/s².",
+        "indicator": "Menganalisis hubungan antara gaya resultan dan percepatan benda pada permukaan licin.",
+        "subtopic": "Hukum II Newton pada bidang licin",
+        "cognitiveLevel": "C4"
+      },
+      {
+        "stem": "Sebuah benda bermassa 2,00 kg didorong vertikal ke atas oleh gaya sebesar 25,0 N. Jika percepatan gravitasi g = 9,8 m/s², besar dan arah percepatan benda adalah ....",
+        "options": [
+          "2,7 m/s² ke atas",
+          "9,8 m/s² ke atas",
+          "12,5 m/s² ke atas",
+          "22,3 m/s² ke atas",
+          "5,4 m/s² ke atas."
+        ],
+        "correctOption": 0,
+        "reasons": [
+          "Berdasarkan Hukum II Newton pada arah vertikal, Sigma F = F - m*g = m*a, sehingga a = (25 - (2*9,8)) / 2 = 5,4 / 2 = 2,7 m/s² ke atas.",
+          "Percepatan benda sama dengan percepatan gravitasi karena geraknya vertikal.",
+          "Arah percepatan ke bawah karena nilai gaya dorong lebih kecil daripada berat benda.",
+          "Gaya dorong langsung dibagi dengan massa benda tanpa dikurangi gaya berat."
+        ],
+        "correctReason": 0,
+        "explanation": "Pada arah vertikal, gaya yang bekerja adalah gaya dorong ke atas (F) dan gaya berat ke bawah (W = m * g = 2 * 9,8 = 19,6 N). Resultan gaya adalah Sigma F = F - W = 25,0 N - 19,6 N = 5,4 N ke atas. Percepatannya adalah a = Sigma F / m = 5,4 / 2,00 = 2,7 m/s² ke atas.",
+        "indicator": "Menganalisis pengaruh gaya ke atas dan gaya gravitasi terhadap percepatan benda.",
+        "subtopic": "Gaya vertikal dan percepatan gravitasi",
+        "cognitiveLevel": "C4"
+      },
+      {
+        "stem": "Sebuah lift bermassa 1,70 × 10³ kg dipercepat ke atas sebesar 1,20 m/s². Jika g = 9,8 m/s², besar tegangan tali penyangga lift adalah ....",
+        "options": [
+          "14.620 N",
+          "16.660 N",
+          "18.700 N",
+          "20.400 N",
+          "17.000 N."
+        ],
+        "correctOption": 2,
+        "reasons": [
+          "Tegangan tali hanya bernilai sebesar berat lift tanpa memperhitungkan percepatannya.",
+          "Tegangan tali dihitung dengan membagi massa dengan jumlah percepatan.",
+          "Tegangan tali pada lift yang dipercepat ke atas dihitung dengan T = m * (g + a) = 1700 * (9,8 + 1,2) = 1700 * 11 = 18.700 N.",
+          "Percepatan lift dikurangkan dari percepatan gravitasi karena arahnya berlawanan."
+        ],
+        "correctReason": 2,
+        "explanation": "Untuk lift yang bergerak dipercepat ke atas, persamaan Hukum II Newton adalah T - w = m * a, sehingga besar tegangan tali adalah T = m * (g + a). Diketahui m = 1,70 * 10³ kg = 1700 kg, g = 9,8 m/s², dan a = 1,20 m/s², maka T = 1700 * (9,8 + 1,2) = 1700 * 11 = 18.700 N.",
+        "indicator": "Menganalisis hubungan antara tegangan tali, berat lift, dan percepatan vertikal.",
+        "subtopic": "Tegangan tali pada lift",
+        "cognitiveLevel": "C4"
+      },
+      {
+        "stem": "Sebuah kapal menembakkan peluru. Ketika peluru memperoleh gaya dari kapal, peluru juga memberikan gaya pada kapal. Pernyataan yang benar mengenai kedua gaya tersebut adalah ....",
+        "options": [
+          "Gaya kapal pada peluru lebih besar daripada gaya peluru pada kapal.",
+          "Gaya peluru pada kapal lebih besar karena massa kapal lebih besar.",
+          "Kedua gaya sama besar dan berlawanan arah, tetapi bekerja pada benda yang berbeda.",
+          "Kedua gaya sama besar dan berlawanan arah serta bekerja pada peluru yang sama.",
+          "Kedua gaya sama besar dan searah serta bekerja pada dua benda berbeda."
+        ],
+        "correctOption": 2,
+        "reasons": [
+          "Massa benda yang lebih besar selalu menghasilkan gaya aksi yang lebih besar pada benda bermassa kecil.",
+          "Pasangan gaya aksi-reaksi bekerja pada benda yang sama sehingga saling meniadakan.",
+          "Gaya interaksi antara dua benda selalu besarnya sama, berlawanan arah, dan bekerja pada dua benda yang berbeda sesuai Hukum III Newton.",
+          "Gaya aksi dan reaksi memiliki besar yang sama dan arah yang searah karena kedua benda bergerak bersamaan."
+        ],
+        "correctReason": 2,
+        "explanation": "Berdasarkan Hukum III Newton, setiap gaya aksi selalu menimbulkan gaya reaksi yang sama besar, berlawanan arah, dan bekerja pada benda yang berbeda. Oleh karena itu, gaya kapal pada peluru sama besarnya dengan gaya peluru pada kapal, terlepas dari perbedaan massa mereka.",
+        "indicator": "Menganalisis pasangan gaya aksi–reaksi pada interaksi antara dua benda.",
+        "subtopic": "Hukum III Newton: pasangan aksi–reaksi",
+        "cognitiveLevel": "C4"
+      },
+      {
+        "stem": "Seorang pemain rugby mendorong pemain lawan sehingga pemain lawan bergerak mundur. Pada saat yang sama, kaki pemain yang mendorong berinteraksi dengan tanah. Pernyataan yang benar adalah ....",
+        "options": [
+          "Gaya dorong pemain terhadap lawan dan gaya gesek tanah pada pemain merupakan pasangan aksi–reaksi.",
+          "Gaya pemain terhadap lawan dan gaya lawan terhadap pemain merupakan pasangan aksi–reaksi.",
+          "Gaya gesek tanah pada pemain dan berat pemain merupakan pasangan aksi–reaksi.",
+          "Gaya pemain terhadap lawan lebih besar daripada gaya lawan terhadap pemain karena pemain tersebut bergerak maju.",
+          "Gaya pemain pada lawan dan gaya gesek tanah pada pemain merupakan pasangan aksi–reaksi."
+        ],
+        "correctOption": 1,
+        "reasons": [
+          "Gaya dorong pada lawan dan gaya gesek tanah merupakan aksi-reaksi karena terjadi secara bersamaan saat pemain bergerak.",
+          "Pasangan gaya aksi-reaksi terjadi antara dua benda yang saling berinteraksi, yaitu gaya pemain pada lawan dan gaya lawan pada pemain.",
+          "Gaya berat dan gaya normal pada pemain membentuk pasangan aksi-reaksi pada satu benda yang sama.",
+          "Pemain yang bergerak maju menghasilkan gaya dorong yang lebih besar daripada gaya lawan karena pengaruh massa."
+        ],
+        "correctReason": 1,
+        "explanation": "Pasangan gaya aksi-reaksi adalah gaya yang timbul antara dua benda yang saling bersentuhan atau berinteraksi. Gaya pemain pada lawan dan gaya lawan pada pemain memenuhi syarat Hukum III Newton (sama besar, berlawanan arah, pada dua benda berbeda). Pilihan lain mencampuradukkan gaya pada satu benda atau bukan pasangan interaksi.",
+        "indicator": "Menganalisis perbedaan antara pasangan gaya aksi–reaksi dan gaya-gaya yang bekerja pada satu benda.",
+        "subtopic": "Pasangan aksi–reaksi pada interaksi dua orang",
+        "cognitiveLevel": "C4"
+      },
+      {
+        "stem": "Sebuah buku A diletakkan di atas buku B. Buku A memberikan gaya tekan pada buku B. Pada saat yang sama, buku B memberikan gaya kontak pada buku A. Pernyataan yang benar adalah ....",
+        "options": [
+          "Gaya buku A pada buku B lebih besar karena buku A berada di atas.",
+          "Gaya buku B pada buku A lebih besar karena buku B menopang buku A.",
+          "Kedua gaya sama besar, berlawanan arah, dan bekerja pada buku yang berbeda.",
+          "Kedua gaya sama besar, berlawanan arah, dan saling meniadakan pada buku B.",
+          "Gaya buku A pada buku B dan gaya buku B pada buku A sama besar dan searah."
+        ],
+        "correctOption": 2,
+        "reasons": [
+          "Buku yang lebih berat selalu memberikan gaya aksi yang lebih besar kepada buku yang lebih ringan.",
+          "Benda yang berada di bawah menopang benda di atasnya sehingga memberikan gaya kontak yang lebih besar.",
+          "Gaya tekan buku A pada buku B dan gaya kontak buku B pada buku A saling meniadakan karena bekerja pada buku yang sama.",
+          "Gaya buku A pada buku B dan gaya kontak buku B pada buku A adalah pasangan gaya aksi-reaksi yang sama besar, berlawanan arah, tetapi bekerja pada benda yang berbeda."
+        ],
+        "correctReason": 3,
+        "explanation": "Interaksi antara buku A dan buku B melibatkan gaya kontak sentuh. Berdasarkan Hukum III Newton, gaya dari buku A ke buku B dan gaya dari buku B ke buku A besarnya sama, berlawanan arah, namun bekerja pada dua benda yang berbeda (satu pada B, satu pada A).",
+        "indicator": "Menganalisis pasangan gaya kontak antara dua benda yang bersentuhan.",
+        "subtopic": "Gaya kontak dan Hukum III Newton",
+        "cognitiveLevel": "C4"
+      },
+      {
+        "stem": "Sebuah truk bermassa besar bertabrakan dengan sebuah mobil bermassa lebih kecil. Selama interaksi tumbukan, pernyataan yang benar mengenai gaya truk pada mobil dan gaya mobil pada truk adalah ....",
+        "options": [
+          "Gaya truk pada mobil lebih besar karena massa truk lebih besar.",
+          "Gaya mobil pada truk lebih besar karena mobil mengalami kerusakan lebih parah.",
+          "Kedua gaya sama besar dan berlawanan arah.",
+          "Kedua gaya sama besar dan searah karena terjadi tumbukan.",
+          "Kedua gaya bernilai nol karena saling meniadakan sebelum tumbukan selesai."
+        ],
+        "correctOption": 2,
+        "reasons": [
+          "Gaya pada kedua benda besarnya sama dan searah karena kedua benda bergerak ke arah yang sama saat bertabrakan.",
+          "Menurut Hukum III Newton, gaya interaksi antara dua benda saat bertumbukan selalu sama besar dan berlawanan arah, tidak bergantung pada massa maupun tingkat kerusakan.",
+          "Kerusakan yang lebih parah pada mobil menunjukkan bahwa mobil menerima gaya yang lebih kecil dari truk.",
+          "Kendaraan yang memiliki massa lebih besar selalu memberikan gaya interaksi yang lebih besar saat terjadi tumbukan."
+        ],
+        "correctReason": 1,
+        "explanation": "Hukum III Newton berlaku universal pada semua jenis interaksi kontak termasuk tumbukan. Truk memberikan gaya pada mobil, dan mobil memberikan gaya pada truk dengan besar yang persis sama namun berlawanan arah, terlepas dari perbedaan massa maupun tingkat kerusakan akibat deformasi.",
+        "indicator": "Mengevaluasi hubungan besar gaya interaksi antara dua benda dengan massa berbeda saat bertabrakan.",
+        "subtopic": "Gaya aksi–reaksi pada tumbukan",
+        "cognitiveLevel": "C5"
+      },
+      {
+        "stem": "Seorang pelari berlari ke depan di atas permukaan tanah yang tidak licin. Ketika berlari, kaki pelari mendorong tanah ke belakang. Gaya yang menyebabkan pelari dapat terdorong ke depan adalah ....",
+        "options": [
+          "Gaya dorong kaki pada tanah yang arahnya ke depan.",
+          "Gaya gesek tanah pada kaki pelari yang arahnya ke depan.",
+          "Gaya berat pelari yang arahnya ke depan.",
+          "Gaya normal tanah pada kaki yang arahnya ke belakang.",
+          "Gaya normal tanah pada kaki pelari yang arahnya ke depan."
+        ],
+        "correctOption": 1,
+        "reasons": [
+          "Gaya normal dari tanah pada kaki pelari bekerja ke arah depan untuk melawan hambatan udara.",
+          "Gaya gesek statis antara tanah dan kaki pelari yang arahnya ke depan adalah gaya eksternal yang mendorong pelari maju.",
+          "Gaya berat pelari yang berarah ke depan membantu mendorong tubuh pelari bergerak melintasi lintasan.",
+          "Pelari dapat maju karena adanya gaya dorong kaki pelari ke depan pada permukaan tanah."
+        ],
+        "correctReason": 1,
+        "explanation": "Pelari mendorong tanah ke belakang (aksi), sehingga berdasarkan Hukum III Newton, tanah mendorong kaki pelari ke depan (reaksi). Gaya reaksi dari tanah ini berupa gaya gesek statis antara alas sepatu dan permukaan tanah yang berarah ke depan dan berfungsi sebagai gaya pendorong eksternal.",
+        "indicator": "Menganalisis pasangan gaya antara pelari dan tanah ketika pelari bergerak maju.",
+        "subtopic": "Gaya gesek statis pada gerak berjalan/berlari",
+        "cognitiveLevel": "C4"
+      },
+      {
+        "stem": "Sebuah benda bermassa 5,0 kg dikenai tiga gaya, yaitu 10,0 N ke kanan, 2,0 N ke kiri, dan 4,0 N ke bawah. Besar percepatan benda adalah ....",
+        "options": [
+          "1,0 m/s²",
+          "1,8 m/s²",
+          "2,0 m/s²",
+          "2,4 m/s²",
+          "2,8 m/s²"
+        ],
+        "correctOption": 1,
+        "reasons": [
+          "Gaya vertikal 4,0 N tidak mempengaruhi percepatan horizontal sehingga percepatan total dihitung dari selisih gaya horizontal saja.",
+          "Percepatan dihitung dengan membagi jumlah seluruh gaya dengan massa benda, menghasilkan 1,0 m/s².",
+          "Percepatan benda diperoleh dengan mengurangkan seluruh gaya langsung tanpa memperhatikan arah vektor.",
+          "Resultan gaya pada sumbu x adalah 8,0 N ke kanan dan sumbu y adalah 4,0 N ke bawah, sehingga resultan total F = √(8² + 4²) = 8,94 N dan percepatannya 1,8 m/s²."
+        ],
+        "correctReason": 3,
+        "explanation": "Resultan gaya horizontal Fx = 10 - 2 = 8 N (ke kanan). Gaya vertikal Fy = 4 N (ke bawah). Resultan gaya total F = √(8² + 4²) = √80 ≈ 8,94 N. Percepatan a = F / m = 8,94 / 5,0 ≈ 1,79 m/s² dibulatkan menjadi 1,8 m/s².",
+        "indicator": "Menganalisis resultan gaya pada arah horizontal dan vertikal untuk menentukan besar percepatan benda.",
+        "subtopic": "Komponen gaya dan resultan gaya dua dimensi",
+        "cognitiveLevel": "C4"
+      },
+      {
+        "stem": "Sebuah balok bermassa 10,0 kg berada pada bidang horizontal licin. Balok dikenai dua gaya yang masing-masing besarnya 30,0 N. Gaya pertama bekerja mendatar ke kanan, sedangkan gaya kedua membentuk sudut 30° di bawah arah horizontal ke kanan. Besar percepatan horizontal balok adalah ....",
+        "options": [
+          "3,0 m/s²",
+          "4,0 m/s²",
+          "5,6 m/s²",
+          "6,0 m/s²",
+          "8,2 m/s²"
+        ],
+        "correctOption": 2,
+        "reasons": [
+          "Percepatan balok hanya dipengaruhi oleh gaya pertama yang mendatar karena gaya kedua membentuk sudut.",
+          "Komponen gaya kedua pada arah horizontal adalah F2 cos(30°), sehingga resultan gaya horizontal adalah F1 + F2 cos(30°) dan percepatannya 5,6 m/s².",
+          "Percepatan balok dihitung dengan mengurangkan komponen vertikal gaya terhadap massa benda.",
+          "Kedua gaya dijumlahkan secara langsung tanpa memperhitungkan arah sudut karena bekerja pada bidang licin."
+        ],
+        "correctReason": 1,
+        "explanation": "Gaya horizontal pertama F1 = 30 N ke kanan. Gaya kedua F2 = 30 N membentuk sudut 30° di bawah horizontal, komponen horizontalnya F2x = F2 cos(30°) = 30 × 0,866 = 25,98 N. Resultan gaya horizontal ΣFx = 30 + 25,98 = 55,98 N. Percepatan a = ΣFx / m = 55,98 / 10,0 = 5,598 m/s² dibulatkan menjadi 5,6 m/s².",
+        "indicator": "Menganalisis komponen gaya miring dan gaya horizontal untuk menentukan percepatan benda pada bidang licin.",
+        "subtopic": "Komponen gaya pada bidang horizontal licin",
+        "cognitiveLevel": "C4"
+      },
+      {
+        "stem": "Seekor lumba-lumba bermassa 35,0 kg bergerak mendatar dengan kecepatan 12,0 m/s. Lumba-lumba tersebut memperlambat geraknya hingga kecepatannya menjadi 7,50 m/s dalam waktu 2,30 s. Besar gaya resultan rata-rata yang bekerja pada lumba-lumba adalah ....",
+        "options": [
+          "35,0 N",
+          "52,5 N",
+          "68,5 N",
+          "105 N",
+          "157,5 N"
+        ],
+        "correctOption": 2,
+        "reasons": [
+          "Gaya rata-rata dihitung dengan mengalikan massa dengan perubahan kecepatan dibagi waktu, yaitu F = m(v - v0)/t = 35 × (7,5 - 12)/2,3 = 68,5 N.",
+          "Besar gaya resultan sama dengan hasil kali massa dan kecepatan akhir lumba-lumba.",
+          "Perlambatan tidak mempengaruhi besar gaya resultan karena massa benda bernilai konstan.",
+          "Gaya rata-rata diperoleh dengan membagi massa langsung dengan selang waktu tanpa memperhitungkan kecepatan."
+        ],
+        "correctReason": 0,
+        "explanation": "Menggunakan Hukum II Newton dan persamaan kinematika, F = m * a = m * (vt - v0) / t. Dengan m = 35,0 kg, v0 = 12,0 m/s, vt = 7,50 m/s, dan t = 2,30 s, maka F = 35,0 * (7,50 - 12,0) / 2,30 = 35,0 * (-4,5) / 2,30 ≈ -68,48 N (besar gaya 68,5 N).",
+        "indicator": "Menganalisis hubungan perubahan kecepatan, waktu, massa, dan gaya resultan pada benda yang mengalami perlambatan.",
+        "subtopic": "Gaya resultan dan perlambatan (Hukum II Newton)",
+        "cognitiveLevel": "C4"
+      },
+      {
+        "stem": "Sebuah bola bermassa 20,0 g digantung dengan tali pada langit-langit sebuah gerbong. Ketika gerbong mulai bergerak dipercepat, tali membentuk sudut 35,0° terhadap arah vertikal. Jika percepatan gravitasi 9,8 m/s², besar percepatan horizontal gerbong adalah ....",
+        "options": [
+          "4,9 m/s²",
+          "6,9 m/s²",
+          "9,8 m/s²",
+          "14,0 m/s²",
+          "17,1 m/s²"
+        ],
+        "correctOption": 1,
+        "reasons": [
+          "Percepatan gerbong dihitung menggunakan rumus a = g sin(35°) karena tali diselidiki pada bidang miring.",
+          "Besar percepatan gerbong sama dengan percepatan gravitasi dikalikan dengan cosinus sudut simpangan tali.",
+          "Sudut simpangan tali tidak dipengaruhi oleh percepatan gerbong melainkan oleh panjang tali penggantung.",
+          "Dari kesetimbangan gaya, komponen vertikal T cos(θ) = mg dan komponen horizontal T sin(θ) = ma, sehingga percepatan a = g tan(35°) = 9,8 × 0,70 = 6,9 m/s²."
+        ],
+        "correctReason": 3,
+        "explanation": "Tinjau gaya pada bola di dalam gerbong yang dipercepat. Pada sumbu vertikal: T cos(θ) = mg. Pada sumbu horizontal: T sin(θ) = ma. Membagi persamaan horizontal dengan vertikal diperoleh tan(θ) = a / g, sehingga a = g tan(35°) = 9,8 * 0,7002 ≈ 6,86 m/s² dibulatkan menjadi 6,9 m/s².",
+        "indicator": "Menganalisis hubungan sudut simpangan tali dan percepatan horizontal kendaraan berdasarkan keseimbangan gaya pada benda.",
+        "subtopic": "Hubungan percepatan kendaraan dan gaya tegangan",
+        "cognitiveLevel": "C4"
+      },
+      {
+        "stem": "Sebuah kereta roller coaster mulai bergerak dari keadaan diam di puncak lintasan lurus sepanjang 30,0 m yang membentuk sudut 20,0° terhadap horizontal. Jika gesekan diabaikan dan g = 9,8 m/s², besar percepatan kereta sepanjang lintasan adalah ....",
+        "options": [
+          "1,7 m/s²",
+          "3,4 m/s²",
+          "4,6 m/s²",
+          "9,2 m/s²",
+          "9,8 m/s²"
+        ],
+        "correctOption": 1,
+        "reasons": [
+          "Komponen gaya normal pada bidang miring adalah gaya utama yang menyebabkan kereta bergerak turun.",
+          "Percepatan dihitung dengan membagi panjang lintasan dengan waktu tempuh kuadrat pada bidang miring.",
+          "Percepatan kereta pada bidang miring ditentukan oleh komponen gaya berat sejajar bidang, yaitu a = g sin(20°) = 9,8 × 0,342 = 3,4 m/s².",
+          "Percepatan kereta sama dengan percepatan gravitasi karena bidang miring dianggap licin sempurna."
+        ],
+        "correctReason": 2,
+        "explanation": "Pada bidang miring licin, gaya yang menyebabkan benda bergerak sejajar bidang adalah komponen gaya berat sejajar bidang miring, yaitu F = mg sin(θ). Berdasarkan Hukum II Newton, ma = mg sin(θ), sehingga percepatan a = g sin(20°) = 9,8 * 0,3420 ≈ 3,35 m/s² dibulatkan menjadi 3,4 m/s².",
+        "indicator": "Menganalisis komponen gaya gravitasi sejajar bidang miring untuk menentukan percepatan benda pada bidang licin.",
+        "subtopic": "Komponen berat dan percepatan pada bidang miring licin",
+        "cognitiveLevel": "C4"
+      }
+    ]
+  },
+  {
+    "key": "fluida-dinamis",
+    "title": "Fluida Dinamis",
+    "subject": "Fisika",
+    "grade": "Kelas 11 SMA",
+    "indicator": "Menganalisis konsep fluida ideal, debit aliran, persamaan kontinuitas, Hukum Bernoulli, dan Hukum Torricelli pada berbagai sistem aliran fluida.",
+    "questions": [
+      {
+        "stem": "Suatu fluida ideal mengalir melalui pipa horizontal dengan bagian I lebar, II menyempit, III melebar, dan IV menyempit.\nPada bagian manakah tekanan paling kecil?",
+        "options": [
+          "I",
+          "II",
+          "III",
+          "IV",
+          "tekanan sama di semua bagian"
+        ],
+        "correctOption": 1,
+        "reasons": [
+          "Tekanan makin besar saat kecepatan makin besar",
+          "Tekanan makin kecil saat kecepatan makin besar",
+          "Tekanan hanya dipengaruhi massa jenis",
+          "Luas penampang tidak memengaruhi kecepatan dan tekanan."
+        ],
+        "correctReason": 1,
+        "explanation": "Berdasarkan persamaan kontinuitas, A₁v₁ = A₂v₂. Artinya, pada penampang yang lebih kecil, kecepatan aliran lebih besar. Untuk pipa horizontal, persamaan Bernoulli adalah P + ½ρv² = konstan. Dengan demikian, semakin besar kecepatan aliran, semakin kecil tekanan statisnya.",
+        "indicator": "Menganalisis hubungan luas penampang, kecepatan aliran, dan tekanan fluida ideal pada pipa horizontal.",
+        "subtopic": "Prinsip Bernoulli pada pipa horizontal",
+        "cognitiveLevel": "C4"
+      },
+      {
+        "stem": "Suatu zat cair dialirkan melalui pipa seperti pada gambar.\nJika luas penampang A₁ = 10 cm², A₂ = 4 cm², dan laju zat cair v₂ = 4 m/s. Tentukan v₁.",
+        "options": [
+          "0,6 m/s",
+          "1 m/s",
+          "1,6 m/s",
+          "2 m/s",
+          "2,4 m/s"
+        ],
+        "correctOption": 2,
+        "reasons": [
+          "Kecepatan tidak dipengaruhi luas penampang",
+          "Kecepatan sebanding dengan luas penampang",
+          "Kecepatan berbanding terbalik dengan kuadrat luas penampang.",
+          "Kecepatan berbanding terbalik dengan luas penampang."
+        ],
+        "correctReason": 3,
+        "explanation": "Persamaan kontinuitas:\nA₁v₁ = A₂v₂\n\nKecepatan pada titik 1:\nv₁ = (A₂ × v₂)/A₁\nv₁ = (4 × 4)/10\nv₁ = 16/10\nv₁ = 1,6 m/s\nAlasan: Pada aliran fluida tidak termampatkan, debit tetap. Oleh karena itu, kecepatan berbanding terbalik dengan luas penampang. Penampang yang lebih luas memiliki kecepatan lebih kecil.",
+        "indicator": "Menghitung kecepatan fluida pada penampang berbeda berdasarkan debit yang tetap.",
+        "subtopic": "Persamaan kontinuitas",
+        "cognitiveLevel": "C3"
+      },
+      {
+        "stem": "Diameter awal 5 cm, kecepatan awal 4 m/s, dan diameter penyempitan 2 cm. Kecepatan pada penyempitan adalah",
+        "options": [
+          "0,64 m/s",
+          "1,6 m/s",
+          "10 m/s",
+          "25 m/s",
+          "50 m/s"
+        ],
+        "correctOption": 3,
+        "reasons": [
+          "V sebanding dengan diameter",
+          "V berbanding terbalik dengan diameter",
+          "Kecepatan tetap.",
+          "V berbanding terbalik dengan kuadrat diameter"
+        ],
+        "correctReason": 3,
+        "explanation": "Persamaan kontinuitas:\nA₁v₁ = A₂v₂\n\nKarena luas penampang lingkaran sebanding dengan kuadrat diameter, maka:\nv₂ = v₁ × (d₁²/d₂²)\n\nv₂ = 4 × (5²/2²)\nv₂ = 4 × (25/4)\nv₂ = 25 m/s\nAlasan: Kecepatan fluida berbanding terbalik dengan kuadrat diameter pipa. Ketika diameter mengecil, kecepatan aliran meningkat.",
+        "indicator": "Menentukan kecepatan fluida pada pipa menyempit dengan menggunakan perbandingan kuadrat diameter.",
+        "subtopic": "Persamaan kontinuitas pada pipa menyempit",
+        "cognitiveLevel": "C3"
+      },
+      {
+        "stem": "Air mengalir dengan kecepatan 3 m/s pada pipa berdiameter 1 cm. Berapa kecepatannya pada pipa berdiameter 3 cm?",
+        "options": [
+          "0,11 m/s",
+          "0,33 m/s",
+          "1 m/s",
+          "3 m/s",
+          "9 m/s"
+        ],
+        "correctOption": 1,
+        "reasons": [
+          "Kecepatan hanya dipengaruhi tekanan awal",
+          "Diameter lebih besar membuat kecepatan lebih kecil karena debit tetap",
+          "Kecepatan sebanding dengan kuadrat diameter.",
+          "Diameter lebih besar membuat kecepatan lebih besar"
+        ],
+        "correctReason": 1,
+        "explanation": "Persamaan kontinuitas:\nA₁v₁ = A₂v₂\n\nKarena A sebanding dengan d²:\nv₂ = v₁ × (d₁²/d₂²)\n\nv₂ = 3 × (1²/3²)\nv₂ = 3 × 1/9\nv₂ = 0,33 m/s\n\nAlasan: Diameter pipa yang lebih besar menghasilkan luas penampang yang lebih besar. Karena debit tetap, kecepatan fluida menjadi lebih kecil.",
+        "indicator": "Menghitung kecepatan fluida saat diameter pipa membesar.",
+        "subtopic": "Persamaan kontinuitas dan diameter pipa",
+        "cognitiveLevel": "C3"
+      },
+      {
+        "stem": "Tangki diisi 40 liter bensin selama 2 menit. Jari-jari mulut pompa 1 cm. Kecepatan rata-rata bensin adalah…",
+        "options": [
+          "0,27 m/s",
+          "1,1 m/s",
+          "10 m/s",
+          "64 m/s",
+          "76 m/s"
+        ],
+        "correctOption": 1,
+        "reasons": [
+          "Kecepatan diperoleh dari debit dibagi luas penampang, yaitu v = V/(tA).",
+          "Kecepatan hanya dipengaruhi volume",
+          "Kecepatan diperoleh dengan mengalikan volume, waktu, dan luas penampang.",
+          "Debit diperoleh dari volume dibagi waktu, kemudian kecepatan diperoleh dari debit dibagi luas penampang."
+        ],
+        "correctReason": 0,
+        "explanation": "Diketahui:\nV = 40 L = 0,040 m³\nt = 2 menit = 120 s\nr = 1 cm = 0,01 m\n\nDebit:\nQ = V/t\nQ = 0,040/120\nQ = 3,33 × 10⁻⁴ m³/s\n\nLuas penampang mulut pompa:\nA = πr²\nA = π(0,01)²\nA = 3,14 × 10⁻⁴ m²\n\nKecepatan aliran:\nv = Q/A\nv = (3,33 × 10⁻⁴)/(3,14 × 10⁻⁴)\nv ≈ 1,06 m/s ≈ 1,1 m/s\nAlasan: Kecepatan diperoleh dengan membagi debit (volume per satuan waktu) dengan luas penampang.",
+        "indicator": "Menghitung kecepatan aliran dari volume, waktu, dan jari-jari penampang mulut pompa.",
+        "subtopic": "Debit dan kecepatan aliran",
+        "cognitiveLevel": "C3"
+      },
+      {
+        "stem": "Luas penampang pipa 616 cm². Kecepatan air di pipa 0,5 m/s dan waktu aliran 5 menit. Volume air yang keluar adalah…",
+        "options": [
+          "0,924 m³",
+          "1,54 m³",
+          "3,08 m³",
+          "9,24 m³",
+          "18,48 m³"
+        ],
+        "correctOption": 3,
+        "reasons": [
+          "Volume fluida dihitung dengan membagi luas penampang dengan hasil kali kecepatan dan waktu.",
+          "Volume hanya ditentukan jari-jari keran",
+          "Volume fluida dihitung dengan V = A × v × t.",
+          "Volume fluida hanya ditentukan oleh luas penampang dan waktu, tanpa memperhatikan kecepatan."
+        ],
+        "correctReason": 2,
+        "explanation": "Diketahui:\nA = 616 cm² = 0,0616 m²\nv = 0,5 m/s\nt = 5 menit = 300 s\n\nVolume fluida:\nV = A × v × t\nV = 0,0616 × 0,5 × 300\nV = 9,24 m³\nAlasan: Volume fluida yang mengalir diperoleh dari hasil kali luas penampang, kecepatan aliran, dan waktu.",
+        "indicator": "Menghitung volume fluida yang keluar selama waktu tertentu dari luas penampang pipa dan kecepatan aliran.",
+        "subtopic": "Debit dan volume fluida",
+        "cognitiveLevel": "C3"
+      },
+      {
+        "stem": "Fluida ideal mengalir horizontal. Luas penampang di titik 1 dan 2 adalah A₁ dan A₂, dengan kecepatan v₁ di titik 1. Bentuk P₂ − P₁ yang benar adalah…",
+        "options": [
+          "½ρv₁²(1 − A₁²/A₂²)",
+          "½ρv₁²",
+          "½ρv₁²(1 + A₁²/A₂²)",
+          "½ρv₁²(A₁²/A₂²)",
+          "½ρv₁²(1 − A₂²/A₁²)"
+        ],
+        "correctOption": 0,
+        "reasons": [
+          "Tekanan bertambah saat kecepatan bertambah",
+          "Beda tekanan hanya dipengaruhi luas penampang tanpa melibatkan kecepatan",
+          "Tekanan selalu sama di sepanjang pipa horizontal",
+          "Tekanan dan kecepatan berhubungan terbalik menurut Bernoulli, dan kontinuitas menentukan v₂ = v₁(A₁/A₂)"
+        ],
+        "correctReason": 3,
+        "explanation": "Untuk pipa horizontal, persamaan Bernoulli adalah:\nP₁ + ½ρv₁² = P₂ + ½ρv₂²\n\nSusun ulang untuk memperoleh beda tekanan:\nP₂ − P₁ = ½ρ(v₁² − v₂²)\n\nDari persamaan kontinuitas:\nA₁v₁ = A₂v₂\nv₂ = v₁(A₁/A₂)\n\nSubstitusikan ke persamaan Bernoulli:\nP₂ − P₁ = ½ρ[v₁² − v₁²(A₁²/A₂²)]\nP₂ − P₁ = ½ρv₁²(1 − A₁²/A₂²)\nAlasan: Persamaan Bernoulli menghubungkan tekanan dengan kecepatan, sedangkan persamaan kontinuitas digunakan untuk menentukan kecepatan di penampang kedua.",
+        "indicator": "Menentukan beda tekanan pada dua penampang pipa horizontal berdasarkan luas penampang dan kecepatan.",
+        "subtopic": "Persamaan Bernoulli dan kontinuitas",
+        "cognitiveLevel": "C4"
+      },
+      {
+        "stem": "Air mengalir ke atas melalui pipa. Diameter bawah 12 cm, diameter atas 6 cm, debit 14,4π L/s, tekanan bawah 190 kPa, dan ujung atas 2 m lebih tinggi. Dengan ρ = 1.000 kg/m³ dan g = 10 m/s², tekanan atas adalah….",
+        "options": [
+          "50 kPa",
+          "60 kPa",
+          "70 kPa",
+          "80 kPa",
+          "100 kPa"
+        ],
+        "correctOption": 0,
+        "reasons": [
+          "Tekanan selalu sama",
+          "Tekanan dipengaruhi perubahan energi kinetik dan ketinggian",
+          "Tekanan hanya dipengaruhi debit.",
+          "Tekanan lebih besar karena posisinya lebih tinggi"
+        ],
+        "correctReason": 1,
+        "explanation": "Diketahui:\nd₁ = 12 cm, sehingga r₁ = 0,06 m\nd₂ = 6 cm, sehingga r₂ = 0,03 m\nQ = 14,4π L/s = 0,0144π m³/s\nP₁ = 190.000 Pa\nρ = 1.000 kg/m³\ng = 10 m/s²\nΔh = 2 m\n\nLuas penampang:\nA₁ = πr₁² = π(0,06)² = 0,0036π m²\nA₂ = πr₂² = π(0,03)² = 0,0009π m²\n\nKecepatan aliran:\nv₁ = Q/A₁ = (0,0144π)/(0,0036π) = 4 m/s\nv₂ = Q/A₂ = (0,0144π)/(0,0009π) = 16 m/s\n\nPersamaan Bernoulli:\nP₁ + ½ρv₁² + ρgh₁ = P₂ + ½ρv₂² + ρgh₂\n\nSehingga:\nP₂ = P₁ + ½ρ(v₁² − v₂²) − ρgΔh\n\nP₂ = 190.000 + ½(1.000)(4² − 16²) − (1.000)(10)(2)\nP₂ = 190.000 − 120.000 − 20.000\nP₂ = 50.000 Pa = 50 kPa\n\nAlasan: Tekanan dipengaruhi perubahan energi kinetik aliran dan ketinggian pipa.",
+        "indicator": "Menghitung tekanan pada ujung pipa yang lebih tinggi dengan mempertimbangkan perubahan kecepatan dan ketinggian.",
+        "subtopic": "Persamaan Bernoulli pada pipa berbeda ketinggian",
+        "cognitiveLevel": "C4"
+      },
+      {
+        "stem": "Debit cairan yang keluar dari lubang dinding wadah ideal tidak bergantung pada…",
+        "options": [
+          "massa jenis cairan",
+          "ketinggian cairan di atas lubang",
+          "luas penampang lubang",
+          "percepatan gravitasi",
+          "diameter lubang"
+        ],
+        "correctOption": 0,
+        "reasons": [
+          "Debit hanya dipengaruhi tekanan atmosfer",
+          "Debit sebanding dengan massa jenis cairan",
+          "Q = A√(2gh), sehingga debit dipengaruhi luas lubang, gravitasi, dan tinggi kolom cairan, bukan massa jenis",
+          "Debit tidak dipengaruhi ukuran lubang maupun tinggi cairan"
+        ],
+        "correctReason": 2,
+        "explanation": "Menurut Hukum Torricelli:\nv = √(2gh)\n\nDebit adalah:\nQ = Av\nQ = A√(2gh)\nPersamaan tersebut menunjukkan bahwa debit dipengaruhi oleh luas lubang, percepatan gravitasi, dan kedalaman atau tinggi permukaan cairan di atas lubang. Massa jenis tidak muncul dalam persamaan karena saling menghilangkan ketika persamaan Bernoulli diturunkan untuk kondisi ideal.\nAlasan: Debit ideal Q = A√(2gh), sehingga tidak bergantung pada massa jenis cairan.",
+        "indicator": "Mengidentifikasi besaran yang tidak memengaruhi debit ideal yang keluar dari lubang wadah.",
+        "subtopic": "Hukum Torricelli dan debit lubang",
+        "cognitiveLevel": "C2"
+      },
+      {
+        "stem": "Tinggi permukaan air 7 m dari tanah, sedangkan keran berada 2 m dari tanah. Jika g = 10 m/s², kecepatan air keluar adalah…",
+        "options": [
+          "6,3 m/s",
+          "10 m/s",
+          "11,8 m/s",
+          "12 m/s",
+          "15,5 m/s"
+        ],
+        "correctOption": 1,
+        "reasons": [
+          "V = √(2gh), dengan h selisih tinggi permukaan air dan lubang",
+          "Kecepatan hanya dipengaruhi oleh luas lubang",
+          "Kecepatan keluar hanya bergantung pada tinggi keran dari tanah",
+          "Kecepatan keluar hanya bergantung pada tinggi tangki dari tanah"
+        ],
+        "correctReason": 0,
+        "explanation": "Diketahui:\nKetinggian permukaan air = 7 m\nKetinggian keran = 2 m\ng = 10 m/s²\n\nSelisih ketinggian:\nh = 7 − 2 = 5 m\n\nHukum Torricelli:\nv = √(2gh)\nv = √(2 × 10 × 5)\nv = √100\nv = 10 m/s\nAlasan: Kecepatan keluarnya air ditentukan oleh v = √(2gh), dengan h merupakan selisih ketinggian permukaan air dan lubang, bukan ketinggian tangki dari tanah.",
+        "indicator": "Menghitung kecepatan keluarnya air berdasarkan selisih ketinggian permukaan air dan lubang.",
+        "subtopic": "Hukum Torricelli",
+        "cognitiveLevel": "C3"
+      },
+      {
+        "stem": "Air dalam tangki terbuka setinggi 6 m. Lubang berada 3 m di bawah permukaan air, sehingga 3 m di atas tanah. Jarak horizontal air dari kaki tangki adalah….",
+        "options": [
+          "2 m",
+          "4 m",
+          "6 m",
+          "8 m",
+          "10 m"
+        ],
+        "correctOption": 2,
+        "reasons": [
+          "Jarak horizontal hanya dipengaruhi waktu jatuh",
+          "Jarak pancaran selalu sama dengan tinggi air total",
+          "R = v·t, dengan v = √(2gh) dari Hukum Torricelli dan t = √(2y/g) dari gerak jatuh bebas",
+          "Jarak pancaran hanya dipengaruhi kedalaman lubang"
+        ],
+        "correctReason": 2,
+        "explanation": "Diketahui:\nKedalaman lubang dari permukaan air = 3 m\nKetinggian lubang dari tanah = 3 m\ng = 10 m/s²\n\nKecepatan air saat keluar (Hukum Torricelli):\nv = √(2gh)\nv = √(2 × 10 × 3)\nv = √60 m/s\n\nWaktu jatuh air:\ny = ½gt²\nt = √(2y/g)\nt = √(2 × 3/10)\nt = √0,6 s\n\nJarak horizontal:\nR = v × t\nR = √60 × √0,6\nR = √36\nR = 6 m\nAlasan: Kecepatan horizontal air ditentukan oleh kedalaman lubang dari permukaan air, sedangkan waktu jatuh ditentukan oleh ketinggian lubang dari tanah.",
+        "indicator": "Menentukan jarak horizontal pancaran air dengan menggabungkan hukum Torricelli dan gerak jatuh bebas.",
+        "subtopic": "Gerak horizontal pancaran air",
+        "cognitiveLevel": "C4"
+      },
+      {
+        "stem": "Wadah berisi air setinggi h. Lubang pertama berada pada kedalaman h/2 dari permukaan dan pancarannya mencapai tanah sejauh 120 cm.\nJika lubang berada pada kedalaman h/3 dari permukaan, jarak pancarannya adalah…",
+        "options": [
+          "80 cm",
+          "100 cm",
+          "113 cm",
+          "120 cm",
+          "160 cm"
+        ],
+        "correctOption": 2,
+        "reasons": [
+          "Jarak pancaran hanya bergantung pada kedalaman lubang dari permukaan",
+          "Jarak pancaran tidak bergantung pada tinggi lubang dari tanah",
+          "Jarak pancaran selalu tetap pada kedalaman berapa pun",
+          "R = v·t; kecepatan keluar bergantung pada kedalaman lubang dari permukaan dan waktu jatuh bergantung pada tinggi lubang dari tanah"
+        ],
+        "correctReason": 3,
+        "explanation": "Berdasarkan Hukum Torricelli, kecepatan air keluar pada kedalaman d adalah v = √(2gd), dan waktu jatuh dari ketinggian y di atas tanah adalah t = √(2y/g), sehingga jarak pancaran R = v·t = 2√(d·y).\n\n1. Kondisi pertama (lubang pada kedalaman h/2 dan ketinggian h/2): R₁ = 2√((h/2)(h/2)) = h = 120 cm, sehingga tinggi total air h = 120 cm.\n2. Kondisi kedua (lubang pada kedalaman h/3 = 40 cm dan ketinggian dari tanah y = 2h/3 = 80 cm): R₂ = 2√(40 × 80) = 2√3200 ≈ 113,1 cm ≈ 113 cm.",
+        "indicator": "Menganalisis perubahan jarak pancaran ketika kedalaman lubang berubah, dengan memperhitungkan kecepatan keluar dan waktu jatuh.",
+        "subtopic": "Gerak horizontal pancaran air dan posisi lubang",
+        "cognitiveLevel": "C4"
+      },
+      {
+        "stem": "Ketika angin bertiup kencang melewati bagian atas atap rumah, tekanan udara di atas atap dapat menjadi lebih rendah daripada tekanan udara di dalam rumah. Penjelasan yang paling tepat adalah ....",
+        "options": [
+          "Udara yang bergerak lebih cepat memiliki tekanan lebih rendah",
+          "Udara yang bergerak lebih cepat memiliki tekanan lebih tinggi",
+          "Tekanan udara tidak berhubungan dengan kecepatan",
+          "Massa jenis udara selalu bertambah saat angin kencang.",
+          "Udara yang bergerak lebih lambat memiliki tekanan lebih rendah"
+        ],
+        "correctOption": 0,
+        "reasons": [
+          "Atap menarik udara sehingga tekanan turun.",
+          "Menurut prinsip Bernoulli, pada kondisi aliran ideal, kenaikan kecepatan aliran berkaitan dengan penurunan tekanan",
+          "Tekanan hanya dipengaruhi suhu",
+          "Udara yang bergerak cepat menumpuk sehingga tekanannya naik"
+        ],
+        "correctReason": 1,
+        "explanation": "Prinsip Bernoulli menyatakan bahwa pada aliran ideal sepanjang garis arus, jumlah tekanan statis, energi kinetik per satuan volume, dan energi potensial per satuan volume bernilai tetap. Untuk ketinggian yang hampir sama:\nP + ½ρv² = konstan\nJika kecepatan udara di atas atap meningkat, tekanan statisnya dapat menurun. Perbedaan tekanan antara bagian dalam dan luar rumah dapat menimbulkan gaya pada atap.",
+        "indicator": "Menjelaskan hubungan antara kecepatan aliran fluida dan tekanan berdasarkan prinsip Bernoulli.",
+        "subtopic": "Prinsip Bernoulli dalam kehidupan sehari-hari",
+        "cognitiveLevel": "C2"
+      },
+      {
+        "stem": "Dalam menyelesaikan persoalan fluida dinamis, air sering dimodelkan sebagai fluida ideal. Pernyataan yang paling tepat tentang model fluida ideal adalah ....",
+        "options": [
+          "Fluida tidak termampatkan dan tidak memiliki viskositas",
+          "Fluida selalu diam",
+          "Massa jenis fluida selalu berubah",
+          "Fluida harus mengalir dalam pipa yang menyempit.",
+          "Fluida selalu mengalir dengan kecepatan yang sama di setiap titik"
+        ],
+        "correctOption": 0,
+        "reasons": [
+          "Fluida ideal selalu memiliki tekanan nol",
+          "Model ideal menyederhanakan analisis dengan menganggap massa jenis tetap dan mengabaikan gesekan internal fluida",
+          "Fluida ideal berarti tidak memiliki massa",
+          "Fluida ideal hanya dapat mengalir ke bawah."
+        ],
+        "correctReason": 1,
+        "explanation": "Fluida ideal dimodelkan sebagai fluida yang tidak termampatkan sehingga massa jenisnya tetap, serta tidak memiliki viskositas atau kekentalan yang diperhitungkan. Dalam penerapan dasar, aliran juga sering diasumsikan tunak. Asumsi tersebut menyederhanakan analisis menggunakan persamaan kontinuitas dan Bernoulli.",
+        "indicator": "Mengidentifikasi karakteristik fluida ideal yang digunakan dalam penerapan persamaan kontinuitas dan Bernoulli.",
+        "subtopic": "Asumsi fluida ideal",
+        "cognitiveLevel": "C2"
+      },
+      {
+        "stem": "Air mengalir secara tunak melalui pipa yang mula-mula lebar lalu menyempit. Jika air dianggap tidak termampatkan, pernyataan yang benar adalah ....",
+        "options": [
+          "Kecepatan air meningkat di bagian sempit",
+          "Kecepatan air menurun di bagian sempit",
+          "Kecepatan air sama di semua bagian meskipun luas penampang berbeda",
+          "Air berhenti sesaat ketika memasuki bagian sempit",
+          "Debit air bertambah ketika melewati bagian pipa yang sempit"
+        ],
+        "correctOption": 0,
+        "reasons": [
+          "Massa jenis air meningkat tajam di bagian sempit.",
+          "Air bertambah banyak ketika memasuki bagian sempit",
+          "Tekanan selalu menentukan bahwa kecepatan harus tetap",
+          "Debit tetap, sehingga luas penampang yang lebih kecil harus diimbangi oleh kecepatan yang lebih besar"
+        ],
+        "correctReason": 3,
+        "explanation": "Persamaan kontinuitas untuk aliran tunak fluida tidak termampatkan:\nA₁v₁ = A₂v₂ = konstan\n\nKetika luas penampang pipa mengecil, kecepatan aliran harus meningkat agar debit tetap. Dengan demikian, air mengalir lebih cepat pada bagian pipa yang sempit. Untuk pipa horizontal ideal, peningkatan kecepatan tersebut diikuti penurunan tekanan statis.",
+        "indicator": "Menjelaskan mengapa kecepatan aliran meningkat pada bagian pipa yang lebih sempit untuk aliran tunak fluida tidak termampatkan.",
+        "subtopic": "Debit dan persamaan kontinuitas secara kualitatif",
+        "cognitiveLevel": "C2"
+      },
+      {
+        "stem": "Fluida ideal mengalir melalui pipa horizontal dengan luas penampang kiri A₁ dan kecepatan v₁, sedangkan luas penampang kanan A₂. Beda tekanan P₂ − P₁ adalah ....",
+        "options": [
+          "½ρv₁²(1 − A₁²/A₂²)",
+          "½ρv₁²",
+          "½ρv₁²(1 + A₁²/A₂²)",
+          "½ρv₁²(A₁²/A₂²)",
+          "½ρv₁²(1 − A₂²/A₁²)"
+        ],
+        "correctOption": 0,
+        "reasons": [
+          "Beda tekanan hanya ditentukan oleh luas penampang.",
+          "Tekanan di kedua ujung pipa selalu sama.",
+          "Bernoulli menghubungkan tekanan dan kecepatan, sedangkan kontinuitas menyatakan v₂ = v₁A₁/A₂.",
+          "Tekanan bertambah ketika kecepatan bertambah."
+        ],
+        "correctReason": 2,
+        "explanation": "Untuk fluida ideal yang mengalir melalui pipa horizontal (h₁ = h₂), persamaan Bernoulli adalah:\nP₁ + ½ρv₁² = P₂ + ½ρv₂²\nP₂ − P₁ = ½ρ(v₁² − v₂²)\n\nDari persamaan kontinuitas A₁v₁ = A₂v₂, diperoleh v₂ = v₁(A₁/A₂). Substitusikan ke persamaan Bernoulli:\nP₂ − P₁ = ½ρ[v₁² − v₁²(A₁²/A₂²)] = ½ρv₁²(1 − A₁²/A₂²).",
+        "indicator": "Menganalisis hubungan luas penampang, kecepatan aliran, dan beda tekanan pada pipa horizontal.",
+        "subtopic": "Persamaan Bernoulli pada pipa horizontal",
+        "cognitiveLevel": "C4"
+      },
+      {
+        "stem": "Air mengalir ke atas melalui pipa. Diameter bawah 12 cm, diameter atas 6 cm, debit 14,4π L/s, tekanan bawah 190 kPa, dan ujung atas 2 m lebih tinggi. Jika ρ = 1.000 kg/m³ dan g = 10 m/s², tekanan di ujung atas adalah ....",
+        "options": [
+          "50 kPa",
+          "60 kPa",
+          "70 kPa",
+          "80 kPa",
+          "100 kPa"
+        ],
+        "correctOption": 0,
+        "reasons": [
+          "Tekanan dipengaruhi perubahan energi kinetik aliran dan ketinggian.",
+          "Tekanan lebih besar karena ujung atas lebih tinggi.",
+          "Tekanan di semua titik pipa selalu sama.",
+          "Tekanan hanya dipengaruhi debit."
+        ],
+        "correctReason": 0,
+        "explanation": "Diketahui d₁ = 12 cm (r₁ = 0,06 m), d₂ = 6 cm (r₂ = 0,03 m), Q = 14,4π L/s = 0,0144π m³/s, P₁ = 190 kPa = 190.000 Pa, Δh = 2 m, ρ = 1.000 kg/m³, dan g = 10 m/s².\n\n1. Luas penampang & kecepatan:\nA₁ = π(0,06)² = 0,0036π m² → v₁ = Q/A₁ = 4 m/s\nA₂ = π(0,03)² = 0,0009π m² → v₂ = Q/A₂ = 16 m/s\n\n2. Persamaan Bernoulli:\nP₂ = P₁ + ½ρ(v₁² − v₂²) − ρgΔh\nP₂ = 190.000 + ½(1.000)(4² − 16²) − (1.000)(10)(2)\nP₂ = 190.000 − 120.000 − 20.000 = 50.000 Pa = 50 kPa.",
+        "indicator": "Menghitung tekanan pada ujung pipa yang lebih tinggi dengan mempertimbangkan perubahan kecepatan dan ketinggian.",
+        "subtopic": "Persamaan Bernoulli pada pipa berbeda ketinggian",
+        "cognitiveLevel": "C4"
+      },
+      {
+        "stem": "Debit cairan yang keluar dari sebuah lubang pada dinding wadah tidak bergantung pada ....",
+        "options": [
+          "Massa jenis cairan",
+          "Ketinggian cairan di atas lubang",
+          "Luas penampang lubang",
+          "Percepatan gravitasi",
+          "Diameter lubang"
+        ],
+        "correctOption": 0,
+        "reasons": [
+          "Debit tidak dipengaruhi ukuran lubang atau tinggi cairan.",
+          "Debit ideal Q = A√(2gh), sehingga dipengaruhi luas lubang, gravitasi, dan tinggi cairan, tetapi tidak bergantung pada massa jenis.",
+          "Debit hanya dipengaruhi tekanan atmosfer.",
+          "Debit berbanding lurus dengan massa jenis cairan."
+        ],
+        "correctReason": 1,
+        "explanation": "Hukum Torricelli menyatakan v = √(2gh), sehingga debit Q = Av = A√(2gh). Massa jenis tidak muncul dalam persamaan debit karena saling menghilangkan pada penurunan persamaan Bernoulli untuk kondisi ideal.",
+        "indicator": "Mengidentifikasi besaran yang tidak memengaruhi debit aliran ideal yang keluar dari lubang wadah.",
+        "subtopic": "Hukum Torricelli dan debit lubang",
+        "cognitiveLevel": "C2"
+      },
+      {
+        "stem": "Permukaan air pada tangki terbuka berada 7 m di atas tanah, sedangkan keran berada 2 m di atas tanah.\nJika g = 10 m/s², kecepatan air keluar dari keran adalah ....",
+        "options": [
+          "6,3 m/s",
+          "10 m/s",
+          "11,8 m/s",
+          "12 m/s",
+          "15,5 m/s"
+        ],
+        "correctOption": 1,
+        "reasons": [
+          "Kecepatan tidak dipengaruhi perbedaan ketinggian.",
+          "Kecepatan ditentukan oleh v = √(2gh), dengan h selisih ketinggian permukaan air dan lubang.",
+          "Kecepatan hanya bergantung pada tinggi tangki dari tanah.",
+          "Kecepatan hanya bergantung pada tinggi keran dari tanah."
+        ],
+        "correctReason": 1,
+        "explanation": "Berdasarkan Hukum Torricelli, kecepatan keluarnya air ditentukan oleh selisih ketinggian permukaan air terhadap lubang (h = 7 - 2 = 5 m):\nv = √(2gh) = √(2 × 10 × 5) = √100 = 10 m/s.",
+        "indicator": "Menghitung kecepatan keluarnya air berdasarkan selisih ketinggian permukaan air dan lubang.",
+        "subtopic": "Hukum Torricelli",
+        "cognitiveLevel": "C3"
+      },
+      {
+        "stem": "Tangki terbuka berisi air hingga ketinggian 6 m dari tanah. Lubang berada 3 m di bawah permukaan air, sehingga 3 m di atas tanah. Jarak horizontal pancaran air dari kaki tangki adalah ....",
+        "options": [
+          "2 m",
+          "4 m",
+          "6 m",
+          "8 m",
+          "10 m"
+        ],
+        "correctOption": 2,
+        "reasons": [
+          "Jarak horizontal selalu sama dengan tinggi permukaan air.",
+          "Jarak tidak dipengaruhi waktu jatuh air.",
+          "Jarak hanya dipengaruhi kedalaman lubang dari permukaan.",
+          "Kecepatan keluar ditentukan kedalaman lubang dari permukaan air, sedangkan waktu jatuh ditentukan ketinggian lubang dari tanah."
+        ],
+        "correctReason": 3,
+        "explanation": "1. Kecepatan keluar air dari kedalaman h = 3 m: v = √(2gh) = √(2 × 10 × 3) = √60 m/s.\n2. Waktu jatuh dari ketinggian y = 3 m di atas tanah: t = √(2y/g) = √(2 × 3 / 10) = √0,6 s.\n3. Jarak horizontal pancaran air: R = v × t = √60 × √0,6 = √36 = 6 m.",
+        "indicator": "Menentukan jarak horizontal pancaran air dengan menggabungkan hukum Torricelli dan gerak jatuh bebas.",
+        "subtopic": "Gerak horizontal pancaran air",
+        "cognitiveLevel": "C4"
+      }
+    ]
+  }
+]

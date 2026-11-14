@@ -11,7 +11,7 @@ function roleHome(role: UserRole) {
 }
 
 function areaFor(pathname: string): UserRole | "public" {
-  if (pathname === "/login" || pathname.startsWith("/login/")) return "public";
+  if (pathname === "/login" || pathname.startsWith("/login/") || pathname === "/register" || pathname.startsWith("/register/")) return "public";
   if (pathname.startsWith("/teacher")) return "teacher";
   if (pathname.startsWith("/admin")) return "admin";
   return "student";
@@ -72,9 +72,16 @@ export async function proxy(request: NextRequest) {
   // If not authenticated:
   if (!user) {
     if (area === "public") return response;
+    if (pathname.startsWith("/api/")) {
+      return NextResponse.json({ error: "Sesi berakhir. Silakan masuk kembali." }, { status: 401 });
+    }
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     return NextResponse.redirect(url);
+  }
+
+  if (pathname.startsWith("/api/")) {
+    return response;
   }
 
   // If authenticated:
@@ -125,3 +132,4 @@ export async function proxy(request: NextRequest) {
 export const config = {
   matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
 };
+
